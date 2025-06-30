@@ -64,7 +64,37 @@ rinnovo_casa/
 └── manage.py              # Django management script
 ```
 
-## 🛠 Installation & Setup
+## � Quick Deploy to Heroku
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://dashboard.heroku.com/new?template=https://github.com/Ednajm/Ednajm.github.io)
+
+### Manual Heroku Deployment
+
+1. **Create Heroku App**
+   ```bash
+   heroku create your-app-name
+   ```
+
+2. **Set Environment Variables**
+   ```bash
+   heroku config:set SECRET_KEY="your-secret-key"
+   heroku config:set DEBUG=False
+   ```
+
+3. **Deploy**
+   ```bash
+   git push heroku main
+   heroku run python manage.py migrate
+   heroku run python manage.py createsuperuser
+   ```
+
+### Railway Deployment
+
+1. Connect your GitHub repository to [Railway](https://railway.app)
+2. Set environment variables in Railway dashboard
+3. Deploy automatically from GitHub
+
+## �🛠 Installation & Setup
 
 ### Prerequisites
 - Python 3.9+

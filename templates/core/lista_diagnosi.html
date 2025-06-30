@@ -1,0 +1,477 @@
+{% extends 'base.html' %}
+
+{% block title %}Le Mie Diagnosi - RinnovoCasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .diagnosi-list-container {
+        padding: 2rem 0;
+        min-height: 80vh;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 3rem;
+        border-radius: 24px;
+        text-align: center;
+    }
+
+    .diagnosi-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .diagnosi-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .status-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-in_elaborazione {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        color: white;
+    }
+
+    .status-completata {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+    }
+
+    .status-errore {
+        background: linear-gradient(135deg, #dc3545, #e74c3c);
+        color: white;
+    }
+
+    .diagnosi-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .diagnosi-preview {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    .preview-image {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .diagnosi-content h4 {
+        color: var(--primary-color);
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .diagnosi-summary {
+        color: #6c757d;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-view {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border: none;
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-view:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: transparent;
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    .btn-secondary:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #6c757d;
+    }
+
+    .empty-icon {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #e9ecef, #f8f9fa);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        font-size: 3rem;
+        color: #adb5bd;
+    }
+
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 3rem;
+    }
+
+    .pagination {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50px;
+        padding: 0.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-link {
+        border: none;
+        color: var(--primary-color);
+        border-radius: 50px;
+        margin: 0 0.2rem;
+        transition: all 0.3s ease;
+    }
+
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border: none;
+    }
+
+    .filter-bar {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .filter-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .diagnosi-preview {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container diagnosi-list-container">
+    <!-- Header -->
+    <div class="page-header">
+        <h1 class="mb-3">
+            <i class="fas fa-list-alt"></i>
+            Le Mie Diagnosi
+        </h1>
+        <p class="lead mb-0">Visualizza e gestisci tutte le diagnosi dei tuoi immobili</p>
+    </div>
+
+    <!-- Filtri -->
+    <div class="filter-bar">
+        <div class="filter-item">
+            <label for="statusFilter" class="form-label mb-0">Stato:</label>
+            <select id="statusFilter" class="form-select">
+                <option value="">Tutti</option>
+                <option value="in_elaborazione">In Elaborazione</option>
+                <option value="completata">Completata</option>
+                <option value="errore">Errore</option>
+            </select>
+        </div>
+        <div class="filter-item">
+            <label for="sortBy" class="form-label mb-0">Ordina per:</label>
+            <select id="sortBy" class="form-select">
+                <option value="-data_creazione">Più Recenti</option>
+                <option value="data_creazione">Più Vecchie</option>
+                <option value="stato">Stato</option>
+            </select>
+        </div>
+        <div class="ms-auto">
+            <a href="{% url 'core:diagnosi' %}" class="btn-view">
+                <i class="fas fa-plus"></i>
+                Nuova Diagnosi
+            </a>
+        </div>
+    </div>
+
+    {% if page_obj %}
+        <!-- Lista Diagnosi -->
+        {% for diagnosi in page_obj %}
+        <div class="diagnosi-card" data-status="{{ diagnosi.stato }}">
+            <!-- Badge Stato -->
+            <div class="status-badge status-{{ diagnosi.stato }}">
+                {% if diagnosi.stato == 'in_elaborazione' %}
+                    <i class="fas fa-clock"></i> In Elaborazione
+                {% elif diagnosi.stato == 'completata' %}
+                    <i class="fas fa-check-circle"></i> Completata
+                {% else %}
+                    <i class="fas fa-exclamation-triangle"></i> Errore
+                {% endif %}
+            </div>
+
+            <!-- Meta Info -->
+            <div class="diagnosi-meta">
+                <div class="meta-item">
+                    <i class="fas fa-calendar"></i>
+                    {{ diagnosi.data_creazione|date:"d M Y H:i" }}
+                </div>
+                {% if diagnosi.stato == 'completata' and diagnosi.data_completamento %}
+                <div class="meta-item">
+                    <i class="fas fa-check"></i>
+                    Completata il {{ diagnosi.data_completamento|date:"d M Y" }}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Contenuto -->
+            <div class="diagnosi-preview">
+                <div>
+                    {% if diagnosi.foto_immobile %}
+                    <img src="{{ diagnosi.foto_immobile.url }}" alt="Foto immobile" class="preview-image">
+                    {% else %}
+                    <div class="preview-image d-flex align-items-center justify-content-center bg-light">
+                        <i class="fas fa-home fa-2x text-muted"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="diagnosi-content">
+                    <h4>Diagnosi Immobile</h4>
+                    
+                    {% if diagnosi.note_utente %}
+                    <div class="diagnosi-summary">
+                        {{ diagnosi.note_utente|truncatewords:20 }}
+                    </div>
+                    {% endif %}
+
+                    {% if diagnosi.stato == 'completata' %}
+                    <div class="row mb-3">
+                        {% if diagnosi.stato_generale %}
+                        <div class="col-md-6">
+                            <small class="text-muted">Stato Generale:</small><br>
+                            <strong>{{ diagnosi.get_stato_generale_display }}</strong>
+                        </div>
+                        {% endif %}
+                        {% if diagnosi.priorita_intervento %}
+                        <div class="col-md-6">
+                            <small class="text-muted">Priorità:</small><br>
+                            <strong>{{ diagnosi.get_priorita_intervento_display }}</strong>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if diagnosi.stima_costi_min and diagnosi.stima_costi_max %}
+                    <div class="mb-3">
+                        <small class="text-muted">Stima Costi:</small><br>
+                        <strong>€{{ diagnosi.stima_costi_min|floatformat:0 }} - €{{ diagnosi.stima_costi_max|floatformat:0 }}</strong>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+
+                    <div class="action-buttons">
+                        <a href="{% url 'core:dettaglio_diagnosi' diagnosi.id %}" class="btn-view">
+                            <i class="fas fa-eye"></i>
+                            {% if diagnosi.stato == 'completata' %}
+                                Visualizza Risultati
+                            {% else %}
+                                Visualizza Stato
+                            {% endif %}
+                        </a>
+                        
+                        {% if diagnosi.stato == 'completata' %}
+                        <a href="#" class="btn-view btn-secondary" onclick="downloadReport({{ diagnosi.id }})">
+                            <i class="fas fa-download"></i>
+                            Scarica Report
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Paginazione -->
+        {% if page_obj.has_other_pages %}
+        <div class="pagination-container">
+            <nav>
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+
+    {% else %}
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h3>Nessuna diagnosi ancora creata</h3>
+            <p class="mb-4">Inizia subito con la prima diagnosi del tuo immobile!</p>
+            <a href="{% url 'core:diagnosi' %}" class="btn-view">
+                <i class="fas fa-plus"></i>
+                Crea Prima Diagnosi
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusFilter = document.getElementById('statusFilter');
+    const sortBy = document.getElementById('sortBy');
+    
+    // Filtro per stato
+    statusFilter.addEventListener('change', function() {
+        filterDiagnosi();
+    });
+    
+    function filterDiagnosi() {
+        const selectedStatus = statusFilter.value;
+        const cards = document.querySelectorAll('.diagnosi-card');
+        
+        cards.forEach(card => {
+            const cardStatus = card.getAttribute('data-status');
+            
+            if (!selectedStatus || cardStatus === selectedStatus) {
+                card.style.display = 'block';
+                card.style.animation = 'slideInUp 0.3s ease forwards';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+    
+    // Animazioni scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animation = 'slideInUp 0.6s ease forwards';
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+
+    document.querySelectorAll('.diagnosi-card').forEach(el => {
+        observer.observe(el);
+    });
+});
+
+function downloadReport(diagnosiId) {
+    // Implementa download del report
+    window.location.href = `/diagnosi/${diagnosiId}/download/`;
+}
+
+// CSS per animazioni
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

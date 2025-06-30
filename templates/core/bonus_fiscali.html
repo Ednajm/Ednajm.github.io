@@ -1,0 +1,711 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bonus Fiscali - RinnovoCasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bonus-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        transition: all 0.4s ease;
+        border: 1px solid rgba(255,255,255,0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .bonus-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+    
+    .bonus-card:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .bonus-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 25px 70px rgba(0,0,0,0.15);
+    }
+    
+    .bonus-percentage {
+        font-size: 3rem;
+        font-weight: bold;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .bonus-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+    
+    .bonus-icon::after {
+        content: '';
+        position: absolute;
+        top: -5px;
+        left: -5px;
+        right: -5px;
+        bottom: -5px;
+        background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+        border-radius: 25px;
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        animation: spin 3s linear infinite;
+    }
+    
+    .bonus-card:hover .bonus-icon::after {
+        opacity: 1;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .calculator-section {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        position: relative;
+    }
+    
+    .calculator-card {
+        background: white;
+        border-radius: 25px;
+        padding: 3rem;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        position: relative;
+        z-index: 2;
+    }
+    
+    .form-floating label {
+        font-weight: 500;
+        color: #6c757d;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 15px;
+        border: 2px solid #e9ecef;
+        padding: 1rem;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .result-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        margin-top: 2rem;
+        transform: scale(0.8);
+        opacity: 0;
+        transition: all 0.5s ease;
+    }
+    
+    .result-card.show {
+        transform: scale(1);
+        opacity: 1;
+    }
+    
+    .floating-money {
+        position: absolute;
+        font-size: 2rem;
+        color: rgba(102, 126, 234, 0.1);
+        animation: float-money 8s ease-in-out infinite;
+        pointer-events: none;
+    }
+    
+    @keyframes float-money {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-30px) rotate(15deg); }
+    }
+    
+    .step-indicator {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .step-indicator .step {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .step-indicator .step.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    .step-indicator .line {
+        flex: 1;
+        height: 2px;
+        background: #e9ecef;
+        margin-right: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .step-indicator .line::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        width: 0;
+        transition: width 0.5s ease;
+    }
+    
+    .step-indicator .line.active::after {
+        width: 100%;
+    }
+    
+    .pulse-btn {
+        animation: pulse 2s infinite;
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+        }
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+        }
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-3 fw-bold mb-4">
+                    Bonus Fiscali 2025
+                </h1>
+                <p class="lead mb-4">
+                    Scopri tutti i bonus fiscali disponibili per la ristrutturazione 
+                    della tua casa. Calcola subito quanto puoi risparmiare!
+                </p>
+                <a href="#calcolatore" class="btn btn-light btn-lg pulse-btn">
+                    <i class="fas fa-calculator me-2"></i>Calcola Subito
+                </a>
+            </div>
+            <div class="col-lg-6">
+                <div class="text-center position-relative">
+                    <i class="fas fa-percentage" style="font-size: 10rem; opacity: 0.3;"></i>
+                    <div class="floating-money" style="top: 10%; left: 20%;">💰</div>
+                    <div class="floating-money" style="top: 30%; right: 10%; animation-delay: 2s;">💵</div>
+                    <div class="floating-money" style="bottom: 20%; left: 10%; animation-delay: 4s;">💳</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Bonus Available -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center mb-5">
+                <h2 class="display-4 fw-bold mb-3">Bonus Disponibili 2025</h2>
+                <p class="lead text-muted">Tutte le agevolazioni fiscali per la tua casa</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Superbonus -->
+            <div class="col-lg-4 col-md-6">
+                <div class="bonus-card h-100">
+                    <div class="bonus-icon mx-auto">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <span class="bonus-percentage">110%</span>
+                    <h4 class="fw-bold mb-3">Superbonus</h4>
+                    <p class="text-muted mb-4">
+                        Detrazione del 110% per interventi di efficienza energetica 
+                        e sicurezza sismica.
+                    </p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Cappotto termico</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Caldaia a condensazione</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Pannelli solari</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Infissi</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Bonus Casa -->
+            <div class="col-lg-4 col-md-6">
+                <div class="bonus-card h-100">
+                    <div class="bonus-icon mx-auto">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <span class="bonus-percentage">50%</span>
+                    <h4 class="fw-bold mb-3">Bonus Casa</h4>
+                    <p class="text-muted mb-4">
+                        Detrazione del 50% per ristrutturazioni edilizie 
+                        fino a €96.000.
+                    </p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Rifacimento bagno</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Rifacimento cucina</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Pavimenti</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Impianti</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Ecobonus -->
+            <div class="col-lg-4 col-md-6">
+                <div class="bonus-card h-100">
+                    <div class="bonus-icon mx-auto">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <span class="bonus-percentage">65%</span>
+                    <h4 class="fw-bold mb-3">Ecobonus</h4>
+                    <p class="text-muted mb-4">
+                        Detrazione del 65% per interventi di risparmio energetico 
+                        e riqualificazione.
+                    </p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Caldaie efficienti</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Pompe di calore</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Isolamento termico</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Schermature solari</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Bonus Mobili -->
+            <div class="col-lg-4 col-md-6">
+                <div class="bonus-card h-100">
+                    <div class="bonus-icon mx-auto">
+                        <i class="fas fa-couch"></i>
+                    </div>
+                    <span class="bonus-percentage">50%</span>
+                    <h4 class="fw-bold mb-3">Bonus Mobili</h4>
+                    <p class="text-muted mb-4">
+                        Detrazione del 50% per acquisto mobili ed elettrodomestici 
+                        fino a €16.000.
+                    </p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Mobili nuovi</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Elettrodomestici A+</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Arredi fissi</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Cucine componibili</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Bonus Barriere -->
+            <div class="col-lg-4 col-md-6">
+                <div class="bonus-card h-100">
+                    <div class="bonus-icon mx-auto">
+                        <i class="fas fa-wheelchair"></i>
+                    </div>
+                    <span class="bonus-percentage">75%</span>
+                    <h4 class="fw-bold mb-3">Bonus Barriere</h4>
+                    <p class="text-muted mb-4">
+                        Detrazione del 75% per eliminazione barriere architettoniche 
+                        fino a €96.000.
+                    </p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Ascensori</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Rampe</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Servoscala</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Bagni accessibili</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Bonus Verde -->
+            <div class="col-lg-4 col-md-6">
+                <div class="bonus-card h-100">
+                    <div class="bonus-icon mx-auto">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <span class="bonus-percentage">36%</span>
+                    <h4 class="fw-bold mb-3">Bonus Verde</h4>
+                    <p class="text-muted mb-4">
+                        Detrazione del 36% per sistemazione a verde di aree scoperte 
+                        fino a €5.000.
+                    </p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Giardini</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Terrazze</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Irrigazione</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Pozzi</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Calcolatore -->
+<section id="calcolatore" class="calculator-section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="calculator-card">
+                    <div class="text-center mb-4">
+                        <h2 class="display-5 fw-bold mb-3">Calcolatore Bonus</h2>
+                        <p class="lead text-muted">Calcola subito quanto puoi risparmiare</p>
+                    </div>
+                    
+                    <!-- Step Indicator -->
+                    <div class="step-indicator">
+                        <div class="step active" id="step1">1</div>
+                        <div class="line" id="line1"></div>
+                        <div class="step" id="step2">2</div>
+                        <div class="line" id="line2"></div>
+                        <div class="step" id="step3">3</div>
+                    </div>
+                    
+                    <form id="bonusCalculator">
+                        <!-- Step 1: Tipo di intervento -->
+                        <div class="calculator-step" id="calc-step-1">
+                            <h4 class="mb-4">Che tipo di intervento vuoi fare?</h4>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="tipoIntervento" required>
+                                            <option value="">Seleziona intervento</option>
+                                            <option value="ristrutturazione">Ristrutturazione generale</option>
+                                            <option value="efficienza">Efficienza energetica</option>
+                                            <option value="sismica">Adeguamento sismico</option>
+                                            <option value="barriere">Eliminazione barriere</option>
+                                            <option value="verde">Sistemazione verde</option>
+                                        </select>
+                                        <label for="tipoIntervento">Tipo di intervento</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="importoLavori" placeholder="0" required>
+                                        <label for="importoLavori">Importo totale lavori (€)</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-4">
+                                <button type="button" class="btn btn-primary btn-lg" onclick="nextStep(2)">
+                                    Continua <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 2: Dettagli casa -->
+                        <div class="calculator-step d-none" id="calc-step-2">
+                            <h4 class="mb-4">Dettagli della tua casa</h4>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="tipoCasa" required>
+                                            <option value="">Seleziona tipo</option>
+                                            <option value="appartamento">Appartamento</option>
+                                            <option value="villa">Villa/Casa singola</option>
+                                            <option value="villetta">Villetta a schiera</option>
+                                        </select>
+                                        <label for="tipoCasa">Tipo di immobile</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="superficieCasa" placeholder="0" required>
+                                        <label for="superficieCasa">Superficie (mq)</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="annoCostruzione" required>
+                                            <option value="">Anno di costruzione</option>
+                                            <option value="2010">Dopo il 2010</option>
+                                            <option value="1990">1990-2010</option>
+                                            <option value="1970">1970-1990</option>
+                                            <option value="1950">Prima del 1970</option>
+                                        </select>
+                                        <label for="annoCostruzione">Anno di costruzione</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="classeEnergetica" required>
+                                            <option value="">Classe energetica attuale</option>
+                                            <option value="A">A (ottima)</option>
+                                            <option value="B">B (buona)</option>
+                                            <option value="C">C (media)</option>
+                                            <option value="D">D (scarsa)</option>
+                                            <option value="E">E o inferiore</option>
+                                        </select>
+                                        <label for="classeEnergetica">Classe energetica</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-4">
+                                <button type="button" class="btn btn-outline-primary me-2" onclick="prevStep(1)">
+                                    <i class="fas fa-arrow-left me-2"></i>Indietro
+                                </button>
+                                <button type="button" class="btn btn-primary btn-lg" onclick="nextStep(3)">
+                                    Continua <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 3: Situazione fiscale -->
+                        <div class="calculator-step d-none" id="calc-step-3">
+                            <h4 class="mb-4">La tua situazione fiscale</h4>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="redditoAnnuo" required>
+                                            <option value="">Reddito annuo</option>
+                                            <option value="15000">Fino a 15.000€</option>
+                                            <option value="28000">15.000€ - 28.000€</option>
+                                            <option value="50000">28.000€ - 50.000€</option>
+                                            <option value="75000">50.000€ - 75.000€</option>
+                                            <option value="100000">Oltre 75.000€</option>
+                                        </select>
+                                        <label for="redditoAnnuo">Reddito annuo lordo</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="modalitaPagamento" required>
+                                            <option value="">Modalità di pagamento</option>
+                                            <option value="detrazione">Detrazione in 10 anni</option>
+                                            <option value="sconto">Sconto in fattura</option>
+                                            <option value="cessione">Cessione del credito</option>
+                                        </select>
+                                        <label for="modalitaPagamento">Modalità preferita</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-4">
+                                <button type="button" class="btn btn-outline-primary me-2" onclick="prevStep(2)">
+                                    <i class="fas fa-arrow-left me-2"></i>Indietro
+                                </button>
+                                <button type="button" class="btn btn-success btn-lg pulse-btn" onclick="calculateBonus()">
+                                    <i class="fas fa-calculator me-2"></i>Calcola Risparmio
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <!-- Risultato -->
+                    <div class="result-card" id="risultato">
+                        <h3 class="mb-3">Il tuo risparmio</h3>
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <h4 class="mb-1">Detrazione</h4>
+                                <div class="h2 fw-bold" id="percentualeBonus">0%</div>
+                            </div>
+                            <div class="col-md-4">
+                                <h4 class="mb-1">Risparmio Totale</h4>
+                                <div class="h2 fw-bold" id="risparmioTotale">€0</div>
+                            </div>
+                            <div class="col-md-4">
+                                <h4 class="mb-1">Costo Effettivo</h4>
+                                <div class="h2 fw-bold" id="costoEffettivo">€0</div>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <a href="{% url 'core:pacchetti' %}" class="btn btn-light btn-lg">
+                                <i class="fas fa-rocket me-2"></i>Trova il Pacchetto Giusto
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h2 class="fw-bold mb-3">Hai bisogno di aiuto?</h2>
+                <p class="lead mb-0">
+                    I nostri esperti sono a tua disposizione per aiutarti a ottenere 
+                    tutti i bonus fiscali disponibili.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{% url 'core:contatti' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-phone me-2"></i>Richiedi Consulenza
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentStep = 1;
+
+function nextStep(step) {
+    // Validate current step
+    const currentStepEl = document.getElementById(`calc-step-${currentStep}`);
+    const inputs = currentStepEl.querySelectorAll('input[required], select[required]');
+    let valid = true;
+    
+    inputs.forEach(input => {
+        if (!input.value) {
+            input.classList.add('is-invalid');
+            valid = false;
+        } else {
+            input.classList.remove('is-invalid');
+        }
+    });
+    
+    if (!valid) return;
+    
+    // Hide current step
+    currentStepEl.classList.add('d-none');
+    
+    // Show next step
+    document.getElementById(`calc-step-${step}`).classList.remove('d-none');
+    
+    // Update step indicator
+    document.getElementById(`step${step}`).classList.add('active');
+    if (step > 1) {
+        document.getElementById(`line${step-1}`).classList.add('active');
+    }
+    
+    currentStep = step;
+}
+
+function prevStep(step) {
+    // Hide current step
+    document.getElementById(`calc-step-${currentStep}`).classList.add('d-none');
+    
+    // Show previous step
+    document.getElementById(`calc-step-${step}`).classList.remove('d-none');
+    
+    // Update step indicator
+    document.getElementById(`step${currentStep}`).classList.remove('active');
+    if (currentStep > 1) {
+        document.getElementById(`line${currentStep-1}`).classList.remove('active');
+    }
+    
+    currentStep = step;
+}
+
+function calculateBonus() {
+    const tipoIntervento = document.getElementById('tipoIntervento').value;
+    const importoLavori = parseInt(document.getElementById('importoLavori').value);
+    const modalitaPagamento = document.getElementById('modalitaPagamento').value;
+    
+    let percentualeBonus = 0;
+    let massimoDetraibile = 0;
+    
+    // Calcola percentuale e massimo in base al tipo di intervento
+    switch(tipoIntervento) {
+        case 'efficienza':
+            percentualeBonus = 110;
+            massimoDetraibile = importoLavori; // Superbonus senza limite per il 110%
+            break;
+        case 'sismica':
+            percentualeBonus = 110;
+            massimoDetraibile = importoLavori;
+            break;
+        case 'ristrutturazione':
+            percentualeBonus = 50;
+            massimoDetraibile = Math.min(importoLavori, 96000);
+            break;
+        case 'barriere':
+            percentualeBonus = 75;
+            massimoDetraibile = Math.min(importoLavori, 96000);
+            break;
+        case 'verde':
+            percentualeBonus = 36;
+            massimoDetraibile = Math.min(importoLavori, 5000);
+            break;
+        default:
+            percentualeBonus = 50;
+            massimoDetraibile = Math.min(importoLavori, 96000);
+    }
+    
+    const risparmioTotale = Math.round(massimoDetraibile * percentualeBonus / 100);
+    const costoEffettivo = importoLavori - risparmioTotale;
+    
+    // Mostra risultati
+    document.getElementById('percentualeBonus').textContent = `${percentualeBonus}%`;
+    document.getElementById('risparmioTotale').textContent = `€${risparmioTotale.toLocaleString()}`;
+    document.getElementById('costoEffettivo').textContent = `€${Math.max(0, costoEffettivo).toLocaleString()}`;
+    
+    // Mostra card risultato con animazione
+    document.getElementById('risultato').classList.add('show');
+    
+    // Scroll al risultato
+    document.getElementById('risultato').scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+    });
+}
+
+// Animazioni al caricamento della pagina
+document.addEventListener('DOMContentLoaded', function() {
+    // Intersection Observer per animazioni
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animation = 'fadeInUp 0.8s ease forwards';
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.bonus-card').forEach(card => {
+        observer.observe(card);
+    });
+});
+</script>
+{% endblock %}

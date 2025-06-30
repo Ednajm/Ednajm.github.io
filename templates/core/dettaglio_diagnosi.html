@@ -1,0 +1,680 @@
+{% extends 'base.html' %}
+
+{% block title %}Diagnosi Dettagliata - RinnovoCasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dettaglio-container {
+        padding: 2rem 0;
+        min-height: 80vh;
+    }
+
+    .diagnosis-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 3rem;
+        border-radius: 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .diagnosis-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-opacity='0.1'%3E%3Cpath d='M20 20h20v20H20zM60 20h20v20H60zM20 60h20v20H20zM60 60h20v20H60z'/%3E%3C/g%3E%3C/svg%3E") repeat;
+        animation: float 20s ease-in-out infinite;
+    }
+
+    .status-badge {
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .status-in_elaborazione {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        color: white;
+    }
+
+    .status-completata {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+    }
+
+    .status-errore {
+        background: linear-gradient(135deg, #dc3545, #e74c3c);
+        color: white;
+    }
+
+    .content-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .content-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    .section-title {
+        color: var(--primary-color);
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--primary-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .image-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .gallery-item {
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .gallery-item:hover {
+        transform: scale(1.05);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    .gallery-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .gallery-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0,0,0,0.7));
+        color: white;
+        padding: 1rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-item {
+        background: rgba(248, 249, 250, 0.8);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .info-item:hover {
+        background: rgba(248, 249, 250, 1);
+        transform: translateY(-2px);
+    }
+
+    .info-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .info-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .info-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--dark-color);
+    }
+
+    .problem-list {
+        margin-bottom: 2rem;
+    }
+
+    .problem-item {
+        background: rgba(255, 255, 255, 0.9);
+        border-left: 4px solid;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .problem-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .problem-structural { border-left-color: #dc3545; }
+    .problem-electrical { border-left-color: #ffc107; }
+    .problem-plumbing { border-left-color: #007bff; }
+    .problem-thermal { border-left-color: #28a745; }
+
+    .problem-title {
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .problem-description {
+        color: #6c757d;
+        line-height: 1.6;
+    }
+
+    .priority-indicator {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .priority-bassa { background: #d4edda; color: #155724; }
+    .priority-media { background: #fff3cd; color: #856404; }
+    .priority-alta { background: #f8d7da; color: #721c24; }
+    .priority-urgente { background: #f5c6cb; color: #721c24; animation: pulse 2s infinite; }
+
+    .cost-estimate {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        margin: 2rem 0;
+    }
+
+    .cost-range {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    .cost-label {
+        color: #6c757d;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .timeline-estimate {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .timeline-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .btn-action {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border: none;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: transparent;
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    .btn-secondary:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .processing-animation {
+        text-align: center;
+        padding: 3rem;
+    }
+
+    .spinner {
+        width: 80px;
+        height: 80px;
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 2rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+
+    @media (max-width: 768px) {
+        .dettaglio-container {
+            padding: 1rem 0;
+        }
+        
+        .content-card {
+            padding: 1.5rem;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .cost-range {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container dettaglio-container">
+    <!-- Header -->
+    <div class="diagnosis-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="status-badge status-{{ diagnosi.stato }}">
+                        {% if diagnosi.stato == 'in_elaborazione' %}
+                            <i class="fas fa-clock"></i> In Elaborazione
+                        {% elif diagnosi.stato == 'completata' %}
+                            <i class="fas fa-check-circle"></i> Completata
+                        {% else %}
+                            <i class="fas fa-exclamation-triangle"></i> Errore
+                        {% endif %}
+                    </div>
+                    <h1 class="display-5 fw-bold mb-3">Diagnosi Immobile</h1>
+                    <p class="lead mb-2">
+                        Richiesta il {{ diagnosi.data_creazione|date:"d M Y alle H:i" }}
+                    </p>
+                    {% if diagnosi.data_completamento %}
+                    <p class="opacity-75">
+                        Completata il {{ diagnosi.data_completamento|date:"d M Y alle H:i" }}
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="col-lg-4 text-center">
+                    <div class="upload-icon" style="width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 2.5rem;">
+                        <i class="fas fa-home"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if diagnosi.stato == 'in_elaborazione' %}
+        <!-- Stato di Elaborazione -->
+        <div class="content-card">
+            <div class="processing-animation">
+                <div class="spinner"></div>
+                <h3>Diagnosi in Elaborazione</h3>
+                <p class="text-muted mb-4">
+                    I nostri algoritmi di intelligenza artificiale stanno analizzando le immagini del tuo immobile. 
+                    Il processo richiede solitamente tra le 2 e le 24 ore.
+                </p>
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <div class="info-icon">
+                            <i class="fas fa-upload"></i>
+                        </div>
+                        <h5>Upload Completato</h5>
+                        <p class="text-muted">Immagini caricate con successo</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="info-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h5>Analisi AI in Corso</h5>
+                        <p class="text-muted">Elaborazione delle immagini</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="info-icon" style="background: #6c757d;">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <h5>Report in Attesa</h5>
+                        <p class="text-muted">Generazione del rapporto</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% elif diagnosi.stato == 'errore' %}
+        <!-- Stato di Errore -->
+        <div class="content-card">
+            <div class="text-center">
+                <div class="info-icon" style="background: #dc3545; width: 80px; height: 80px; margin: 0 auto 2rem;">
+                    <i class="fas fa-exclamation-triangle fa-2x"></i>
+                </div>
+                <h3>Errore nell'Elaborazione</h3>
+                <p class="text-muted mb-4">
+                    Si è verificato un errore durante l'analisi delle immagini. 
+                    Il nostro team tecnico è stato notificato e ti contatteremo a breve.
+                </p>
+                <div class="action-buttons">
+                    <a href="{% url 'core:diagnosi' %}" class="btn-action">
+                        <i class="fas fa-redo"></i>
+                        Riprova Diagnosi
+                    </a>
+                    <a href="{% url 'core:contatti' %}" class="btn-action btn-secondary">
+                        <i class="fas fa-phone"></i>
+                        Contatta Supporto
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <!-- Diagnosi Completata -->
+        
+        <!-- Immagini Caricate -->
+        <div class="content-card">
+            <h2 class="section-title">
+                <i class="fas fa-images"></i>
+                Immagini Analizzate
+            </h2>
+            <div class="image-gallery">
+                {% if diagnosi.foto_immobile %}
+                <div class="gallery-item">
+                    <img src="{{ diagnosi.foto_immobile.url }}" alt="Foto immobile" class="gallery-image">
+                    <div class="gallery-overlay">Foto Principale</div>
+                </div>
+                {% endif %}
+                {% if diagnosi.planimetria %}
+                <div class="gallery-item">
+                    <img src="{{ diagnosi.planimetria.url }}" alt="Planimetria" class="gallery-image">
+                    <div class="gallery-overlay">Planimetria</div>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if diagnosi.note_utente %}
+            <h3 class="section-title">
+                <i class="fas fa-sticky-note"></i>
+                Note Fornite
+            </h3>
+            <div class="info-item">
+                <p>{{ diagnosi.note_utente }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Risultati Generali -->
+        <div class="content-card">
+            <h2 class="section-title">
+                <i class="fas fa-chart-line"></i>
+                Risultati Generali
+            </h2>
+            
+            <div class="info-grid">
+                {% if diagnosi.stato_generale %}
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="info-label">Stato Generale</div>
+                    <div class="info-value">{{ diagnosi.get_stato_generale_display }}</div>
+                </div>
+                {% endif %}
+                
+                {% if diagnosi.priorita_intervento %}
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-exclamation"></i>
+                    </div>
+                    <div class="info-label">Priorità Intervento</div>
+                    <div class="info-value">
+                        <span class="priority-indicator priority-{{ diagnosi.priorita_intervento }}">
+                            {{ diagnosi.get_priorita_intervento_display }}
+                        </span>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if diagnosi.stima_tempo_giorni %}
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <div class="info-label">Stima Tempo</div>
+                    <div class="info-value">{{ diagnosi.stima_tempo_giorni }} giorni</div>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if diagnosi.stima_costi_min and diagnosi.stima_costi_max %}
+            <div class="cost-estimate">
+                <div class="cost-label">Stima Costi Interventi</div>
+                <div class="cost-range">
+                    €{{ diagnosi.stima_costi_min|floatformat:0 }} - €{{ diagnosi.stima_costi_max|floatformat:0 }}
+                </div>
+                {% if diagnosi.stima_tempo_giorni %}
+                <div class="timeline-estimate">
+                    <div class="timeline-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <span>Tempo stimato: {{ diagnosi.stima_tempo_giorni }} giorni lavorativi</span>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Problemi Rilevati -->
+        {% if diagnosi.problemi_strutturali or diagnosi.problemi_elettrici or diagnosi.problemi_idraulici or diagnosi.problemi_termici %}
+        <div class="content-card">
+            <h2 class="section-title">
+                <i class="fas fa-exclamation-triangle"></i>
+                Problemi Rilevati
+            </h2>
+            
+            <div class="problem-list">
+                {% if diagnosi.problemi_strutturali %}
+                <div class="problem-item problem-structural">
+                    <div class="problem-title">
+                        <i class="fas fa-building"></i>
+                        Problemi Strutturali
+                    </div>
+                    <div class="problem-description">{{ diagnosi.problemi_strutturali }}</div>
+                </div>
+                {% endif %}
+                
+                {% if diagnosi.problemi_elettrici %}
+                <div class="problem-item problem-electrical">
+                    <div class="problem-title">
+                        <i class="fas fa-bolt"></i>
+                        Problemi Elettrici
+                    </div>
+                    <div class="problem-description">{{ diagnosi.problemi_elettrici }}</div>
+                </div>
+                {% endif %}
+                
+                {% if diagnosi.problemi_idraulici %}
+                <div class="problem-item problem-plumbing">
+                    <div class="problem-title">
+                        <i class="fas fa-tint"></i>
+                        Problemi Idraulici
+                    </div>
+                    <div class="problem-description">{{ diagnosi.problemi_idraulici }}</div>
+                </div>
+                {% endif %}
+                
+                {% if diagnosi.problemi_termici %}
+                <div class="problem-item problem-thermal">
+                    <div class="problem-title">
+                        <i class="fas fa-thermometer-half"></i>
+                        Problemi di Isolamento
+                    </div>
+                    <div class="problem-description">{{ diagnosi.problemi_termici }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Azioni -->
+        <div class="content-card">
+            <h2 class="section-title">
+                <i class="fas fa-tools"></i>
+                Prossimi Passi
+            </h2>
+            
+            <div class="action-buttons">
+                <a href="{% url 'core:pacchetti' %}" class="btn-action">
+                    <i class="fas fa-package-open"></i>
+                    Visualizza Pacchetti
+                </a>
+                <a href="#" class="btn-action btn-secondary" onclick="downloadReport()">
+                    <i class="fas fa-download"></i>
+                    Scarica Report PDF
+                </a>
+                <a href="{% url 'core:contatti' %}" class="btn-action btn-secondary">
+                    <i class="fas fa-phone"></i>
+                    Richiedi Consulenza
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Navigation -->
+    <div class="text-center mt-4">
+        <a href="{% url 'core:lista_diagnosi' %}" class="btn-action btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            Torna alla Lista
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animazioni scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animation = 'slideInUp 0.6s ease forwards';
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+
+    document.querySelectorAll('.content-card, .problem-item, .info-item').forEach(el => {
+        observer.observe(el);
+    });
+
+    // Auto-refresh per diagnosi in elaborazione
+    {% if diagnosi.stato == 'in_elaborazione' %}
+    setTimeout(() => {
+        location.reload();
+    }, 30000); // Ricarica ogni 30 secondi
+    {% endif %}
+});
+
+function downloadReport() {
+    // Implementa download del report PDF
+    window.location.href = `{% url 'core:dettaglio_diagnosi' diagnosi.id %}download/`;
+}
+
+// CSS per animazioni
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

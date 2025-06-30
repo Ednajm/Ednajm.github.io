@@ -1,0 +1,700 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Richiedi Preventivo - {{ categoria.nome }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .quote-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .step-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+    
+    .step {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 10px;
+        font-weight: bold;
+        position: relative;
+    }
+    
+    .step.active {
+        background-color: #667eea;
+        color: white;
+    }
+    
+    .step.completed {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .step::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50px;
+        width: 20px;
+        height: 2px;
+        background-color: #e9ecef;
+        z-index: -1;
+    }
+    
+    .step:last-child::after {
+        display: none;
+    }
+    
+    .step.completed::after {
+        background-color: #28a745;
+    }
+    
+    .quote-form {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    .photo-upload-area {
+        border: 2px dashed #667eea;
+        border-radius: 10px;
+        padding: 2rem;
+        text-align: center;
+        background-color: #f8f9ff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .photo-upload-area:hover {
+        border-color: #5a6fd8;
+        background-color: #f0f3ff;
+    }
+    
+    .photo-upload-area.dragover {
+        border-color: #28a745;
+        background-color: #f0fff4;
+    }
+    
+    .uploaded-photos {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 10px;
+        margin-top: 1rem;
+    }
+    
+    .uploaded-photo {
+        position: relative;
+        aspect-ratio: 1;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .uploaded-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .uploaded-photo .remove-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(220, 53, 69, 0.8);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+    
+    .ai-analysis {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+    
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 1.5rem 0;
+    }
+    
+    .category-card {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .category-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+    }
+    
+    .category-card.selected {
+        border-color: #667eea;
+        background-color: #f8f9ff;
+    }
+    
+    .category-card i {
+        font-size: 2.5rem;
+        color: #667eea;
+        margin-bottom: 1rem;
+    }
+    
+    .estimated-cost {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        text-align: center;
+        margin-top: 1rem;
+    }
+    
+    @media (max-width: 768px) {
+        .step-indicator {
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .step::after {
+            display: none;
+        }
+        
+        .category-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+        
+        .quote-form {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="quote-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-calculator me-3"></i>Richiedi Preventivo</h1>
+                <p class="lead mb-0">Ricevi preventivi gratuiti da artigiani qualificati nella tua zona</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="h4 mb-0">Gratuito e senza impegno</div>
+                <small>Ricevi risposte entro 24 ore</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Indicatore steps -->
+    <div class="step-indicator">
+        <div class="step active" id="step1">1</div>
+        <div class="step" id="step2">2</div>
+        <div class="step" id="step3">3</div>
+        <div class="step" id="step4">4</div>
+    </div>
+    
+    <div class="quote-form">
+        <form id="quoteForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Step 1: Categoria -->
+            <div class="form-step active" id="formStep1">
+                <h3 class="mb-4">
+                    <i class="fas fa-tools me-2"></i>
+                    Che tipo di lavoro ti serve?
+                </h3>
+                
+                <div class="category-grid">
+                    {% for categoria in categorie %}
+                    <div class="category-card" data-category="{{ categoria.id }}">
+                        <i class="{{ categoria.icona }}"></i>
+                        <h5>{{ categoria.nome }}</h5>
+                        <p class="text-muted">{{ categoria.descrizione }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <input type="hidden" name="categoria" id="selectedCategory">
+                
+                <div class="text-end">
+                    <button type="button" class="btn btn-primary btn-lg next-step" disabled>
+                        Continua <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 2: Dettagli lavoro -->
+            <div class="form-step" id="formStep2">
+                <h3 class="mb-4">
+                    <i class="fas fa-edit me-2"></i>
+                    Descrivi il tuo progetto
+                </h3>
+                
+                <div class="mb-3">
+                    <label for="titolo" class="form-label">Titolo del lavoro *</label>
+                    <input type="text" class="form-control form-control-lg" id="titolo" name="titolo" 
+                           placeholder="Es. Ristrutturazione bagno" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="descrizione" class="form-label">Descrizione dettagliata *</label>
+                    <textarea class="form-control" id="descrizione" name="descrizione" rows="5" 
+                              placeholder="Descrivi il lavoro che devi far fare, includi dimensioni, materiali preferiti, tempistiche..." required></textarea>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <label for="citta" class="form-label">Città *</label>
+                        <input type="text" class="form-control" id="citta" name="citta" 
+                               placeholder="Inserisci la tua città" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="cap" class="form-label">CAP *</label>
+                        <input type="text" class="form-control" id="cap" name="cap" 
+                               placeholder="Es. 20100" required>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="urgente" name="urgente">
+                        <label class="form-check-label" for="urgente">
+                            <strong>Lavoro urgente</strong> (entro 48 ore)
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="button" class="btn btn-outline-secondary btn-lg prev-step">
+                        <i class="fas fa-arrow-left me-2"></i>Indietro
+                    </button>
+                    <button type="button" class="btn btn-primary btn-lg next-step">
+                        Continua <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 3: Foto e budget -->
+            <div class="form-step" id="formStep3">
+                <h3 class="mb-4">
+                    <i class="fas fa-camera me-2"></i>
+                    Aggiungi foto e budget
+                </h3>
+                
+                <div class="mb-4">
+                    <label class="form-label">Foto del lavoro (opzionale)</label>
+                    <div class="photo-upload-area" id="photoUploadArea">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                        <h5>Trascina le foto qui o clicca per selezionare</h5>
+                        <p class="text-muted">JPG, PNG o GIF fino a 5MB</p>
+                        <input type="file" id="photoInput" name="foto[]" multiple accept="image/*" style="display: none;">
+                    </div>
+                    <div class="uploaded-photos" id="uploadedPhotos"></div>
+                    
+                    <div id="aiAnalysis" class="ai-analysis" style="display: none;">
+                        <h6><i class="fas fa-robot me-2"></i>Analisi AI delle foto</h6>
+                        <p id="aiAnalysisText"></p>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="budget_max" class="form-label">Budget massimo (€)</label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text">€</span>
+                        <input type="number" class="form-control" id="budget_max" name="budget_max" 
+                               min="50" step="50" placeholder="Es. 1000">
+                    </div>
+                    <div class="form-text">Aiuta gli artigiani a prepararti un preventivo più preciso</div>
+                </div>
+                
+                <div id="estimatedCost" class="estimated-cost" style="display: none;">
+                    <h5><i class="fas fa-calculator me-2"></i>Stima AI del costo</h5>
+                    <div class="h3" id="estimatedAmount"></div>
+                    <small>Basato su progetti simili nella tua zona</small>
+                </div>
+                
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="button" class="btn btn-outline-secondary btn-lg prev-step">
+                        <i class="fas fa-arrow-left me-2"></i>Indietro
+                    </button>
+                    <button type="button" class="btn btn-primary btn-lg next-step">
+                        Continua <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 4: Conferma e invio -->
+            <div class="form-step" id="formStep4">
+                <h3 class="mb-4">
+                    <i class="fas fa-check me-2"></i>
+                    Conferma e invia richiesta
+                </h3>
+                
+                <div class="alert alert-info">
+                    <h5><i class="fas fa-info-circle me-2"></i>Come funziona</h5>
+                    <ul class="mb-0">
+                        <li>Invieremo la tua richiesta ai 3 migliori artigiani nella tua zona</li>
+                        <li>Riceverai i preventivi entro 24 ore</li>
+                        <li>Potrai confrontare e scegliere l'offerta migliore</li>
+                        <li>Il servizio è completamente gratuito e senza impegno</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Riepilogo della richiesta</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Categoria:</strong> <span id="summaryCategory"></span><br>
+                                <strong>Titolo:</strong> <span id="summaryTitle"></span><br>
+                                <strong>Ubicazione:</strong> <span id="summaryLocation"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Budget:</strong> <span id="summaryBudget"></span><br>
+                                <strong>Urgente:</strong> <span id="summaryUrgent"></span><br>
+                                <strong>Foto:</strong> <span id="summaryPhotos"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="privacy" required>
+                        <label class="form-check-label" for="privacy">
+                            Accetto i <a href="#" target="_blank">termini di servizio</a> e 
+                            l'<a href="#" target="_blank">informativa privacy</a> *
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="button" class="btn btn-outline-secondary btn-lg prev-step">
+                        <i class="fas fa-arrow-left me-2"></i>Indietro
+                    </button>
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-paper-plane me-2"></i>Invia Richiesta
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Successo -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Richiesta inviata con successo!
+                </h5>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fas fa-paper-plane fa-4x text-success mb-3"></i>
+                <h4>La tua richiesta è stata inviata!</h4>
+                <p>Abbiamo inviato il tuo preventivo ai migliori artigiani nella tua zona. 
+                   Riceverai le loro offerte entro 24 ore via email.</p>
+                
+                <div class="alert alert-info">
+                    <strong>Prossimi passi:</strong><br>
+                    1. Controlla la tua email per i preventivi<br>
+                    2. Confronta le offerte ricevute<br>
+                    3. Contatta l'artigiano che preferisci
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="{% url 'artigiani:ricerca' %}" class="btn btn-primary">
+                    Cerca altri artigiani
+                </a>
+                <a href="/" class="btn btn-secondary">
+                    Torna alla home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentStep = 1;
+const totalSteps = 4;
+let uploadedFiles = [];
+
+// Gestione steps
+document.querySelectorAll('.next-step').forEach(btn => {
+    btn.addEventListener('click', function() {
+        if (validateCurrentStep()) {
+            nextStep();
+        }
+    });
+});
+
+document.querySelectorAll('.prev-step').forEach(btn => {
+    btn.addEventListener('click', function() {
+        prevStep();
+    });
+});
+
+function nextStep() {
+    if (currentStep < totalSteps) {
+        document.getElementById(`formStep${currentStep}`).classList.remove('active');
+        document.getElementById(`step${currentStep}`).classList.remove('active');
+        document.getElementById(`step${currentStep}`).classList.add('completed');
+        
+        currentStep++;
+        
+        document.getElementById(`formStep${currentStep}`).classList.add('active');
+        document.getElementById(`step${currentStep}`).classList.add('active');
+        
+        if (currentStep === 4) {
+            updateSummary();
+        }
+    }
+}
+
+function prevStep() {
+    if (currentStep > 1) {
+        document.getElementById(`formStep${currentStep}`).classList.remove('active');
+        document.getElementById(`step${currentStep}`).classList.remove('active');
+        
+        currentStep--;
+        
+        document.getElementById(`formStep${currentStep}`).classList.add('active');
+        document.getElementById(`step${currentStep}`).classList.remove('completed');
+        document.getElementById(`step${currentStep}`).classList.add('active');
+    }
+}
+
+function validateCurrentStep() {
+    switch(currentStep) {
+        case 1:
+            return document.getElementById('selectedCategory').value !== '';
+        case 2:
+            const titolo = document.getElementById('titolo').value;
+            const descrizione = document.getElementById('descrizione').value;
+            const citta = document.getElementById('citta').value;
+            const cap = document.getElementById('cap').value;
+            return titolo && descrizione && citta && cap;
+        case 3:
+            return true; // Step opzionale
+        case 4:
+            return document.getElementById('privacy').checked;
+        default:
+            return true;
+    }
+}
+
+// Gestione selezione categoria
+document.querySelectorAll('.category-card').forEach(card => {
+    card.addEventListener('click', function() {
+        document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
+        this.classList.add('selected');
+        
+        const categoryId = this.dataset.category;
+        const categoryName = this.querySelector('h5').textContent;
+        
+        document.getElementById('selectedCategory').value = categoryId;
+        document.querySelector('.next-step').disabled = false;
+        
+        // Mostra stima costo AI (simulata)
+        setTimeout(() => {
+            showAICostEstimate(categoryName);
+        }, 1000);
+    });
+});
+
+// Gestione upload foto
+const photoUploadArea = document.getElementById('photoUploadArea');
+const photoInput = document.getElementById('photoInput');
+const uploadedPhotosContainer = document.getElementById('uploadedPhotos');
+
+photoUploadArea.addEventListener('click', () => photoInput.click());
+
+photoUploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    photoUploadArea.classList.add('dragover');
+});
+
+photoUploadArea.addEventListener('dragleave', () => {
+    photoUploadArea.classList.remove('dragover');
+});
+
+photoUploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    photoUploadArea.classList.remove('dragover');
+    handleFiles(e.dataTransfer.files);
+});
+
+photoInput.addEventListener('change', (e) => {
+    handleFiles(e.target.files);
+});
+
+function handleFiles(files) {
+    Array.from(files).forEach(file => {
+        if (file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024) {
+            uploadedFiles.push(file);
+            displayUploadedPhoto(file);
+            
+            // Simula analisi AI
+            setTimeout(() => {
+                showAIAnalysis(file);
+            }, 2000);
+        }
+    });
+}
+
+function displayUploadedPhoto(file) {
+    const photoDiv = document.createElement('div');
+    photoDiv.className = 'uploaded-photo';
+    
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn';
+    removeBtn.innerHTML = '×';
+    removeBtn.onclick = () => {
+        photoDiv.remove();
+        uploadedFiles = uploadedFiles.filter(f => f !== file);
+    };
+    
+    photoDiv.appendChild(img);
+    photoDiv.appendChild(removeBtn);
+    uploadedPhotosContainer.appendChild(photoDiv);
+}
+
+function showAIAnalysis(file) {
+    const analysisTexts = [
+        "Rilevato: Bagno da ristrutturare. Dimensioni stimate: 3x2m. Materiali visibili: piastrelle vecchie, sanitari da sostituire.",
+        "Rilevato: Cucina con mobili datati. Spazio disponibile per isola centrale. Impianti da aggiornare.",
+        "Rilevato: Pareti con crepe e umidità. Necessaria preparazione superficie prima della tinteggiatura.",
+        "Rilevato: Giardino con area verde trascurata. Presente pergolato da sistemare e aiuole da riprogettare."
+    ];
+    
+    const aiAnalysis = document.getElementById('aiAnalysis');
+    const aiAnalysisText = document.getElementById('aiAnalysisText');
+    
+    aiAnalysisText.textContent = analysisTexts[Math.floor(Math.random() * analysisTexts.length)];
+    aiAnalysis.style.display = 'block';
+}
+
+function showAICostEstimate(categoryName) {
+    const estimates = {
+        'Muratore': '€2.500 - €5.000',
+        'Idraulico': '€300 - €1.200',
+        'Elettricista': '€400 - €1.500',
+        'Pittore': '€800 - €2.500',
+        'Falegname': '€1.200 - €3.500',
+        'Piastrellista': '€1.500 - €4.000',
+        'Giardiniere': '€500 - €2.000',
+        'Infissi': '€2.000 - €6.000'
+    };
+    
+    const estimatedCost = document.getElementById('estimatedCost');
+    const estimatedAmount = document.getElementById('estimatedAmount');
+    
+    if (estimates[categoryName]) {
+        estimatedAmount.textContent = estimates[categoryName];
+        estimatedCost.style.display = 'block';
+    }
+}
+
+function updateSummary() {
+    const selectedCategoryCard = document.querySelector('.category-card.selected');
+    const categoryName = selectedCategoryCard ? selectedCategoryCard.querySelector('h5').textContent : '';
+    
+    document.getElementById('summaryCategory').textContent = categoryName;
+    document.getElementById('summaryTitle').textContent = document.getElementById('titolo').value;
+    document.getElementById('summaryLocation').textContent = 
+        `${document.getElementById('citta').value}, ${document.getElementById('cap').value}`;
+    
+    const budget = document.getElementById('budget_max').value;
+    document.getElementById('summaryBudget').textContent = budget ? `€${budget}` : 'Non specificato';
+    
+    document.getElementById('summaryUrgent').textContent = 
+        document.getElementById('urgente').checked ? 'Sì' : 'No';
+    
+    document.getElementById('summaryPhotos').textContent = 
+        uploadedFiles.length > 0 ? `${uploadedFiles.length} foto` : 'Nessuna foto';
+}
+
+// Gestione invio form
+document.getElementById('quoteForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Simula invio
+    const submitBtn = document.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Invio in corso...';
+    submitBtn.disabled = true;
+    
+    setTimeout(() => {
+        $('#successModal').modal('show');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }, 3000);
+});
+
+// Nascondi tutti gli step tranne il primo
+document.querySelectorAll('.form-step').forEach((step, index) => {
+    if (index > 0) {
+        step.style.display = 'none';
+    }
+});
+
+// Mostra/nascondi step
+function showStep(stepNumber) {
+    document.querySelectorAll('.form-step').forEach(step => {
+        step.style.display = 'none';
+        step.classList.remove('active');
+    });
+    
+    document.getElementById(`formStep${stepNumber}`).style.display = 'block';
+    document.getElementById(`formStep${stepNumber}`).classList.add('active');
+}
+
+// Override nextStep e prevStep per gestire la visualizzazione
+const originalNextStep = nextStep;
+const originalPrevStep = prevStep;
+
+nextStep = function() {
+    originalNextStep();
+    showStep(currentStep);
+};
+
+prevStep = function() {
+    originalPrevStep();
+    showStep(currentStep);
+};
+</script>
+{% endblock %}

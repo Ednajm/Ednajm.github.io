@@ -1,0 +1,308 @@
+{% extends 'artigiani/dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Messaggi dai Clienti{% endblock %}
+
+{% block extra_css %}
+<style>
+    .messages-header {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .stats-cards {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        flex: 1;
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .stat-card.new { border-left: 4px solid #dc3545; }
+    .stat-card.read { border-left: 4px solid #ffc107; }
+    .stat-card.replied { border-left: 4px solid #28a745; }
+    .stat-card.total { border-left: 4px solid #007bff; }
+    
+    .message-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .message-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .message-card.new {
+        border-left: 4px solid #dc3545;
+        background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+    }
+    
+    .message-card.read {
+        border-left: 4px solid #ffc107;
+    }
+    
+    .message-card.replied {
+        border-left: 4px solid #28a745;
+    }
+    
+    .message-status {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+    
+    .status-nuovo { background: #f8d7da; color: #721c24; }
+    .status-letto { background: #fff3cd; color: #856404; }
+    .status-risposto { background: #d4edda; color: #155724; }
+    .status-archiviato { background: #d1ecf1; color: #0c5460; }
+    
+    .filter-tabs {
+        background: white;
+        border-radius: 15px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .filter-btn {
+        background: none;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        margin-right: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-btn.active {
+        background: #007bff;
+        color: white;
+    }
+    
+    .message-meta {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .message-preview {
+        color: #495057;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="messages-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2><i class="fas fa-envelope me-3"></i>Messaggi dai Clienti</h2>
+                <p class="text-muted mb-0">Gestisci le comunicazioni con i tuoi clienti</p>
+            </div>
+            <div class="text-end">
+                <small class="text-muted">Ultimo aggiornamento: {{ "now"|date:"H:i" }}</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="stats-cards">
+        <div class="stat-card new">
+            <h3 class="text-danger">{{ stats.nuovi }}</h3>
+            <small>Nuovi</small>
+        </div>
+        <div class="stat-card read">
+            <h3 class="text-warning">{{ stats.letti }}</h3>
+            <small>Letti</small>
+        </div>
+        <div class="stat-card replied">
+            <h3 class="text-success">{{ stats.risposti }}</h3>
+            <small>Risposti</small>
+        </div>
+        <div class="stat-card total">
+            <h3 class="text-primary">{{ stats.totali }}</h3>
+            <small>Totali</small>
+        </div>
+    </div>
+    
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+        <div class="d-flex align-items-center">
+            <span class="me-3"><strong>Filtra per stato:</strong></span>
+            <a href="?stato=tutti" class="filter-btn {% if stato_filtro == 'tutti' %}active{% endif %}">
+                Tutti
+            </a>
+            <a href="?stato=nuovo" class="filter-btn {% if stato_filtro == 'nuovo' %}active{% endif %}">
+                Nuovi
+            </a>
+            <a href="?stato=letto" class="filter-btn {% if stato_filtro == 'letto' %}active{% endif %}">
+                Letti
+            </a>
+            <a href="?stato=risposto" class="filter-btn {% if stato_filtro == 'risposto' %}active{% endif %}">
+                Risposti
+            </a>
+            <a href="?stato=archiviato" class="filter-btn {% if stato_filtro == 'archiviato' %}active{% endif %}">
+                Archiviati
+            </a>
+        </div>
+    </div>
+    
+    <!-- Messages List -->
+    {% if messaggi %}
+        {% for messaggio in messaggi %}
+            <div class="message-card {{ messaggio.stato }}" 
+                 onclick="window.location.href='{% url 'artigiani:dettaglio_messaggio' messaggio.id %}'">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center mb-1">
+                            <h6 class="mb-0 me-2">{{ messaggio.nome_cliente }}</h6>
+                            <span class="message-status status-{{ messaggio.stato }}">
+                                {{ messaggio.get_stato_display }}
+                            </span>
+                        </div>
+                        <div class="message-meta">
+                            <i class="fas fa-envelope me-1"></i>{{ messaggio.email_cliente }}
+                            {% if messaggio.telefono_cliente %}
+                                <i class="fas fa-phone ms-3 me-1"></i>{{ messaggio.telefono_cliente }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <small class="text-muted">{{ messaggio.data_invio|date:"d/m/Y H:i" }}</small>
+                        {% if messaggio.stato == 'nuovo' %}
+                            <br><span class="badge bg-danger">NUOVO</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <h6 class="text-primary mb-2">{{ messaggio.oggetto }}</h6>
+                
+                <div class="message-preview">
+                    {{ messaggio.messaggio|truncatewords:20 }}
+                </div>
+                
+                {% if messaggio.data_risposta %}
+                    <div class="mt-2 text-success">
+                        <i class="fas fa-reply me-1"></i>
+                        <small>Risposto il {{ messaggio.data_risposta|date:"d/m/Y H:i" }}</small>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+        
+        <!-- Pagination -->
+        {% if messaggi.has_other_pages %}
+            <nav aria-label="Navigazione messaggi">
+                <ul class="pagination justify-content-center">
+                    {% if messaggi.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ messaggi.previous_page_number }}&stato={{ stato_filtro }}">
+                                <i class="fas fa-chevron-left"></i> Precedente
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in messaggi.paginator.page_range %}
+                        {% if num == messaggi.number %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > messaggi.number|add:'-3' and num < messaggi.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}&stato={{ stato_filtro }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if messaggi.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ messaggi.next_page_number }}&stato={{ stato_filtro }}">
+                                Successivo <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+        
+    {% else %}
+        <div class="text-center py-5">
+            {% if stato_filtro == 'tutti' %}
+                <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                <h5 class="text-muted">Nessun messaggio ricevuto</h5>
+                <p class="text-muted">I messaggi dai clienti appariranno qui</p>
+            {% else %}
+                <i class="fas fa-filter fa-4x text-muted mb-3"></i>
+                <h5 class="text-muted">Nessun messaggio con stato "{{ stato_filtro }}"</h5>
+                <p class="text-muted">Prova a cambiare il filtro per vedere altri messaggi</p>
+                <a href="?stato=tutti" class="btn btn-outline-primary">
+                    <i class="fas fa-eye me-2"></i>Mostra tutti i messaggi
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- Quick Actions Modal -->
+<div class="modal fade" id="quickActionsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Consigli per una Comunicazione Efficace</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>✅ Rispondi rapidamente:</h6>
+                <p>I clienti apprezzano risposte entro 2-4 ore</p>
+                
+                <h6>✅ Sii professionale:</h6>
+                <p>Usa un tono cortese e professionale</p>
+                
+                <h6>✅ Fornisci dettagli:</h6>
+                <p>Includi informazioni sui tempi e costi indicativi</p>
+                
+                <h6>✅ Chiedi chiarimenti:</h6>
+                <p>Non esitare a fare domande per capire meglio le esigenze</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-refresh every 30 seconds for new messages
+setInterval(function() {
+    // Only refresh if we're showing new messages
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('stato') === 'nuovo' || params.get('stato') === 'tutti' || !params.get('stato')) {
+        // Subtle notification without full page refresh
+        fetch(window.location.href, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        }).then(response => {
+            // You could implement a more sophisticated check here
+        });
+    }
+}, 30000);
+</script>
+{% endblock %}

@@ -1,0 +1,578 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard Artigiano - {{ profilo.nome_attivita }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-nav {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .profile-welcome {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+        text-align: center;
+        transition: transform 0.3s ease;
+        height: 100%;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        opacity: 0.8;
+    }
+    
+    .recent-activity {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .activity-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+    
+    .activity-view { background: #e3f2fd; color: #1976d2; }
+    .activity-contact { background: #f3e5f5; color: #7b1fa2; }
+    .activity-review { background: #fff3e0; color: #f57c00; }
+    
+    .quick-actions {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .action-btn {
+        display: block;
+        width: 100%;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 12px;
+        text-decoration: none;
+        text-align: center;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .action-btn:last-child {
+        margin-bottom: 0;
+    }
+    
+    .action-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .action-secondary {
+        background: #f8f9fa;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+    
+    .profile-completion {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .completion-bar {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        height: 12px;
+        margin: 1rem 0;
+    }
+    
+    .completion-progress {
+        background: #28a745;
+        border-radius: 10px;
+        height: 100%;
+        transition: width 0.5s ease;
+    }
+    
+    .nav-pills .nav-link {
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        margin-right: 0.5rem;
+        color: #667eea;
+        font-weight: 600;
+    }
+    
+    .nav-pills .nav-link.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    @media (max-width: 768px) {
+        .profile-welcome {
+            padding: 1rem;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Navigation Dashboard -->
+<div class="dashboard-nav">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="mb-0">
+                    <i class="fas fa-tachometer-alt me-3"></i>
+                    Dashboard Artigiano
+                </h2>
+                <p class="mb-0 opacity-75">Gestisci il tuo profilo e monitora le performance</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'artigiani:dettaglio' profilo.id %}" class="btn btn-light">
+                    <i class="fas fa-eye me-2"></i>
+                    Vedi Profilo Pubblico
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Menu Navigazione -->
+    <ul class="nav nav-pills mb-4" id="dashboard-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" href="#overview" data-bs-toggle="pill">
+                <i class="fas fa-home me-2"></i>Panoramica
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'artigiani:profilo_edit' %}">
+                <i class="fas fa-user-edit me-2"></i>Modifica Profilo
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'artigiani:foto_lavori' %}">
+                <i class="fas fa-images me-2"></i>Foto Lavori
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'artigiani:recensioni' %}">
+                <i class="fas fa-star me-2"></i>Recensioni
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'artigiani:richieste' %}">
+                <i class="fas fa-file-invoice me-2"></i>Richieste
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'artigiani:appuntamenti' %}">
+                <i class="fas fa-calendar-check me-2"></i>Appuntamenti
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'artigiani:orari_disponibilita' %}">
+                <i class="fas fa-clock me-2"></i>Orari
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'artigiani:messaggi' %}">
+                <i class="fas fa-envelope me-2"></i>Messaggi
+                {% if stats.messaggi_nuovi > 0 %}
+                    <span class="badge bg-danger ms-1">{{ stats.messaggi_nuovi }}</span>
+                {% endif %}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'artigiani:documenti' %}">
+                <i class="fas fa-file-alt me-2"></i>Documenti
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'artigiani:video' %}">
+                <i class="fas fa-video me-2"></i>Video
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'artigiani:certificazioni' %}">
+                <i class="fas fa-award me-2"></i>Certificazioni
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'artigiani:suggerimenti' %}">
+                <i class="fas fa-lightbulb me-2"></i>Suggerimenti IA
+                {% if stats.suggerimenti_attivi > 0 %}
+                    <span class="badge bg-info ms-1">{{ stats.suggerimenti_attivi }}</span>
+                {% endif %}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'artigiani:statistiche' %}">
+                <i class="fas fa-chart-bar me-2"></i>Statistiche
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'artigiani:impostazioni' %}">
+                <i class="fas fa-cog me-2"></i>Impostazioni
+            </a>
+        </li>
+    </ul>
+    
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="overview">
+            <!-- Benvenuto -->
+            <div class="profile-welcome">
+                <div class="row align-items-center">
+                    <div class="col-md-3 text-center">
+                        {% if profilo.foto_profilo %}
+                            <img src="{{ profilo.foto_profilo.url }}" 
+                                 alt="{{ profilo.nome_attivita }}" 
+                                 class="rounded-circle img-fluid"
+                                 style="width: 120px; height: 120px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center"
+                                 style="width: 120px; height: 120px;">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="mb-2">Benvenuto, {{ profilo.nome_attivita }}!</h3>
+                        <p class="text-muted mb-2">
+                            <i class="{{ profilo.categoria_principale.icona }} me-2"></i>
+                            {{ profilo.categoria_principale.nome }}
+                        </p>
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            {{ profilo.citta }}, {{ profilo.cap }}
+                        </p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        {% if profilo.verificato %}
+                            <span class="badge bg-success fs-6 mb-2">
+                                <i class="fas fa-check-circle me-1"></i>Verificato
+                            </span>
+                        {% else %}
+                            <span class="badge bg-warning fs-6 mb-2">
+                                <i class="fas fa-clock me-1"></i>In Verifica
+                            </span>
+                        {% endif %}
+                        <br>
+                        {% if profilo.attivo %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-circle me-1"></i>Profilo Attivo
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger">
+                                <i class="fas fa-pause me-1"></i>Profilo Disattivato
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Completamento Profilo -->
+            {% if stats.posizione_ricerca < 80 %}
+            <div class="profile-completion">
+                <h5><i class="fas fa-tasks me-2"></i>Completa il tuo profilo</h5>
+                <p>Un profilo completo riceve il 300% in più di contatti!</p>
+                <div class="completion-bar">
+                    <div class="completion-progress" style="width: {{ stats.posizione_ricerca }}%"></div>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>{{ stats.posizione_ricerca }}% completato</span>
+                    <span>Obiettivo: 80%</span>
+                </div>
+                
+                <div class="mt-3">
+                    <h6>Per migliorare:</h6>
+                    <ul class="list-unstyled">
+                        {% if not profilo.foto_profilo %}
+                            <li><i class="fas fa-times text-danger me-2"></i>Aggiungi foto profilo</li>
+                        {% endif %}
+                        {% if stats.foto_lavori < 5 %}
+                            <li><i class="fas fa-times text-danger me-2"></i>Carica almeno 5 foto dei tuoi lavori</li>
+                        {% endif %}
+                        {% if stats.recensioni_totali < 10 %}
+                            <li><i class="fas fa-times text-danger me-2"></i>Ottieni almeno 10 recensioni</li>
+                        {% endif %}
+                        {% if not profilo.verificato %}
+                            <li><i class="fas fa-times text-danger me-2"></i>Completa la verifica del profilo</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Statistiche Principali -->
+            <div class="row mb-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon text-primary">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="stat-number text-primary">{{ stats.visualizzazioni_totali }}</div>
+                        <h6 class="text-muted">Visualizzazioni Totali</h6>
+                        <small class="text-success">
+                            +{{ stats.visualizzazioni_settimana }} questa settimana
+                        </small>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon text-success">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="stat-number text-success">{{ stats.contatti_totali }}</div>
+                        <h6 class="text-muted">Contatti Ricevuti</h6>
+                        <small class="text-info">
+                            +{{ stats.contatti_mese }} questo mese
+                        </small>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon text-warning">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-number text-warning">{{ stats.appuntamenti_oggi|default:0 }}</div>
+                        <h6 class="text-muted">Appuntamenti Oggi</h6>
+                        <small class="text-muted">
+                            {{ stats.appuntamenti_settimana|default:0 }} questa settimana
+                        </small>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon text-info">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-number text-info">{{ stats.voto_medio|floatformat:1 }}</div>
+                        <h6 class="text-muted">Voto Medio</h6>
+                        <small class="text-muted">
+                            {{ stats.recensioni_totali }} recensioni
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <!-- Attività Recenti -->
+                <div class="col-lg-8">
+                    <div class="recent-activity">
+                        <h5 class="mb-3">
+                            <i class="fas fa-clock me-2"></i>
+                            Attività Recenti
+                        </h5>
+                        
+                        {% for attivita in attivita_recenti %}
+                        <div class="activity-item">
+                            <div class="activity-icon activity-{{ attivita.tipo }}">
+                                <i class="{{ attivita.icona }}"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <strong>{{ attivita.titolo }}</strong>
+                                <div class="text-muted small">{{ attivita.descrizione }}</div>
+                            </div>
+                            <div class="text-muted small">
+                                {{ attivita.data|timesince }} fa
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Azioni Rapide -->
+                <div class="col-lg-4">
+                    <div class="quick-actions">
+                        <h5 class="mb-3">
+                            <i class="fas fa-bolt me-2"></i>
+                            Azioni Rapide
+                        </h5>
+                        
+                        <a href="{% url 'artigiani:profilo_edit' %}" class="action-btn action-primary">
+                            <i class="fas fa-edit me-2"></i>
+                            Modifica Profilo
+                        </a>
+                        
+                        <a href="{% url 'artigiani:foto_lavori' %}" class="action-btn action-secondary">
+                            <i class="fas fa-plus me-2"></i>
+                            Aggiungi Foto Lavoro
+                        </a>
+                        
+                        <a href="{% url 'artigiani:richieste' %}" class="action-btn action-secondary">
+                            <i class="fas fa-file-invoice me-2"></i>
+                            Vedi Richieste Preventivo
+                        </a>
+                        
+                        <a href="{% url 'artigiani:statistiche' %}" class="action-btn action-secondary">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Analizza Performance
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Richieste Recenti -->
+            {% if richieste_recenti %}
+            <div class="recent-activity">
+                <h5 class="mb-3">
+                    <i class="fas fa-file-invoice me-2"></i>
+                    Richieste Preventivo Recenti nella Tua Zona
+                </h5>
+                
+                {% for richiesta in richieste_recenti %}
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: #fff3cd; color: #856404;">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <strong>{{ richiesta.titolo }}</strong>
+                        <div class="text-muted small">
+                            {{ richiesta.descrizione|truncatewords:15 }}
+                        </div>
+                        <div class="text-muted small">
+                            <i class="fas fa-map-marker-alt me-1"></i>
+                            {{ richiesta.citta }}, {{ richiesta.cap }}
+                            {% if richiesta.budget_max %}
+                                • Budget: €{{ richiesta.budget_max }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <div class="text-muted small">{{ richiesta.data_creazione|timesince }} fa</div>
+                        <button class="btn btn-sm btn-primary mt-1" onclick="rispondiRichiesta({{ richiesta.id }})">
+                            <i class="fas fa-reply me-1"></i>Rispondi
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <div class="text-center mt-3">
+                    <a href="{% url 'artigiani:richieste' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-list me-2"></i>
+                        Vedi Tutte le Richieste
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Recensioni Recenti -->
+            {% if recensioni_recenti %}
+            <div class="recent-activity">
+                <h5 class="mb-3">
+                    <i class="fas fa-star me-2"></i>
+                    Recensioni Recenti
+                </h5>
+                
+                {% for recensione in recensioni_recenti %}
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: #fff3e0; color: #f57c00;">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <strong>{{ recensione.cliente_nome }}</strong>
+                        <div class="text-warning mb-1">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= recensione.voto %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="text-muted small">{{ recensione.commento|truncatewords:20 }}</div>
+                    </div>
+                    <div class="text-muted small">
+                        {{ recensione.data_recensione|timesince }} fa
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <div class="text-center mt-3">
+                    <a href="{% url 'artigiani:recensioni' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-list me-2"></i>
+                        Vedi Tutte le Recensioni
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function rispondiRichiesta(richiestaId) {
+    // Implementa logica per rispondere alla richiesta
+    alert('Funzionalità in sviluppo: risposta automatica alla richiesta #' + richiestaId);
+}
+
+// Auto-refresh delle statistiche ogni 5 minuti
+setInterval(function() {
+    // Potresti implementare un aggiornamento AJAX delle statistiche
+    console.log('Aggiornamento statistiche...');
+}, 300000);
+</script>
+{% endblock %}

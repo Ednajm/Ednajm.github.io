@@ -1,0 +1,888 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Statistiche Dettagliate - Dashboard Artigiano{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding-top: 2rem;
+    }
+    
+    .dashboard-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .stats-header {
+        background: linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%);
+        color: white;
+        border-radius: 20px 20px 0 0;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .sidebar-nav {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .nav-link {
+        color: #6c757d;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-link:hover, .nav-link.active {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        transform: translateX(5px);
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient);
+    }
+    
+    .stat-card.views::before {
+        --gradient: linear-gradient(90deg, #74b9ff 0%, #0984e3 100%);
+    }
+    
+    .stat-card.contacts::before {
+        --gradient: linear-gradient(90deg, #00b894 0%, #00a085 100%);
+    }
+    
+    .stat-card.quotes::before {
+        --gradient: linear-gradient(90deg, #fdcb6e 0%, #e17055 100%);
+    }
+    
+    .stat-card.reviews::before {
+        --gradient: linear-gradient(90deg, #fd79a8 0%, #e84393 100%);
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+        color: white;
+    }
+    
+    .stat-icon.views {
+        background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+    }
+    
+    .stat-icon.contacts {
+        background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+    }
+    
+    .stat-icon.quotes {
+        background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+    }
+    
+    .stat-icon.reviews {
+        background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2d3436;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: #636e72;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-change {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.5rem;
+        border-radius: 20px;
+    }
+    
+    .stat-change.positive {
+        background: #d1edff;
+        color: #0984e3;
+    }
+    
+    .stat-change.negative {
+        background: #ffeaa7;
+        color: #e17055;
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .chart-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2d3436;
+        display: flex;
+        align-items: center;
+    }
+    
+    .chart-icon {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+    
+    .time-filter {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .filter-btn {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 20px;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #495057;
+    }
+    
+    .filter-btn:hover, .filter-btn.active {
+        background: #007bff;
+        border-color: #007bff;
+        color: white;
+    }
+    
+    .chart-canvas {
+        position: relative;
+        height: 300px;
+        margin: 1rem 0;
+    }
+    
+    .performance-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .performance-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .performance-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .performance-icon {
+        background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+        color: white;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+    
+    .performance-metrics {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    .metric-item {
+        text-align: center;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    
+    .metric-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3436;
+        margin-bottom: 0.25rem;
+    }
+    
+    .metric-label {
+        font-size: 0.75rem;
+        color: #636e72;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+    
+    .insights-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .insight-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        background: #f8f9fa;
+        border-left: 4px solid #007bff;
+    }
+    
+    .insight-icon {
+        background: #007bff;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 1rem;
+    }
+    
+    .insight-content h6 {
+        margin: 0 0 0.25rem 0;
+        color: #2d3436;
+        font-weight: 600;
+    }
+    
+    .insight-content p {
+        margin: 0;
+        color: #636e72;
+        font-size: 0.875rem;
+    }
+    
+    .trends-indicators {
+        display: flex;
+        gap: 1rem;
+        margin: 1rem 0;
+        flex-wrap: wrap;
+    }
+    
+    .trend-item {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        flex: 1;
+        min-width: 120px;
+    }
+    
+    .trend-arrow {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .trend-arrow.up {
+        color: #00b894;
+    }
+    
+    .trend-arrow.down {
+        color: #e17055;
+    }
+    
+    .trend-arrow.stable {
+        color: #fdcb6e;
+    }
+    
+    .export-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .export-section h5 {
+        margin-bottom: 1rem;
+    }
+    
+    .btn-export {
+        background: white;
+        color: #667eea;
+        border: none;
+        border-radius: 25px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        margin: 0.25rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .btn-export:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255,255,255,0.3);
+        color: #667eea;
+    }
+</style>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <div class="col-lg-3">
+                <div class="sidebar-nav">
+                    <h6 class="text-muted mb-3">DASHBOARD</h6>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="{% url 'artigiani:dashboard_home' %}">
+                            <i class="fas fa-home me-2"></i> Home
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:profilo_edit' %}">
+                            <i class="fas fa-user-edit me-2"></i> Modifica Profilo
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:foto_lavori' %}">
+                            <i class="fas fa-images me-2"></i> Foto Lavori
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:recensioni' %}">
+                            <i class="fas fa-star me-2"></i> Recensioni
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:richieste' %}">
+                            <i class="fas fa-clipboard-list me-2"></i> Richieste
+                        </a>
+                        <a class="nav-link active" href="{% url 'artigiani:statistiche' %}">
+                            <i class="fas fa-chart-bar me-2"></i> Statistiche
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:impostazioni' %}">
+                            <i class="fas fa-cog me-2"></i> Impostazioni
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <div class="dashboard-card">
+                    <div class="stats-header">
+                        <i class="fas fa-chart-line fa-3x mb-3"></i>
+                        <h2>Statistiche Dettagliate</h2>
+                        <p class="mb-0">Analizza le performance del tuo business</p>
+                    </div>
+
+                    <div class="p-4">
+                        <!-- Main Statistics -->
+                        <div class="stats-grid">
+                            <div class="stat-card views">
+                                <div class="stat-icon views">
+                                    <i class="fas fa-eye"></i>
+                                </div>
+                                <div class="stat-number">1,247</div>
+                                <div class="stat-label">Visualizzazioni Totali</div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up me-1"></i>+12%
+                                </div>
+                            </div>
+
+                            <div class="stat-card contacts">
+                                <div class="stat-icon contacts">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div class="stat-number">89</div>
+                                <div class="stat-label">Contatti Ricevuti</div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up me-1"></i>+8%
+                                </div>
+                            </div>
+
+                            <div class="stat-card quotes">
+                                <div class="stat-icon quotes">
+                                    <i class="fas fa-calculator"></i>
+                                </div>
+                                <div class="stat-number">34</div>
+                                <div class="stat-label">Preventivi Inviati</div>
+                                <div class="stat-change negative">
+                                    <i class="fas fa-arrow-down me-1"></i>-3%
+                                </div>
+                            </div>
+
+                            <div class="stat-card reviews">
+                                <div class="stat-icon reviews">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="stat-number">{{ profilo.numero_recensioni }}</div>
+                                <div class="stat-label">Recensioni</div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up me-1"></i>+5%
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Charts Section -->
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <div class="chart-title">
+                                    <div class="chart-icon">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                    Andamento Visualizzazioni
+                                </div>
+                                <div class="time-filter">
+                                    <button class="filter-btn" onclick="changeTimeframe('7d')">7 giorni</button>
+                                    <button class="filter-btn active" onclick="changeTimeframe('30d')">30 giorni</button>
+                                    <button class="filter-btn" onclick="changeTimeframe('90d')">3 mesi</button>
+                                    <button class="filter-btn" onclick="changeTimeframe('1y')">1 anno</button>
+                                </div>
+                            </div>
+                            <div class="chart-canvas">
+                                <canvas id="viewsChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <div class="chart-title">
+                                    <div class="chart-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    Contatti vs Preventivi
+                                </div>
+                            </div>
+                            <div class="chart-canvas">
+                                <canvas id="contactsChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Performance Metrics -->
+                        <div class="performance-grid">
+                            <div class="performance-card">
+                                <div class="performance-header">
+                                    <div class="performance-icon">
+                                        <i class="fas fa-percentage"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Tasso di Conversione</h6>
+                                        <small class="text-muted">Da visualizzazione a contatto</small>
+                                    </div>
+                                </div>
+                                <div class="performance-metrics">
+                                    <div class="metric-item">
+                                        <div class="metric-value">7.1%</div>
+                                        <div class="metric-label">Questo Mese</div>
+                                    </div>
+                                    <div class="metric-item">
+                                        <div class="metric-value">6.8%</div>
+                                        <div class="metric-label">Mese Scorso</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="performance-card">
+                                <div class="performance-header">
+                                    <div class="performance-icon">
+                                        <i class="fas fa-trophy"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Posizione Media</h6>
+                                        <small class="text-muted">Nei risultati di ricerca</small>
+                                    </div>
+                                </div>
+                                <div class="performance-metrics">
+                                    <div class="metric-item">
+                                        <div class="metric-value">3.2</div>
+                                        <div class="metric-label">Posizione</div>
+                                    </div>
+                                    <div class="metric-item">
+                                        <div class="metric-value">85%</div>
+                                        <div class="metric-label">Prima Pagina</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="performance-card">
+                                <div class="performance-header">
+                                    <div class="performance-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Tempo di Risposta</h6>
+                                        <small class="text-muted">Media delle risposte</small>
+                                    </div>
+                                </div>
+                                <div class="performance-metrics">
+                                    <div class="metric-item">
+                                        <div class="metric-value">2.4h</div>
+                                        <div class="metric-label">Medio</div>
+                                    </div>
+                                    <div class="metric-item">
+                                        <div class="metric-value">98%</div>
+                                        <div class="metric-label">Entro 24h</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="performance-card">
+                                <div class="performance-header">
+                                    <div class="performance-icon">
+                                        <i class="fas fa-heart"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Soddisfazione</h6>
+                                        <small class="text-muted">Cliente</small>
+                                    </div>
+                                </div>
+                                <div class="performance-metrics">
+                                    <div class="metric-item">
+                                        <div class="metric-value">{{ profilo.voto_medio }}</div>
+                                        <div class="metric-label">Voto Medio</div>
+                                    </div>
+                                    <div class="metric-item">
+                                        <div class="metric-value">94%</div>
+                                        <div class="metric-label">Raccomanda</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Trends -->
+                        <div class="insights-section">
+                            <h5 class="mb-3">
+                                <i class="fas fa-trending-up me-2 text-primary"></i>
+                                Tendenze e Insights
+                            </h5>
+                            
+                            <div class="trends-indicators">
+                                <div class="trend-item">
+                                    <div class="trend-arrow up">
+                                        <i class="fas fa-arrow-up"></i>
+                                    </div>
+                                    <strong>Visualizzazioni</strong>
+                                    <div class="text-muted">+12% vs scorso mese</div>
+                                </div>
+                                <div class="trend-item">
+                                    <div class="trend-arrow up">
+                                        <i class="fas fa-arrow-up"></i>
+                                    </div>
+                                    <strong>Contatti</strong>
+                                    <div class="text-muted">+8% vs scorso mese</div>
+                                </div>
+                                <div class="trend-item">
+                                    <div class="trend-arrow stable">
+                                        <i class="fas fa-minus"></i>
+                                    </div>
+                                    <strong>Conversioni</strong>
+                                    <div class="text-muted">Stabile</div>
+                                </div>
+                                <div class="trend-item">
+                                    <div class="trend-arrow up">
+                                        <i class="fas fa-arrow-up"></i>
+                                    </div>
+                                    <strong>Recensioni</strong>
+                                    <div class="text-muted">+2 questo mese</div>
+                                </div>
+                            </div>
+
+                            <div class="insight-item">
+                                <div class="insight-icon">
+                                    <i class="fas fa-lightbulb"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <h6>Picco di Visite nel Weekend</h6>
+                                    <p>Le tue visualizzazioni aumentano del 35% nei weekend. Considera di essere più attivo in questi giorni.</p>
+                                </div>
+                            </div>
+
+                            <div class="insight-item">
+                                <div class="insight-icon">
+                                    <i class="fas fa-camera"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <h6>Aggiungi più Foto</h6>
+                                    <p>I profili con più di 10 foto ricevono il 40% di contatti in più. Hai {{ profilo.foto_lavori.count }} foto.</p>
+                                </div>
+                            </div>
+
+                            <div class="insight-item">
+                                <div class="insight-icon">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <h6>Ottimo Voto Medio!</h6>
+                                    <p>Il tuo voto di {{ profilo.voto_medio }}/5 è superiore alla media di settore (4.2). Continua così!</p>
+                                </div>
+                            </div>
+
+                            <div class="insight-item">
+                                <div class="insight-icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <h6>Espandi il Raggio</h6>
+                                    <p>Aumentando il raggio di azione di 5km potresti ricevere il 20% di richieste in più.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Export Section -->
+                        <div class="export-section">
+                            <h5>
+                                <i class="fas fa-download me-2"></i>
+                                Esporta i tuoi Dati
+                            </h5>
+                            <p class="mb-3">Scarica report dettagliati delle tue statistiche</p>
+                            
+                            <button class="btn btn-export" onclick="exportData('pdf')">
+                                <i class="fas fa-file-pdf me-1"></i>Report PDF
+                            </button>
+                            <button class="btn btn-export" onclick="exportData('excel')">
+                                <i class="fas fa-file-excel me-1"></i>Excel
+                            </button>
+                            <button class="btn btn-export" onclick="exportData('csv')">
+                                <i class="fas fa-file-csv me-1"></i>CSV
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Charts configuration
+const chartConfig = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            display: true,
+            position: 'top',
+        }
+    },
+    scales: {
+        y: {
+            beginAtZero: true,
+            grid: {
+                color: 'rgba(0,0,0,0.1)'
+            }
+        },
+        x: {
+            grid: {
+                color: 'rgba(0,0,0,0.1)'
+            }
+        }
+    }
+};
+
+// Views Chart
+const viewsCtx = document.getElementById('viewsChart').getContext('2d');
+const viewsChart = new Chart(viewsCtx, {
+    type: 'line',
+    data: {
+        labels: {{ labels_mesi|safe }},
+        datasets: [{
+            label: 'Visualizzazioni',
+            data: {{ visualizzazioni_mesi|safe }},
+            borderColor: 'rgb(116, 185, 255)',
+            backgroundColor: 'rgba(116, 185, 255, 0.1)',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: chartConfig
+});
+
+// Contacts Chart
+const contactsCtx = document.getElementById('contactsChart').getContext('2d');
+const contactsChart = new Chart(contactsCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ labels_mesi|safe }},
+        datasets: [{
+            label: 'Contatti',
+            data: {{ contatti_mesi|safe }},
+            backgroundColor: 'rgba(0, 184, 148, 0.8)',
+            borderColor: 'rgb(0, 184, 148)',
+            borderWidth: 1
+        }, {
+            label: 'Preventivi',
+            data: [3, 5, 8, 12, 15, 18],
+            backgroundColor: 'rgba(253, 203, 110, 0.8)',
+            borderColor: 'rgb(253, 203, 110)',
+            borderWidth: 1
+        }]
+    },
+    options: chartConfig
+});
+
+function changeTimeframe(period) {
+    // Remove active class from all buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Add active class to clicked button
+    event.target.classList.add('active');
+    
+    // Simulate data update based on timeframe
+    let newLabels, newData;
+    
+    switch(period) {
+        case '7d':
+            newLabels = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
+            newData = [15, 22, 18, 25, 28, 35, 32];
+            break;
+        case '30d':
+            newLabels = {{ labels_mesi|safe }};
+            newData = {{ visualizzazioni_mesi|safe }};
+            break;
+        case '90d':
+            newLabels = ['3 mesi fa', '2 mesi fa', '1 mese fa'];
+            newData = [380, 420, 445];
+            break;
+        case '1y':
+            newLabels = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+            newData = [320, 350, 380, 420, 445, 467, 490, 520, 540, 565, 580, 600];
+            break;
+    }
+    
+    // Update chart
+    viewsChart.data.labels = newLabels;
+    viewsChart.data.datasets[0].data = newData;
+    viewsChart.update();
+}
+
+function exportData(format) {
+    // Simulate export functionality
+    const formats = {
+        'pdf': 'PDF',
+        'excel': 'Excel',
+        'csv': 'CSV'
+    };
+    
+    showAlert('info', `Export ${formats[format]} in preparazione... Riceverai il file via email.`);
+}
+
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Insert at top of content
+    const content = document.querySelector('.dashboard-card .p-4');
+    content.insertBefore(alertDiv, content.firstChild);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
+// Auto-refresh charts every 5 minutes
+setInterval(function() {
+    // In a real implementation, you would fetch new data here
+    console.log('Auto-refreshing charts...');
+}, 300000);
+
+// Animate numbers on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const numbers = document.querySelectorAll('.stat-number, .metric-value');
+    numbers.forEach(number => {
+        const finalValue = parseInt(number.textContent);
+        if (!isNaN(finalValue)) {
+            animateNumber(number, 0, finalValue, 1000);
+        }
+    });
+});
+
+function animateNumber(element, start, end, duration) {
+    const startTime = performance.now();
+    
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        const current = Math.floor(start + (end - start) * progress);
+        element.textContent = current;
+        
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        } else {
+            element.textContent = end;
+        }
+    }
+    
+    requestAnimationFrame(update);
+}
+</script>
+{% endblock %}

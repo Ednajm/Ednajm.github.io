@@ -1,0 +1,496 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ artigiano.utente.get_full_name }} - {{ artigiano.categoria.nome }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 4px solid white;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        object-fit: cover;
+    }
+    
+    .rating-stars {
+        color: #ffc107;
+        font-size: 1.2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: none;
+        transition: transform 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .contact-buttons .btn {
+        border-radius: 25px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        margin: 0.25rem;
+    }
+    
+    .photo-gallery img {
+        border-radius: 10px;
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .photo-gallery img:hover {
+        transform: scale(1.05);
+    }
+    
+    .review-card {
+        border-left: 4px solid #667eea;
+        background: #f8f9fa;
+    }
+    
+    .ai-description {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .floating-contact {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+    }
+    
+    @media (max-width: 768px) {
+        .profile-header {
+            text-align: center;
+        }
+        
+        .contact-buttons {
+            text-align: center;
+        }
+        
+        .floating-contact {
+            bottom: 80px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header Profilo -->
+<div class="profile-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-3 text-center text-md-start mb-3 mb-md-0">
+                {% if artigiano.foto_profilo %}
+                    <img src="{{ artigiano.foto_profilo.url }}" alt="{{ artigiano.utente.get_full_name }}" class="profile-avatar">
+                {% else %}
+                    <div class="profile-avatar d-flex align-items-center justify-content-center bg-light text-dark">
+                        <i class="{{ artigiano.categoria.icona }} fa-3x"></i>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <h1 class="mb-2">{{ artigiano.utente.get_full_name }}</h1>
+                <h4 class="mb-3">
+                    <i class="{{ artigiano.categoria_principale.icona }} me-2"></i>
+                    {{ artigiano.categoria_principale.nome }}
+                </h4>
+                <div class="d-flex align-items-center mb-2">
+                    <div class="rating-stars me-2">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= artigiano.voto_medio %}
+                                <i class="fas fa-star"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <span class="me-3">{{ artigiano.voto_medio|floatformat:1 }} ({{ artigiano.numero_recensioni }} recensioni)</span>
+                    {% if artigiano.verificato %}
+                        <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Verificato</span>
+                    {% endif %}
+                </div>
+                <p class="mb-2">
+                    <i class="fas fa-map-marker-alt me-2"></i>
+                    {{ artigiano.citta }}, {{ artigiano.cap }}
+                </p>
+                <p class="mb-0">
+                    <i class="fas fa-clock me-2"></i>
+                    {{ artigiano.anni_esperienza }} anni di esperienza
+                </p>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center text-md-end">
+                    <div class="h3 mb-1">
+                        {% if artigiano.prezzo_orario_min and artigiano.prezzo_orario_max %}
+                            €{{ artigiano.prezzo_orario_min }} - €{{ artigiano.prezzo_orario_max }}/ora
+                        {% elif artigiano.prezzo_orario_min %}
+                            da €{{ artigiano.prezzo_orario_min }}/ora
+                        {% else %}
+                            {{ artigiano.get_fascia_prezzo_display }}
+                        {% endif %}
+                    </div>
+                    {% if artigiano.attivo %}
+                        <span class="badge bg-success fs-6">
+                            <i class="fas fa-circle me-1"></i>Disponibile
+                        </span>
+                    {% else %}
+                        <span class="badge bg-warning fs-6">
+                            <i class="fas fa-circle me-1"></i>Occupato
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <!-- Colonna principale -->
+        <div class="col-lg-8">
+            <!-- Descrizione AI -->
+            {% if artigiano.descrizione_ai %}
+            <div class="ai-description">
+                <h5><i class="fas fa-robot me-2"></i>Descrizione AI</h5>
+                <p class="mb-0">{{ artigiano.descrizione_ai }}</p>
+            </div>
+            {% endif %}
+            
+            <!-- Descrizione -->
+            <div class="card stat-card mb-4">
+                <h5><i class="fas fa-user me-2"></i>Chi sono</h5>
+                <p class="mb-0">{{ artigiano.descrizione }}</p>
+            </div>
+            
+            <!-- Lingue parlate -->
+            {% if artigiano.lingue_parlate_lista %}
+            <div class="card stat-card mb-4">
+                <h5><i class="fas fa-language me-2"></i>Lingue parlate</h5>
+                <div class="d-flex flex-wrap">
+                    {% for lingua in artigiano.lingue_parlate_lista %}
+                        <span class="badge bg-primary me-2 mb-2 fs-6">{{ lingua }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Galleria foto lavori -->
+            {% if tutte_foto %}
+            <div class="card stat-card mb-4">
+                <h5><i class="fas fa-images me-2"></i>I miei lavori</h5>
+                <div class="row photo-gallery">
+                    {% for foto in tutte_foto %}
+                    <div class="col-md-4 mb-3">
+                        <img src="{{ foto.immagine.url }}" alt="{{ foto.descrizione }}" 
+                             class="img-fluid" data-bs-toggle="modal" data-bs-target="#photoModal{{ foto.id }}">
+                        {% if foto.descrizione %}
+                            <small class="text-muted d-block mt-1">{{ foto.descrizione }}</small>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Modal per foto -->
+                    <div class="modal fade" id="photoModal{{ foto.id }}">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">{{ foto.descrizione|default:"Foto lavoro" }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body text-center">
+                                    <img src="{{ foto.immagine.url }}" alt="{{ foto.descrizione }}" class="img-fluid">
+                                    {% if foto.descrizione %}
+                                        <p class="mt-3">{{ foto.descrizione }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Recensioni -->
+            <div class="card stat-card">
+                <h5><i class="fas fa-star me-2"></i>Recensioni ({{ artigiano.numero_recensioni }})</h5>
+                {% for recensione in recensioni %}
+                <div class="review-card p-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <strong>{{ recensione.cliente_nome|default:"Cliente" }}</strong>
+                            <div class="rating-stars">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= recensione.voto %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <small class="text-muted">{{ recensione.data_recensione|date:"d/m/Y" }}</small>
+                    </div>
+                    <p class="mb-0">{{ recensione.commento }}</p>
+                </div>
+                {% empty %}
+                <p class="text-muted">Nessuna recensione ancora disponibile.</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Pulsanti contatto -->
+            <div class="card stat-card mb-4 contact-buttons">
+                <h5><i class="fas fa-phone me-2"></i>Contatta {{ artigiano.utente.first_name }}</h5>
+                
+                {% if artigiano.telefono %}
+                <a href="tel:{{ artigiano.telefono }}" class="btn btn-success btn-lg w-100 mb-2">
+                    <i class="fas fa-phone me-2"></i>Chiama ora
+                </a>
+                {% endif %}
+                
+                {% if artigiano.whatsapp %}
+                <a href="https://wa.me/{{ artigiano.whatsapp|cut:'+' }}" target="_blank" 
+                   class="btn btn-success btn-lg w-100 mb-2" style="background-color: #25D366;">
+                    <i class="fab fa-whatsapp me-2"></i>WhatsApp
+                </a>
+                {% endif %}
+                
+                {% if artigiano.utente.email %}
+                <a href="mailto:{{ artigiano.utente.email }}" class="btn btn-primary btn-lg w-100 mb-2">
+                    <i class="fas fa-envelope me-2"></i>Email
+                </a>
+                {% endif %}
+                
+                <button class="btn btn-warning btn-lg w-100" data-bs-toggle="modal" data-bs-target="#preventivoModal">
+                    <i class="fas fa-calculator me-2"></i>Richiedi Preventivo
+                </button>
+            </div>
+            
+            <!-- Statistiche -->
+            <div class="card stat-card mb-4">
+                <h5><i class="fas fa-chart-bar me-2"></i>Statistiche</h5>
+                <div class="row text-center">
+                    <div class="col-6 border-end">
+                        <div class="h4 text-primary">{{ artigiano.numero_lavori_completati }}</div>
+                        <small class="text-muted">Lavori completati</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="h4 text-success">{{ artigiano.tempo_risposta_medio }}h</div>
+                        <small class="text-muted">Tempo risposta</small>
+                    </div>
+                </div>
+                <hr>
+                <div class="row text-center">
+                    <div class="col-12">
+                        <div class="h4 text-warning">{{ artigiano.media_recensioni|floatformat:1 }}/5</div>
+                        <small class="text-muted">Valutazione media</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Artigiani simili -->
+            {% if artigiani_simili %}
+            <div class="card stat-card">
+                <h5><i class="fas fa-users me-2"></i>Altri {{ artigiano.categoria.nome|lower }} nella zona</h5>
+                {% for simile in artigiani_simili %}
+                <div class="d-flex align-items-center mb-3">
+                    {% if simile.foto_profilo %}
+                        <img src="{{ simile.foto_profilo.url }}" alt="{{ simile.utente.get_full_name }}" 
+                             class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" 
+                             style="width: 50px; height: 50px;">
+                            <i class="{{ simile.categoria_principale.icona }}"></i>
+                        </div>
+                    {% endif %}
+                    <div class="flex-grow-1">
+                        <a href="{% url 'artigiani:dettaglio' simile.id %}" class="text-decoration-none">
+                            <strong>{{ simile.utente.get_full_name }}</strong>
+                        </a>
+                        <div class="small text-muted">
+                            <span class="rating-stars">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= simile.voto_medio %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </span>
+                            {{ simile.voto_medio|floatformat:1 }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal Richiesta Preventivo -->
+<div class="modal fade" id="preventivoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-calculator me-2"></i>
+                    Richiedi Preventivo a {{ artigiano.utente.get_full_name }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="preventivoForm" method="post" action="{% url 'artigiani:richiedi_preventivo' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="artigiano_id" value="{{ artigiano.id }}">
+                    
+                    <div class="mb-3">
+                        <label for="titolo" class="form-label">Titolo del lavoro *</label>
+                        <input type="text" class="form-control" id="titolo" name="titolo" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="descrizione" class="form-label">Descrizione dettagliata *</label>
+                        <textarea class="form-control" id="descrizione" name="descrizione" rows="4" 
+                                placeholder="Descrivi il lavoro che devi far fare..." required></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <label for="citta" class="form-label">Città *</label>
+                            <input type="text" class="form-control" id="citta" name="citta" 
+                                   value="{{ artigiano.citta }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="cap" class="form-label">CAP *</label>
+                            <input type="text" class="form-control" id="cap" name="cap" 
+                                   value="{{ artigiano.cap }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 mt-3">
+                        <label for="budget_max" class="form-label">Budget massimo (€)</label>
+                        <input type="number" class="form-control" id="budget_max" name="budget_max" 
+                               min="50" step="50" placeholder="Es. 1000">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="urgente" name="urgente">
+                            <label class="form-check-label" for="urgente">
+                                Lavoro urgente (entro 48 ore)
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Come funziona:</strong> Invieremo la tua richiesta a {{ artigiano.utente.get_full_name }}. 
+                        Riceverai una risposta entro 24 ore con il preventivo dettagliato.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="submit" form="preventivoForm" class="btn btn-primary">
+                    <i class="fas fa-paper-plane me-2"></i>Invia Richiesta
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pulsante contatto mobile fisso -->
+<div class="floating-contact d-lg-none">
+    <button class="btn btn-primary btn-lg rounded-circle" data-bs-toggle="modal" data-bs-target="#contactModal">
+        <i class="fas fa-phone"></i>
+    </button>
+</div>
+
+<!-- Modal contatto mobile -->
+<div class="modal fade" id="contactModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Contatta {{ artigiano.utente.first_name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                {% if artigiano.telefono %}
+                <a href="tel:{{ artigiano.telefono }}" class="btn btn-success btn-lg w-100 mb-2">
+                    <i class="fas fa-phone me-2"></i>Chiama ora
+                </a>
+                {% endif %}
+                
+                {% if artigiano.whatsapp %}
+                <a href="https://wa.me/{{ artigiano.whatsapp|cut:'+' }}" target="_blank" 
+                   class="btn btn-success btn-lg w-100 mb-2" style="background-color: #25D366;">
+                    <i class="fab fa-whatsapp me-2"></i>WhatsApp
+                </a>
+                {% endif %}
+                
+                <button class="btn btn-warning btn-lg w-100" data-bs-dismiss="modal" 
+                        data-bs-toggle="modal" data-bs-target="#preventivoModal">
+                    <i class="fas fa-calculator me-2"></i>Richiedi Preventivo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Script per gestione form preventivo
+document.getElementById('preventivoForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Mostra loading
+    const submitBtn = document.querySelector('#preventivoModal .btn-primary');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Invio in corso...';
+    submitBtn.disabled = true;
+    
+    // Simula invio (da implementare con AJAX)
+    setTimeout(() => {
+        submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Inviato!';
+        submitBtn.classList.remove('btn-primary');
+        submitBtn.classList.add('btn-success');
+        
+        setTimeout(() => {
+            $('#preventivoModal').modal('hide');
+            
+            // Reset form
+            submitBtn.innerHTML = originalText;
+            submitBtn.classList.remove('btn-success');
+            submitBtn.classList.add('btn-primary');
+            submitBtn.disabled = false;
+            document.getElementById('preventivoForm').reset();
+            
+            // Mostra successo
+            alert('Richiesta inviata con successo! Riceverai una risposta entro 24 ore.');
+        }, 1500);
+    }, 2000);
+});
+</script>
+{% endblock %}

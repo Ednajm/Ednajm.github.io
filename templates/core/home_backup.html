@@ -1,0 +1,1406 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}RinnovoCasa - Il Futuro delle Ristrutturazioni è Qui{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ===== HERO FUTURISTICO ===== */
+.hero-futuristic {
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.hero-futuristic::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+        linear-gradient(45deg, rgba(168, 85, 247, 0.05) 0%, transparent 100%);
+    animation: hologram 8s ease-in-out infinite;
+}
+
+@keyframes hologram {
+    0%, 100% { 
+        opacity: 1; 
+        filter: hue-rotate(0deg) saturate(1);
+    }
+    25% { 
+        opacity: 0.8; 
+        filter: hue-rotate(90deg) saturate(1.2);
+    }
+    50% { 
+        opacity: 0.9; 
+        filter: hue-rotate(180deg) saturate(0.8);
+    }
+    75% { 
+        opacity: 0.7; 
+        filter: hue-rotate(270deg) saturate(1.1);
+    }
+}
+
+.hero-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #06b6d4;
+    border-radius: 50%;
+    animation: matrix 4s linear infinite;
+    box-shadow: 0 0 10px #06b6d4;
+}
+
+@keyframes matrix {
+    0% { transform: translateY(-100%) scaleY(0); }
+    50% { transform: translateY(0%) scaleY(1); }
+    100% { transform: translateY(100vh) scaleY(0); }
+}
+
+.particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+.particle:nth-child(2) { left: 20%; animation-delay: 0.5s; }
+.particle:nth-child(3) { left: 30%; animation-delay: 1s; }
+.particle:nth-child(4) { left: 40%; animation-delay: 1.5s; }
+.particle:nth-child(5) { left: 50%; animation-delay: 2s; }
+.particle:nth-child(6) { left: 60%; animation-delay: 2.5s; }
+.particle:nth-child(7) { left: 70%; animation-delay: 3s; }
+.particle:nth-child(8) { left: 80%; animation-delay: 3.5s; }
+.particle:nth-child(9) { left: 90%; animation-delay: 4s; }
+
+.hero-content {
+    position: relative;
+    z-index: 10;
+    color: white;
+}
+
+.hero-title {
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 2rem;
+    background: linear-gradient(135deg, #00c9ff 0%, #92fe9d 50%, #ff9a9e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: neonFlicker 3s ease-in-out infinite;
+}
+
+@keyframes neonFlicker {
+    0%, 100% { 
+        text-shadow: 
+            0 0 5px #a855f7,
+            0 0 10px #a855f7,
+            0 0 15px #a855f7,
+            0 0 20px #a855f7;
+    }
+    50% { 
+        text-shadow: 
+            0 0 2px #06b6d4,
+            0 0 5px #06b6d4,
+            0 0 8px #06b6d4,
+            0 0 12px #06b6d4;
+    }
+}
+
+.hero-subtitle {
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    margin-bottom: 3rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.hero-cta {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-hero {
+    padding: 16px 32px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-hero-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: 2px solid transparent;
+}
+
+.btn-hero-primary:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 
+        0 15px 40px rgba(99, 102, 241, 0.4),
+        0 0 30px #a855f7;
+    color: white;
+}
+
+.btn-hero-outline {
+    background: transparent;
+    color: #06b6d4;
+    border: 2px solid #06b6d4;
+    box-shadow: 
+        0 0 10px #06b6d4,
+        inset 0 0 10px transparent;
+}
+
+.btn-hero-outline:hover {
+    background: #06b6d4;
+    color: #0f172a;
+    box-shadow: 
+        0 0 20px #06b6d4,
+        inset 0 0 20px rgba(6, 182, 212, 0.2);
+    transform: translateY(-5px) scale(1.05);
+}
+
+/* ===== FLOATING CARDS ===== */
+.floating-card {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 1rem 1.5rem;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+    animation: float 6s ease-in-out infinite;
+    z-index: 5;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(2deg); }
+}
+
+.floating-card-1 {
+    top: 20%;
+    right: 10%;
+    animation-delay: 0s;
+}
+
+.floating-card-2 {
+    top: 60%;
+    right: 5%;
+    animation-delay: 2s;
+}
+
+.floating-card-3 {
+    bottom: 30%;
+    left: 15%;
+    animation-delay: 4s;
+}
+
+.floating-card i {
+    margin-right: 0.5rem;
+    color: #06b6d4;
+}
+
+/* ===== HERO IMAGE ===== */
+.hero-image {
+    position: relative;
+    z-index: 5;
+}
+
+.hero-image img {
+    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
+    animation: float 8s ease-in-out infinite;
+    max-width: 100%;
+    height: auto;
+}
+
+.hero-image::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    background: linear-gradient(135deg, #654ea3 0%, #eaafc8 50%, #667eea 100%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.1;
+    animation: rotate 20s linear infinite;
+    z-index: -1;
+}
+
+@keyframes rotate {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ===== FEATURES FUTURISTICHE ===== */
+.features-futuristic {
+    background: linear-gradient(135deg, #16213e 0%, #0f172a 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.features-futuristic::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(rgba(6, 182, 212, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+}
+
+.feature-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 2rem;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    z-index: -1;
+}
+
+.feature-card:hover::before {
+    opacity: 0.1;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 
+        0 20px 60px rgba(31, 38, 135, 0.5),
+        0 0 30px #a855f7;
+}
+
+.feature-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-icon::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--icon-color, #6366f1) 0%, rgba(255, 255, 255, 0.2) 100%);
+    border-radius: 50%;
+    opacity: 0.2;
+}
+
+.feature-icon i {
+    position: relative;
+    z-index: 1;
+    color: var(--icon-color, #06b6d4);
+    text-shadow: 0 0 20px var(--icon-color, #06b6d4);
+}
+
+.feature-title {
+    color: white;
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.feature-description {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+}
+
+/* ===== STATS FUTURISTICHE ===== */
+.stats-futuristic {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 3rem 2rem;
+    margin: 4rem 0;
+}
+
+.stat-item {
+    text-align: center;
+    color: white;
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #00c9ff 0%, #92fe9d 50%, #ff9a9e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .hero-cta {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-hero {
+        width: 100%;
+        max-width: 300px;
+        text-align: center;
+    }
+    
+    .floating-card {
+        display: none;
+    }
+}
+</style>
+{% endblock %}
+/* ===== HERO FUTURISTICO ===== */
+.hero-futuristic {
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.hero-futuristic::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+        linear-gradient(45deg, rgba(168, 85, 247, 0.05) 0%, transparent 100%);
+    animation: hologram 8s ease-in-out infinite;
+}
+
+@keyframes hologram {
+    0%, 100% { 
+        opacity: 1; 
+        filter: hue-rotate(0deg) saturate(1);
+    }
+    25% { 
+        opacity: 0.8; 
+        filter: hue-rotate(90deg) saturate(1.2);
+    }
+    50% { 
+        opacity: 0.9; 
+        filter: hue-rotate(180deg) saturate(0.8);
+    }
+    75% { 
+        opacity: 0.7; 
+        filter: hue-rotate(270deg) saturate(1.1);
+    }
+}
+
+.hero-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #06b6d4;
+    border-radius: 50%;
+    animation: matrix 4s linear infinite;
+    box-shadow: 0 0 10px #06b6d4;
+}
+
+@keyframes matrix {
+    0% { transform: translateY(-100%) scaleY(0); }
+    50% { transform: translateY(0%) scaleY(1); }
+    100% { transform: translateY(100vh) scaleY(0); }
+}
+
+.particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+.particle:nth-child(2) { left: 20%; animation-delay: 0.5s; }
+.particle:nth-child(3) { left: 30%; animation-delay: 1s; }
+.particle:nth-child(4) { left: 40%; animation-delay: 1.5s; }
+.particle:nth-child(5) { left: 50%; animation-delay: 2s; }
+.particle:nth-child(6) { left: 60%; animation-delay: 2.5s; }
+.particle:nth-child(7) { left: 70%; animation-delay: 3s; }
+.particle:nth-child(8) { left: 80%; animation-delay: 3.5s; }
+.particle:nth-child(9) { left: 90%; animation-delay: 4s; }
+
+.hero-content {
+    position: relative;
+    z-index: 10;
+    color: white;
+}
+
+.hero-title {
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 2rem;
+    background: linear-gradient(135deg, #00c9ff 0%, #92fe9d 50%, #ff9a9e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: neonFlicker 3s ease-in-out infinite;
+}
+
+@keyframes neonFlicker {
+    0%, 100% { 
+        text-shadow: 
+            0 0 5px #a855f7,
+            0 0 10px #a855f7,
+            0 0 15px #a855f7,
+            0 0 20px #a855f7;
+    }
+    50% { 
+        text-shadow: 
+            0 0 2px #06b6d4,
+            0 0 5px #06b6d4,
+            0 0 8px #06b6d4,
+            0 0 12px #06b6d4;
+    }
+}
+
+.hero-subtitle {
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    margin-bottom: 3rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.hero-cta {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-hero {
+    padding: 16px 32px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-hero-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: 2px solid transparent;
+}
+
+.btn-hero-primary:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 
+        0 15px 40px rgba(99, 102, 241, 0.4),
+        0 0 30px #a855f7;
+    color: white;
+}
+
+.btn-hero-outline {
+    background: transparent;
+    color: #06b6d4;
+    border: 2px solid #06b6d4;
+    box-shadow: 
+        0 0 10px #06b6d4,
+        inset 0 0 10px transparent;
+}
+
+.btn-hero-outline:hover {
+    background: #06b6d4;
+    color: #0f172a;
+    box-shadow: 
+        0 0 20px #06b6d4,
+        inset 0 0 20px rgba(6, 182, 212, 0.2);
+    transform: translateY(-5px) scale(1.05);
+}
+
+/* ===== FLOATING CARDS ===== */
+.floating-card {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 1rem 1.5rem;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+    animation: float 6s ease-in-out infinite;
+    z-index: 5;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(2deg); }
+}
+
+.floating-card-1 {
+    top: 20%;
+    right: 10%;
+    animation-delay: 0s;
+}
+
+.floating-card-2 {
+    top: 60%;
+    right: 5%;
+    animation-delay: 2s;
+}
+
+.floating-card-3 {
+    bottom: 30%;
+    left: 15%;
+    animation-delay: 4s;
+}
+
+.floating-card i {
+    margin-right: 0.5rem;
+    color: #06b6d4;
+}
+
+/* ===== HERO IMAGE ===== */
+.hero-image {
+    position: relative;
+    z-index: 5;
+}
+
+.hero-image img {
+    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
+    animation: float 8s ease-in-out infinite;
+    max-width: 100%;
+    height: auto;
+}
+
+.hero-image::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    background: linear-gradient(135deg, #654ea3 0%, #eaafc8 50%, #667eea 100%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.1;
+    animation: rotate 20s linear infinite;
+    z-index: -1;
+}
+
+@keyframes rotate {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ===== FEATURES FUTURISTICHE ===== */
+.features-futuristic {
+    background: linear-gradient(135deg, #16213e 0%, #0f172a 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.features-futuristic::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(rgba(6, 182, 212, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+}
+
+.feature-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 2rem;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    z-index: -1;
+}
+
+.feature-card:hover::before {
+    opacity: 0.1;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 
+        0 20px 60px rgba(31, 38, 135, 0.5),
+        0 0 30px #a855f7;
+}
+
+.feature-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-icon::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--icon-color, #6366f1) 0%, rgba(255, 255, 255, 0.2) 100%);
+    border-radius: 50%;
+    opacity: 0.2;
+}
+
+.feature-icon i {
+    position: relative;
+    z-index: 1;
+    color: var(--icon-color, #06b6d4);
+    text-shadow: 0 0 20px var(--icon-color, #06b6d4);
+}
+
+.feature-title {
+    color: white;
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.feature-description {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+}
+
+/* ===== STATS FUTURISTICHE ===== */
+.stats-futuristic {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 3rem 2rem;
+    margin: 4rem 0;
+}
+
+.stat-item {
+    text-align: center;
+    color: white;
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #00c9ff 0%, #92fe9d 50%, #ff9a9e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .hero-cta {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-hero {
+        width: 100%;
+        max-width: 300px;
+        text-align: center;
+    }
+    
+    .floating-card {
+        display: none;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section Futuristico -->
+<section class="hero-futuristic">
+    <!-- Particelle Matrix -->
+    <div class="hero-particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        🏠 Il Futuro delle<br>
+                        <span class="text-gradient">Ristrutturazioni</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Intelligenza Artificiale, Realtà Aumentata e Blockchain per trasformare 
+                        la tua casa nel futuro. Diagnosi AI avanzata, bonus automatici e 
+                        progetti garantiti dalla tecnologia più avanzata del 2025.
+                    </p>
+                    <div class="hero-cta">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'core:diagnosi' %}" class="btn-hero btn-hero-primary">
+                                <i class="fas fa-robot me-2"></i>AI Diagnosi 3.0
+                            </a>
+                            <a href="{% url 'core:consulenza_video' %}" class="btn-hero btn-hero-outline">
+                                <i class="fas fa-vr-cardboard me-2"></i>VR Consulenza
+                            </a>
+                        {% else %}
+                            <a href="{% url 'utenti:register' %}" class="btn-hero btn-hero-primary">
+                                <i class="fas fa-rocket me-2"></i>Entra nel Futuro
+                            </a>
+                            <a href="{% url 'core:come_funziona' %}" class="btn-hero btn-hero-outline">
+                                <i class="fas fa-play me-2"></i>Scopri la Magia
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-image">
+                    <!-- Placeholder SVG per immagine futuristica -->
+                    <div style="width: 500px; height: 400px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; margin: 0 auto;">
+                        <div style="text-align: center;">
+                            <i class="fas fa-home" style="font-size: 4rem; margin-bottom: 1rem; display: block;"></i>
+                            <div>Casa del Futuro</div>
+                            <div style="font-size: 1rem; opacity: 0.8;">AI Powered</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Floating Cards -->
+                    <div class="floating-card floating-card-1">
+                        <i class="fas fa-brain"></i>
+                        <span>AI Avanzata</span>
+                    </div>
+                    <div class="floating-card floating-card-2">
+                        <i class="fas fa-chart-line"></i>
+                        <span>ROI +300%</span>
+                    </div>
+                    <div class="floating-card floating-card-3">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Blockchain Security</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Futuristiche -->
+<section class="features-futuristic py-5">
+    <div class="container">
+        <!-- Stats -->
+        <div class="stats-futuristic">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="stat-item">
+                        <div class="stat-number">10K+</div>
+                        <div class="stat-label">Case del Futuro</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-item">
+                        <div class="stat-number">€50M</div>
+                        <div class="stat-label">Bonus AI Ottenuti</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-item">
+                        <div class="stat-number">99.9%</div>
+                        <div class="stat-label">Precisione AI</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold text-white mb-3">
+                    Tecnologie del 2025
+                </h2>
+                <p class="lead text-white-50">
+                    Rivoluziona il modo di ristrutturare con l'intelligenza artificiale più avanzata
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon" style="--icon-color: #a855f7;">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h5 class="feature-title">AI Diagnosi 3.0</h5>
+                    <p class="feature-description">
+                        Intelligenza artificiale quantistica che analizza ogni millimetro 
+                        della tua casa con precisione nanometrica. Riconoscimento di 10.000+ difetti.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon" style="--icon-color: #06b6d4;">
+                        <i class="fas fa-cube"></i>
+                    </div>
+                    <h5 class="feature-title">Blockchain Contracts</h5>
+                    <p class="feature-description">
+                        Smart contracts automatici su blockchain per pagamenti sicuri, 
+                        milestone verificate e garanzie immutabili.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon" style="--icon-color: #10b981;">
+                        <i class="fas fa-vr-cardboard"></i>
+                    </div>
+                    <h5 class="feature-title">VR/AR Preview</h5>
+                    <p class="feature-description">
+                        Visualizza la tua casa rinnovata in realtà virtuale prima ancora 
+                        di iniziare. Modifiche in tempo reale e rendering fotorealistici.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon" style="--icon-color: #f59e0b;">
+                        <i class="fas fa-satellite-dish"></i>
+                    </div>
+                    <h5 class="feature-title">IoT Integration</h5>
+                    <p class="feature-description">
+                        Casa completamente connessa con sensori IoT, controllo da remoto 
+                        e automazione intelligente per efficienza energetica massima.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pacchetti del Futuro -->
+{% if pacchetti_evidenza %}
+<section class="py-5" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold text-white mb-3">
+                    Pacchetti del Futuro
+                </h2>
+                <p class="lead text-white-50">
+                    Soluzioni complete con tecnologie avanzate per la casa del 2025
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for pacchetto in pacchetti_evidenza %}
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    {% if pacchetto.immagine_principale %}
+                        <img src="{{ pacchetto.immagine_principale.url }}" 
+                             class="card-img-top rounded mb-3" 
+                             alt="{{ pacchetto.nome }}" 
+                             style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div style="height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem; margin-bottom: 1rem;">
+                            <i class="fas fa-home"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                            {{ pacchetto.categoria.nome }}
+                        </span>
+                        {% if pacchetto.include_bonus %}
+                            <span class="badge" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                                Bonus AI
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    <h5 class="feature-title">{{ pacchetto.nome }}</h5>
+                    <p class="feature-description">{{ pacchetto.descrizione_breve }}</p>
+                    
+                    <div class="border-top border-light border-opacity-25 pt-3 mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <div class="fw-bold text-white fs-5">
+                                    €{{ pacchetto.prezzo_min|floatformat:0 }} - €{{ pacchetto.prezzo_max|floatformat:0 }}
+                                </div>
+                                <small class="text-white-50">{{ pacchetto.durata_giorni_min }}-{{ pacchetto.durata_giorni_max }} giorni</small>
+                            </div>
+                        </div>
+                        
+                        <a href="{% url 'core:dettaglio_pacchetto' pacchetto.id %}" 
+                           class="btn-hero btn-hero-primary w-100 text-center">
+                            <i class="fas fa-rocket me-2"></i>Esplora il Futuro
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Finale -->
+<section class="py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-5 fw-bold text-white mb-3">
+                    Benvenuto nel 2025
+                </h2>
+                <p class="lead text-white mb-4">
+                    Non aspettare il futuro. Crealo oggi con RinnovoCasa AI.
+                </p>
+                
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'core:diagnosi' %}" class="btn-hero btn-hero-outline">
+                            <i class="fas fa-brain me-2"></i>Inizia AI Scan
+                        </a>
+                    {% else %}
+                        <a href="{% url 'utenti:register' %}" class="btn-hero btn-hero-outline">
+                            <i class="fas fa-user-astronaut me-2"></i>Diventa Pioniere
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'core:consulenza_video' %}" class="btn-hero btn-hero-outline">
+                        <i class="fas fa-video me-2"></i>Demo Live
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Effetti interattivi futuristici
+document.addEventListener('DOMContentLoaded', function() {
+    // Parallax per le particelle
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const particles = document.querySelectorAll('.particle');
+        
+        particles.forEach((particle, index) => {
+            const speed = 0.5 + (index * 0.1);
+            particle.style.transform = `translateY(${scrolled * speed}px)`;
+        });
+    });
+
+    // Animazioni on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+                entry.target.classList.add('animate-slide-up');
+            }
+        });
+    }, observerOptions);
+
+    // Osserva tutte le feature cards
+    document.querySelectorAll('.feature-card').forEach(card => {
+        card.style.animationPlayState = 'paused';
+        observer.observe(card);
+    });
+
+    // Effetto cursor glow
+    document.addEventListener('mousemove', (e) => {
+        const cursor = document.querySelector('.cursor-glow');
+        if (!cursor) {
+            const newCursor = document.createElement('div');
+            newCursor.className = 'cursor-glow';
+            newCursor.style.cssText = `
+                position: fixed;
+                width: 20px;
+                height: 20px;
+                background: radial-gradient(circle, rgba(99,102,241,0.5) 0%, transparent 70%);
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 9999;
+                mix-blend-mode: difference;
+                transition: transform 0.1s ease;
+            `;
+            document.body.appendChild(newCursor);
+        }
+        
+        const glowCursor = document.querySelector('.cursor-glow');
+        glowCursor.style.left = e.clientX - 10 + 'px';
+        glowCursor.style.top = e.clientY - 10 + 'px';
+    });
+});
+</script>
+{% endblock %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 text-center p-4">
+                    <div class="card-body">
+                        <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-home text-info fs-2"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">4. Casa rinnovata</h5>
+                        <p class="text-muted">Segui i lavori dalla dashboard e goditi la tua casa rinnovata con tutti i comfort moderni.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pacchetti in Evidenza -->
+{% if pacchetti_evidenza %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">Pacchetti più richiesti</h2>
+                <p class="lead text-muted">Soluzioni complete per ogni esigenza di ristrutturazione</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for pacchetto in pacchetti_evidenza %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift">
+                    {% if pacchetto.immagine_principale %}
+                        <img src="{{ pacchetto.immagine_principale.url }}" class="card-img-top" alt="{{ pacchetto.nome }}" style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-primary-soft text-primary">{{ pacchetto.categoria.nome }}</span>
+                            {% if pacchetto.include_bonus %}
+                                <span class="badge bg-success">Bonus Inclusi</span>
+                            {% endif %}
+                        </div>
+                        
+                        <h5 class="fw-bold mb-2">{{ pacchetto.nome }}</h5>
+                        <p class="text-muted flex-grow-1">{{ pacchetto.descrizione_breve }}</p>
+                        
+                        <div class="border-top pt-3 mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <div class="fw-bold text-primary fs-5">
+                                        €{{ pacchetto.prezzo_min|floatformat:0 }} - €{{ pacchetto.prezzo_max|floatformat:0 }}
+                                    </div>
+                                    <small class="text-muted">{{ pacchetto.durata_giorni_min }}-{{ pacchetto.durata_giorni_max }} giorni</small>
+                                </div>
+                                <div class="text-end">
+                                    <div class="rating mb-1">
+                                        <span class="badge bg-{{ pacchetto.difficolta|yesno:'danger,warning,success' }}">
+                                            {{ pacchetto.get_difficolta_display }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <a href="{% url 'core:dettaglio_pacchetto' pacchetto.id %}" class="btn btn-primary w-100">
+                                <i class="fas fa-eye me-2"></i>Scopri di più
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{% url 'core:pacchetti' %}" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-th-large me-2"></i>Vedi Tutti i Pacchetti
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Vantaggi -->
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h2 class="display-5 fw-bold mb-4">Perché scegliere RinnovoCasa?</h2>
+                
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="d-flex">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 me-3" style="width: 50px; height: 50px;">
+                                <i class="fas fa-brain text-primary"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-2">Diagnosi AI Avanzata</h5>
+                                <p class="text-muted mb-0">Tecnologia all'avanguardia per analizzare il tuo immobile e identificare problemi nascosti.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="d-flex">
+                            <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 me-3" style="width: 50px; height: 50px;">
+                                <i class="fas fa-percentage text-success"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-2">Gestione Bonus Fiscali</h5>
+                                <p class="text-muted mb-0">Ci occupiamo noi di tutta la burocrazia per Superbonus, Ecobonus e altri incentivi.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="d-flex">
+                            <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 me-3" style="width: 50px; height: 50px;">
+                                <i class="fas fa-handshake text-warning"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-2">Imprese Verificate</h5>
+                                <p class="text-muted mb-0">Solo artigiani e imprese certificate con valutazioni reali dei clienti.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="d-flex">
+                            <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 me-3" style="width: 50px; height: 50px;">
+                                <i class="fas fa-mobile-alt text-info"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-2">Dashboard Completa</h5>
+                                <p class="text-muted mb-0">Monitora i tuoi progetti in tempo reale con foto, documenti e scadenze.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="position-relative">
+                    <img src="{% static 'images/dashboard-preview.svg' %}" alt="Dashboard" class="img-fluid rounded shadow">
+                    <div class="position-absolute top-0 start-0 w-100 h-100 bg-primary bg-opacity-10 rounded"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-5 fw-bold mb-3">Pronto a rinnovare la tua casa?</h2>
+                <p class="lead mb-4">Inizia con una diagnosi gratuita e scopri come possiamo trasformare il tuo immobile.</p>
+                
+                <div class="row g-3 justify-content-center">
+                    <div class="col-auto">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'core:diagnosi' %}" class="btn btn-light btn-lg">
+                                <i class="fas fa-search me-2"></i>Diagnosi Gratuita
+                            </a>
+                        {% else %}
+                            <a href="{% url 'utenti:register' %}" class="btn btn-light btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>Registrati Gratis
+                            </a>
+                        {% endif %}
+                    </div>
+                    <div class="col-auto">
+                        <a href="{% url 'core:consulenza_video' %}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-video me-2"></i>Consulenza Video
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="row mt-5 text-center">
+                    <div class="col-md-4">
+                        <div class="h2 fw-bold">1000+</div>
+                        <div>Case rinnovate</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="h2 fw-bold">€2.5M</div>
+                        <div>Bonus ottenuti</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="h2 fw-bold">4.9★</div>
+                        <div>Valutazione media</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Effetti interattivi futuristici
+document.addEventListener('DOMContentLoaded', function() {
+    // Parallax per le particelle
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const particles = document.querySelectorAll('.particle');
+        
+        particles.forEach((particle, index) => {
+            const speed = 0.5 + (index * 0.1);
+            particle.style.transform = `translateY(${scrolled * speed}px)`;
+        });
+    });
+
+    // Animazioni on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+                entry.target.classList.add('animate-slide-up');
+            }
+        });
+    }, observerOptions);
+
+    // Osserva tutte le feature cards
+    document.querySelectorAll('.feature-card').forEach(card => {
+        card.style.animationPlayState = 'paused';
+        observer.observe(card);
+    });
+
+    // Effetto cursor glow
+    document.addEventListener('mousemove', (e) => {
+        const cursor = document.querySelector('.cursor-glow');
+        if (!cursor) {
+            const newCursor = document.createElement('div');
+            newCursor.className = 'cursor-glow';
+            newCursor.style.cssText = `
+                position: fixed;
+                width: 20px;
+                height: 20px;
+                background: radial-gradient(circle, rgba(99,102,241,0.5) 0%, transparent 70%);
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 9999;
+                mix-blend-mode: difference;
+                transition: transform 0.1s ease;
+            `;
+            document.body.appendChild(newCursor);
+        }
+        
+        const glowCursor = document.querySelector('.cursor-glow');
+        glowCursor.style.left = e.clientX - 10 + 'px';
+        glowCursor.style.top = e.clientY - 10 + 'px';
+    });
+});
+</script>
+{% endblock %}

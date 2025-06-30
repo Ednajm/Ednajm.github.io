@@ -1,0 +1,308 @@
+{% extends 'artigiani/dashboard.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Dashboard Artigiano{% endblock %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-calendar-plus me-2"></i>{{ title }}
+                    </h4>
+                    <a href="{% url 'artigiani:appuntamenti' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Torna alla Lista
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="post" id="appuntamento-form">
+                    {% csrf_token %}
+                    
+                    <!-- Informazioni Cliente -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-user me-2"></i>Informazioni Cliente
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.cliente_nome.id_for_label }}" class="form-label">
+                                        Nome e Cognome *
+                                    </label>
+                                    {{ form.cliente_nome }}
+                                    {% if form.cliente_nome.errors %}
+                                        <div class="text-danger small">{{ form.cliente_nome.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.cliente_telefono.id_for_label }}" class="form-label">
+                                        Telefono *
+                                    </label>
+                                    {{ form.cliente_telefono }}
+                                    {% if form.cliente_telefono.errors %}
+                                        <div class="text-danger small">{{ form.cliente_telefono.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="{{ form.cliente_email.id_for_label }}" class="form-label">
+                                        Email *
+                                    </label>
+                                    {{ form.cliente_email }}
+                                    {% if form.cliente_email.errors %}
+                                        <div class="text-danger small">{{ form.cliente_email.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dettagli Appuntamento -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-calendar-check me-2"></i>Dettagli Appuntamento
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.tipo_appuntamento.id_for_label }}" class="form-label">
+                                        Tipo Appuntamento *
+                                    </label>
+                                    {{ form.tipo_appuntamento }}
+                                    {% if form.tipo_appuntamento.errors %}
+                                        <div class="text-danger small">{{ form.tipo_appuntamento.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.durata_stimata.id_for_label }}" class="form-label">
+                                        Durata (minuti) *
+                                    </label>
+                                    {{ form.durata_stimata }}
+                                    <div class="form-text">{{ form.durata_stimata.help_text }}</div>
+                                    {% if form.durata_stimata.errors %}
+                                        <div class="text-danger small">{{ form.durata_stimata.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="{{ form.titolo.id_for_label }}" class="form-label">
+                                        Titolo Appuntamento *
+                                    </label>
+                                    {{ form.titolo }}
+                                    {% if form.titolo.errors %}
+                                        <div class="text-danger small">{{ form.titolo.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="{{ form.descrizione.id_for_label }}" class="form-label">
+                                        Descrizione
+                                    </label>
+                                    {{ form.descrizione }}
+                                    {% if form.descrizione.errors %}
+                                        <div class="text-danger small">{{ form.descrizione.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data e Ora -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-clock me-2"></i>Data e Ora
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.data_appuntamento.id_for_label }}" class="form-label">
+                                        Data Appuntamento *
+                                    </label>
+                                    {{ form.data_appuntamento }}
+                                    {% if form.data_appuntamento.errors %}
+                                        <div class="text-danger small">{{ form.data_appuntamento.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.ora_inizio.id_for_label }}" class="form-label">
+                                        Ora Inizio *
+                                    </label>
+                                    {{ form.ora_inizio }}
+                                    {% if form.ora_inizio.errors %}
+                                        <div class="text-danger small">{{ form.ora_inizio.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Verifica disponibilità -->
+                            <div id="disponibilita-check" class="alert alert-info" style="display: none;">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <span id="disponibilita-message"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Indirizzo -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-map-marker-alt me-2"></i>Indirizzo Lavoro
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <label for="{{ form.indirizzo.id_for_label }}" class="form-label">
+                                        Indirizzo *
+                                    </label>
+                                    {{ form.indirizzo }}
+                                    {% if form.indirizzo.errors %}
+                                        <div class="text-danger small">{{ form.indirizzo.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-8 mb-3">
+                                    <label for="{{ form.citta.id_for_label }}" class="form-label">
+                                        Città *
+                                    </label>
+                                    {{ form.citta }}
+                                    {% if form.citta.errors %}
+                                        <div class="text-danger small">{{ form.citta.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.cap.id_for_label }}" class="form-label">
+                                        CAP *
+                                    </label>
+                                    {{ form.cap }}
+                                    {% if form.cap.errors %}
+                                        <div class="text-danger small">{{ form.cap.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Informazioni Aggiuntive -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Informazioni Aggiuntive
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.costo_stimato.id_for_label }}" class="form-label">
+                                        Costo Stimato (€)
+                                    </label>
+                                    {{ form.costo_stimato }}
+                                    <div class="form-text">{{ form.costo_stimato.help_text }}</div>
+                                    {% if form.costo_stimato.errors %}
+                                        <div class="text-danger small">{{ form.costo_stimato.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6"></div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.note_cliente.id_for_label }}" class="form-label">
+                                        Note Cliente
+                                    </label>
+                                    {{ form.note_cliente }}
+                                    {% if form.note_cliente.errors %}
+                                        <div class="text-danger small">{{ form.note_cliente.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.note_artigiano.id_for_label }}" class="form-label">
+                                        Note Private
+                                    </label>
+                                    {{ form.note_artigiano }}
+                                    <div class="form-text">{{ form.note_artigiano.help_text }}</div>
+                                    {% if form.note_artigiano.errors %}
+                                        <div class="text-danger small">{{ form.note_artigiano.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Errori generali del form -->
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Pulsanti -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'artigiani:appuntamenti' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>Annulla
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>
+                            {% if appuntamento %}Salva Modifiche{% else %}Crea Appuntamento{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dataInput = document.getElementById('{{ form.data_appuntamento.id_for_label }}');
+    const oraInput = document.getElementById('{{ form.ora_inizio.id_for_label }}');
+    const disponibilitaDiv = document.getElementById('disponibilita-check');
+    const messageSpan = document.getElementById('disponibilita-message');
+    
+    // Verifica disponibilità quando cambiano data o ora
+    function verificaDisponibilita() {
+        const data = dataInput.value;
+        const ora = oraInput.value;
+        
+        if (data && ora) {
+            const dataObj = new Date(data);
+            const giornoSettimana = dataObj.getDay(); // 0 = Domenica, 1 = Lunedì, ecc.
+            const oraObj = new Date(`2000-01-01T${ora}`);
+            
+            // Simulazione controllo disponibilità (in un'app reale faresti una chiamata AJAX)
+            let disponibile = true;
+            let messaggio = '';
+            
+            // Controlla se è un giorno lavorativo
+            if (giornoSettimana === 0 || giornoSettimana === 6) {
+                disponibile = false;
+                messaggio = 'Attenzione: questo giorno potrebbe essere chiuso. Verifica i tuoi orari di disponibilità.';
+            } else if (oraObj.getHours() < 8 || oraObj.getHours() > 18) {
+                disponibile = false;
+                messaggio = 'Attenzione: questo orario è fuori dai normali orari di lavoro.';
+            } else {
+                messaggio = 'Orario disponibile';
+            }
+            
+            disponibilitaDiv.className = `alert ${disponibile ? 'alert-success' : 'alert-warning'}`;
+            messageSpan.textContent = messaggio;
+            disponibilitaDiv.style.display = 'block';
+        } else {
+            disponibilitaDiv.style.display = 'none';
+        }
+    }
+    
+    dataInput.addEventListener('change', verificaDisponibilita);
+    oraInput.addEventListener('change', verificaDisponibilita);
+    
+    // Verifica iniziale se ci sono già valori
+    if (dataInput.value && oraInput.value) {
+        verificaDisponibilita();
+    }
+});
+</script>
+{% endblock %}

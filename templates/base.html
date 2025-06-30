@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}RinnovoCasa - Il Futuro delle Ristrutturazioni{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Meta tags -->
+    <meta name="description" content="{% block description %}RinnovoCasa - Il futuro delle ristrutturazioni con AI, blockchain e realtà aumentata. Diagnosi avanzata, bonus automatici e progetti garantiti.{% endblock %}">
+    <meta name="keywords" content="ristrutturazione, AI, intelligenza artificiale, blockchain, realtà aumentata, bonus fiscali, superbonus, casa del futuro">
+    <meta name="author" content="RinnovoCasa">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    
+    <style>
+    /* ===== NAVBAR FUTURISTICA ===== */
+    body {
+        font-family: 'Space Grotesk', sans-serif;
+        background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+        color: white;
+    }
+    
+    .navbar-modern {
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        z-index: 1000;
+    }
+
+    .navbar-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        opacity: 0.1;
+        z-index: -1;
+    }
+
+    .navbar-brand {
+        font-weight: 700;
+        font-size: 1.5rem;
+        background: linear-gradient(135deg, #ff006e 0%, #8338ec 50%, #3a86ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .navbar-brand:hover {
+        transform: scale(1.05);
+        filter: brightness(1.2);
+    }
+
+    .navbar-brand i {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-5px) rotate(2deg); }
+    }
+
+    .nav-link {
+        color: rgba(255, 255, 255, 0.9) !important;
+        font-weight: 500;
+        position: relative;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        overflow: hidden;
+    }
+
+    .nav-link::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(135deg, #ff006e 0%, #8338ec 50%, #3a86ff 100%);
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .nav-link:hover::before,
+    .nav-link.active::before {
+        width: 100%;
+    }
+
+    .nav-link:hover {
+        color: #06b6d4 !important;
+        text-shadow: 0 0 10px #06b6d4;
+        transform: translateY(-2px);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 16px;
+        padding: 12px 24px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .btn-primary:hover::before {
+        left: 100%;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 
+            0 10px 30px rgba(99, 102, 241, 0.4),
+            0 0 20px #a855f7;
+    }
+    
+    /* Dropdown futuristico */
+    .dropdown-menu {
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+    }
+    
+    .dropdown-item {
+        color: rgba(255, 255, 255, 0.9);
+        transition: all 0.3s ease;
+    }
+    
+    .dropdown-item:hover {
+        background: rgba(99, 102, 241, 0.2);
+        color: #06b6d4;
+        transform: translateX(5px);
+    }
+    
+    /* Alert futuristici */
+    .alert {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        color: white;
+    }
+    
+    .alert-success {
+        border-color: rgba(16, 185, 129, 0.5);
+        background: rgba(16, 185, 129, 0.1);
+    }
+    
+    .alert-error {
+        border-color: rgba(239, 68, 68, 0.5);
+        background: rgba(239, 68, 68, 0.1);
+    }
+    
+    .alert-warning {
+        border-color: rgba(245, 158, 11, 0.5);
+        background: rgba(245, 158, 11, 0.1);
+    }
+    
+    .alert-info {
+        border-color: rgba(59, 130, 246, 0.5);
+        background: rgba(59, 130, 246, 0.1);
+    }
+    
+    /* ===== FOOTER FUTURISTICO ===== */
+    .ultra-modern-footer {
+        background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+        position: relative;
+        overflow: hidden;
+        margin-top: auto;
+    }
+    
+    .ultra-modern-footer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(rgba(6, 182, 212, 0.05) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(6, 182, 212, 0.05) 1px, transparent 1px);
+        background-size: 50px 50px;
+        z-index: 1;
+    }
+    
+    .newsletter-section {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 4rem 0;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .newsletter-title {
+        color: white;
+        font-weight: 700;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #00c9ff 0%, #92fe9d 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .newsletter-subtitle {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+    
+    .newsletter-form-modern {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .input-group-modern {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .input-wrapper {
+        position: relative;
+        flex: 1;
+    }
+    
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #06b6d4;
+        z-index: 3;
+    }
+    
+    .form-control-modern {
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(6, 182, 212, 0.3);
+        border-radius: 16px;
+        padding: 1rem 1rem 1rem 3rem;
+        color: white;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .form-control-modern:focus {
+        outline: none;
+        border-color: #06b6d4;
+        box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+        background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .form-control-modern::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .btn-newsletter-modern {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 16px;
+        padding: 1rem 2rem;
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+    }
+    
+    .btn-newsletter-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    }
+    
+    .privacy-note {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .footer-main {
+        padding: 4rem 0 2rem;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .footer-brand-modern {
+        color: white;
+    }
+    
+    .brand-logo-modern {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .logo-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+    }
+    
+    .logo-icon i {
+        color: white;
+        font-size: 1.5rem;
+    }
+    
+    .logo-text {
+        font-size: 1.8rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #00c9ff 0%, #92fe9d 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .brand-description-modern {
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+    
+    .footer-stats {
+        display: flex;
+        gap: 2rem;
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #06b6d4;
+        display: block;
+    }
+    
+    .stat-label {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .footer-section-modern h5 {
+        color: white;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        font-size: 1.2rem;
+    }
+    
+    .footer-links-modern a {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        display: block;
+        padding: 0.5rem 0;
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+        padding-left: 1rem;
+    }
+    
+    .footer-links-modern a:hover {
+        color: #06b6d4;
+        border-left-color: #06b6d4;
+        transform: translateX(5px);
+    }
+    
+    .footer-links-modern a i {
+        margin-right: 0.5rem;
+        width: 16px;
+    }
+    
+    .social-links-modern {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .social-link-modern {
+        width: 45px;
+        height: 45px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .social-link-modern:hover {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        color: white;
+    }
+    
+    .footer-bottom-modern {
+        background: rgba(0, 0, 0, 0.3);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .copyright-modern p {
+        color: rgba(255, 255, 255, 0.8);
+        margin: 0;
+        font-size: 0.9rem;
+    }
+    
+    .powered-by {
+        font-size: 0.8rem !important;
+        color: rgba(255, 255, 255, 0.6) !important;
+    }
+    
+    .highlight {
+        color: #06b6d4;
+        font-weight: 600;
+    }
+    
+    .legal-links-modern {
+        display: flex;
+        gap: 2rem;
+        justify-content: flex-end;
+    }
+    
+    .legal-links-modern a {
+        color: rgba(255, 255, 255, 0.6);
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+    
+    .legal-links-modern a:hover {
+        color: #06b6d4;
+    }
+    
+    .footer-floating-elements {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        z-index: 1;
+    }
+    
+    .floating-shape {
+        position: absolute;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+        animation: floatShape 8s ease-in-out infinite;
+    }
+    
+    .shape-1 {
+        width: 100px;
+        height: 100px;
+        top: 10%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+    
+    .shape-2 {
+        width: 60px;
+        height: 60px;
+        top: 60%;
+        right: 15%;
+        animation-delay: 2s;
+    }
+    
+    .shape-3 {
+        width: 80px;
+        height: 80px;
+        bottom: 20%;
+        left: 70%;
+        animation-delay: 4s;
+    }
+    
+    .shape-4 {
+        width: 40px;
+        height: 40px;
+        top: 30%;
+        right: 30%;
+        animation-delay: 6s;
+    }
+    
+    @keyframes floatShape {
+        0%, 100% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 0.3;
+        }
+        50% {
+            transform: translateY(-20px) rotate(180deg);
+            opacity: 0.6;
+        }
+    }
+    
+    /* Responsive Footer */
+    @media (max-width: 768px) {
+        .input-group-modern {
+            flex-direction: column;
+        }
+        
+        .footer-stats {
+            justify-content: space-between;
+        }
+        
+        .legal-links-modern {
+            flex-direction: column;
+            gap: 1rem;
+            justify-content: flex-start;
+            margin-top: 1rem;
+        }
+        
+        .social-links-modern {
+            justify-content: center;
+        }
+    }
+    </style>
+</head>
+<body>
+    <!-- Navigation Futuristica -->
+    <nav class="navbar navbar-expand-lg navbar-modern fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'core:home' %}">
+                <i class="fas fa-home text-primary me-2 fs-4"></i>
+                <span class="fw-bold">RinnovoCasa</span>
+            </a>
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="color: white;">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:home' %}">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:pacchetti' %}">
+                            <i class="fas fa-cube me-1"></i>Pacchetti
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:come_funziona' %}">
+                            <i class="fas fa-rocket me-1"></i>Come Funziona
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'artigiani:ricerca' %}">
+                            <i class="fas fa-users me-1"></i>Trova Artigiani
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:bonus_fiscali' %}">
+                            <i class="fas fa-percentage me-1"></i>Bonus AI
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:imprese' %}">
+                            <i class="fas fa-handshake me-1"></i>Partner
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:contatti' %}">
+                            <i class="fas fa-satellite-dish me-1"></i>Contatti
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                {% if user.foto_profilo %}
+                                    <img src="{{ user.foto_profilo.url }}" class="rounded-circle me-2" width="32" height="32" alt="Profilo" style="border: 2px solid #06b6d4;">
+                                {% else %}
+                                    <i class="fas fa-user-astronaut me-2 fs-5"></i>
+                                {% endif %}
+                                {{ user.nome_completo|default:user.username }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'core:dashboard' %}">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Mission Control
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'utenti:profilo' %}">
+                                    <i class="fas fa-user me-2"></i>Profilo
+                                </a></li>
+                                {% if user.user_type == 'cliente' %}
+                                    <li><a class="dropdown-item" href="{% url 'core:diagnosi' %}">
+                                        <i class="fas fa-brain me-2"></i>AI Diagnosi
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{% url 'core:consulenza_video' %}">
+                                        <i class="fas fa-vr-cardboard me-2"></i>VR Consulenza
+                                    </a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="post" action="{% url 'utenti:logout' %}" style="margin: 0; padding: 0;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item logout-btn" style="border: none; background: none; width: 100%; text-align: left; padding: 0.375rem 1rem; color: inherit; font-size: inherit; line-height: inherit; cursor: pointer;">
+                                            <i class="fas fa-sign-out-alt me-2"></i>Disconnetti
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'utenti:login' %}">
+                                <i class="fas fa-sign-in-alt me-1"></i>Accedi
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-primary ms-2" href="{% url 'utenti:register' %}">
+                                <i class="fas fa-rocket me-1"></i>Entra nel Futuro
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main style="padding-top: 80px;">
+        <!-- Messages -->
+        {% if messages %}
+            <div class="container mt-3">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {% if message.tags == 'success' %}
+                            <i class="fas fa-check-circle me-2"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                        {% elif message.tags == 'warning' %}
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle me-2"></i>
+                        {% endif %}
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Page Content -->
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer Moderno -->
+    <footer class="ultra-modern-footer">
+        <!-- Newsletter Section -->
+        <div class="newsletter-section">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <div class="newsletter-content">
+                            <h3 class="newsletter-title">
+                                <i class="fas fa-rocket me-3"></i>
+                                Resta aggiornato sui bonus 2025
+                            </h3>
+                            <p class="newsletter-subtitle">
+                                Ricevi le ultime novità sui bonus fiscali, guide pratiche e offerte esclusive direttamente nella tua email.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <form id="newsletter-form" class="newsletter-form-modern">
+                            {% csrf_token %}
+                            <div class="input-group-modern">
+                                <div class="input-wrapper">
+                                    <i class="fas fa-envelope input-icon"></i>
+                                    <input type="email" 
+                                           class="form-control-modern" 
+                                           name="email" 
+                                           placeholder="Inserisci la tua email" 
+                                           required>
+                                </div>
+                                <button type="submit" class="btn-newsletter-modern">
+                                    <span>Iscriviti Gratis</span>
+                                    <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                            <div class="privacy-note">
+                                <i class="fas fa-shield-alt me-1"></i>
+                                <small>100% Privacy garantita. No spam, cancellati quando vuoi.</small>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Footer -->
+        <div class="footer-main">
+            <div class="container">
+                <div class="row">
+                    <!-- Brand Column -->
+                    <div class="col-lg-4 col-md-6 mb-5">
+                        <div class="footer-brand-modern">
+                            <div class="brand-logo-modern">
+                                <div class="logo-icon">
+                                    <i class="fas fa-home"></i>
+                                </div>
+                                <span class="logo-text">RinnovoCasa</span>
+                            </div>
+                            <p class="brand-description-modern">
+                                La piattaforma #1 in Italia per ristrutturazioni smart. Diagnosi AI, bonus fiscali, 
+                                imprese certificate e supporto completo per realizzare la casa dei tuoi sogni.
+                            </p>
+                            
+                            <!-- Stats -->
+                            <div class="footer-stats">
+                                <div class="stat-item">
+                                    <div class="stat-number">1000+</div>
+                                    <div class="stat-label">Clienti soddisfatti</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">500+</div>
+                                    <div class="stat-label">Progetti completati</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">50M€</div>
+                                    <div class="stat-label">Bonus ottenuti</div>
+                                </div>
+                            </div>
+
+                            <!-- Social Media -->
+                            <div class="social-media-modern">
+                                <h6>Seguici su:</h6>
+                                <div class="social-links-modern">
+                                    <a href="#" class="social-modern facebook" aria-label="Facebook">
+                                        <i class="fab fa-facebook-f"></i>
+                                    </a>
+                                    <a href="#" class="social-modern instagram" aria-label="Instagram">
+                                        <i class="fab fa-instagram"></i>
+                                    </a>
+                                    <a href="#" class="social-modern linkedin" aria-label="LinkedIn">
+                                        <i class="fab fa-linkedin-in"></i>
+                                    </a>
+                                    <a href="#" class="social-modern youtube" aria-label="YouTube">
+                                        <i class="fab fa-youtube"></i>
+                                    </a>
+                                    <a href="#" class="social-modern tiktok" aria-label="TikTok">
+                                        <i class="fab fa-tiktok"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Services Column -->
+                    <div class="col-lg-2 col-md-6 mb-5">
+                        <div class="footer-section-modern">
+                            <h6 class="footer-title-modern">
+                                <i class="fas fa-tools me-2"></i>
+                                Servizi
+                            </h6>
+                            <ul class="footer-links-modern">
+                                <li><a href="{% url 'core:pacchetti' %}">
+                                    <i class="fas fa-box me-2"></i>Pacchetti Completi
+                                </a></li>
+                                <li><a href="{% url 'core:diagnosi' %}">
+                                    <i class="fas fa-robot me-2"></i>Diagnosi AI
+                                </a></li>
+                                <li><a href="{% url 'core:consulenza_video' %}">
+                                    <i class="fas fa-video me-2"></i>Consulenza Video
+                                </a></li>
+                                <li><a href="{% url 'core:bonus_fiscali' %}">
+                                    <i class="fas fa-percentage me-2"></i>Bonus Fiscali
+                                </a></li>
+                                <li><a href="#" data-page="preventivi">
+                                    <i class="fas fa-calculator me-2"></i>Preventivi Online
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Company Column -->
+                    <div class="col-lg-2 col-md-6 mb-5">
+                        <div class="footer-section-modern">
+                            <h6 class="footer-title-modern">
+                                <i class="fas fa-building me-2"></i>
+                                Azienda
+                            </h6>
+                            <ul class="footer-links-modern">
+                                <li><a href="{% url 'core:come_funziona' %}">
+                                    <i class="fas fa-question-circle me-2"></i>Come Funziona
+                                </a></li>
+                                <li><a href="{% url 'utenti:lista_imprese' %}">
+                                    <i class="fas fa-handshake me-2"></i>Partner
+                                </a></li>
+                                <li><a href="{% url 'core:contatti' %}">
+                                    <i class="fas fa-envelope me-2"></i>Contatti
+                                </a></li>
+                                <li><a href="#" data-page="chi-siamo">
+                                    <i class="fas fa-users me-2"></i>Chi Siamo
+                                </a></li>
+                                <li><a href="#" data-page="lavora-con-noi">
+                                    <i class="fas fa-briefcase me-2"></i>Lavora con Noi
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Support Column -->
+                    <div class="col-lg-2 col-md-6 mb-5">
+                        <div class="footer-section-modern">
+                            <h6 class="footer-title-modern">
+                                <i class="fas fa-life-ring me-2"></i>
+                                Supporto
+                            </h6>
+                            <ul class="footer-links-modern">
+                                <li><a href="#" data-page="faq">
+                                    <i class="fas fa-question me-2"></i>FAQ
+                                </a></li>
+                                <li><a href="#" data-page="guide">
+                                    <i class="fas fa-book me-2"></i>Guide
+                                </a></li>
+                                <li><a href="#" data-page="assistenza">
+                                    <i class="fas fa-headset me-2"></i>Assistenza
+                                </a></li>
+                                <li><a href="#" data-page="tutorial">
+                                    <i class="fas fa-play-circle me-2"></i>Tutorial
+                                </a></li>
+                                <li><a href="#" data-page="feedback">
+                                    <i class="fas fa-star me-2"></i>Feedback
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Contact Column -->
+                    <div class="col-lg-2 col-md-6 mb-5">
+                        <div class="footer-section-modern">
+                            <h6 class="footer-title-modern">
+                                <i class="fas fa-phone me-2"></i>
+                                Contatti
+                            </h6>
+                            <div class="contact-info-modern">
+                                <div class="contact-item">
+                                    <i class="fas fa-phone-alt"></i>
+                                    <div>
+                                        <div class="contact-label">Telefono</div>
+                                        <a href="tel:+390212345678">+39 02 1234 5678</a>
+                                    </div>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <div>
+                                        <div class="contact-label">Email</div>
+                                        <a href="mailto:info@rinnovocasa.it">info@rinnovocasa.it</a>
+                                    </div>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <div>
+                                        <div class="contact-label">Sede</div>
+                                        <span>Milano, Italia</span>
+                                    </div>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-clock"></i>
+                                    <div>
+                                        <div class="contact-label">Orari</div>
+                                        <span>Lun-Ven 9:00-18:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom-modern">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 col-md-6">
+                        <div class="copyright-modern">
+                            <p>&copy; 2025 <strong>RinnovoCasa</strong>. Tutti i diritti riservati.</p>
+                            <p class="powered-by">
+                                Powered by <span class="highlight">AI Technology</span> 
+                                <i class="fas fa-robot ms-1"></i>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <div class="legal-links-modern">
+                            <a href="#" data-page="privacy">
+                                <i class="fas fa-shield-alt me-1"></i>Privacy Policy
+                            </a>
+                            <a href="#" data-page="terms">
+                                <i class="fas fa-file-contract me-1"></i>Termini di Servizio
+                            </a>
+                            <a href="#" data-page="cookies">
+                                <i class="fas fa-cookie-bite me-1"></i>Cookie Policy
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Elements -->
+        <div class="footer-floating-elements">
+            <div class="floating-shape shape-1"></div>
+            <div class="floating-shape shape-2"></div>
+            <div class="floating-shape shape-3"></div>
+            <div class="floating-shape shape-4"></div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/futuristic.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

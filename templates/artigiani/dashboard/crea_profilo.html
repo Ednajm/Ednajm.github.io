@@ -1,0 +1,618 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Crea il tuo Profilo Artigiano{% endblock %}
+
+{% block extra_css %}
+<style>
+    .onboarding-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .onboarding-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .welcome-header {
+        background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+        color: white;
+        border-radius: 20px 20px 0 0;
+        padding: 3rem 2rem;
+        text-align: center;
+    }
+    
+    .welcome-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    
+    .progress-steps {
+        display: flex;
+        justify-content: center;
+        margin: 2rem 0;
+        padding: 0 2rem;
+    }
+    
+    .step {
+        display: flex;
+        align-items: center;
+        margin: 0 1rem;
+        color: #6c757d;
+    }
+    
+    .step.active {
+        color: #007bff;
+    }
+    
+    .step-number {
+        background: #e9ecef;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-right: 0.5rem;
+    }
+    
+    .step.active .step-number {
+        background: #007bff;
+        color: white;
+    }
+    
+    .form-wizard {
+        padding: 2rem;
+    }
+    
+    .wizard-step {
+        display: none;
+    }
+    
+    .wizard-step.active {
+        display: block;
+    }
+    
+    .form-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        border: 1px solid #e9ecef;
+        border-radius: 15px;
+        background: #f8f9fa;
+    }
+    
+    .form-section h5 {
+        color: #495057;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+    
+    .form-section h5 i {
+        margin-right: 0.5rem;
+        color: #007bff;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 1px solid #ced4da;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    .btn-wizard {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        color: white;
+        transition: transform 0.3s ease;
+    }
+    
+    .btn-wizard:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+        color: white;
+    }
+    
+    .btn-wizard-secondary {
+        background: #6c757d;
+        border: none;
+        border-radius: 25px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        color: white;
+    }
+    
+    .welcome-benefits {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .benefit-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .benefit-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .benefit-icon {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        color: white;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+    }
+    
+    .language-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .form-check-custom {
+        background: white;
+        padding: 1rem;
+        border-radius: 10px;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .form-check-custom:hover {
+        border-color: #007bff;
+        background: #f8f9ff;
+    }
+    
+    .upload-zone {
+        border: 2px dashed #007bff;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        background: #f8f9ff;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .upload-zone:hover {
+        background: #e6f3ff;
+        border-color: #0056b3;
+    }
+    
+    .wizard-navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 2rem;
+        border-top: 1px solid #e9ecef;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="onboarding-container">
+    <div class="container">
+        <div class="onboarding-card">
+            <div class="welcome-header">
+                <i class="fas fa-tools fa-3x mb-3"></i>
+                <h1>Benvenuto!</h1>
+                <p class="fs-5 mb-0">Crea il tuo profilo professionale e inizia a ricevere richieste di lavoro</p>
+            </div>
+
+            <!-- Progress Steps -->
+            <div class="progress-steps">
+                <div class="step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <span>Info Base</span>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-number">2</div>
+                    <span>Prezzi</span>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-number">3</div>
+                    <span>Contatti</span>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-number">4</div>
+                    <span>Foto</span>
+                </div>
+            </div>
+
+            <!-- Benefits Preview -->
+            <div class="welcome-benefits px-4">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h6>Più Visibilità</h6>
+                    <p class="text-muted small">I clienti ti troveranno facilmente nella tua zona</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h6>Nuovi Clienti</h6>
+                    <p class="text-muted small">Ricevi richieste di preventivo automaticamente</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h6>Recensioni</h6>
+                    <p class="text-muted small">Costruisci la tua reputazione online</p>
+                </div>
+            </div>
+
+            {% if messages %}
+                <div class="px-4">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data" id="profileWizard">
+                {% csrf_token %}
+                
+                <!-- Step 1: Informazioni Base -->
+                <div class="wizard-step active" id="step-1">
+                    <div class="form-wizard">
+                        <h4 class="mb-4">
+                            <i class="fas fa-info-circle text-primary me-2"></i>
+                            Informazioni di Base
+                        </h4>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Categoria Principale *</label>
+                                {{ form.categoria_principale }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Nome della tua Attività *</label>
+                                {{ form.nome_attivita }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Descrivi i tuoi Servizi *</label>
+                            {{ form.descrizione }}
+                            <div class="form-text">Scrivi una descrizione accattivante dei tuoi servizi per attirare più clienti</div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Città *</label>
+                                {{ form.citta }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">CAP *</label>
+                                {{ form.cap }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Raggio di Azione (km)</label>
+                                {{ form.raggio_azione_km }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Anni di Esperienza</label>
+                            {{ form.anni_esperienza }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Categorie Secondarie (opzionale)</label>
+                            <div class="language-grid">
+                                {{ form.categorie_secondarie }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Prezzi e Disponibilità -->
+                <div class="wizard-step" id="step-2">
+                    <div class="form-wizard">
+                        <h4 class="mb-4">
+                            <i class="fas fa-euro-sign text-primary me-2"></i>
+                            Prezzi e Disponibilità
+                        </h4>
+
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label">Fascia di Prezzo</label>
+                                {{ form.fascia_prezzo }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Prezzo Orario Minimo (€)</label>
+                                {{ form.prezzo_orario_min }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Prezzo Orario Massimo (€)</label>
+                                {{ form.prezzo_orario_max }}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Disponibilità</label>
+                            {{ form.disponibilita }}
+                        </div>
+
+                        <div class="mb-4">
+                            <h6>Lingue che parli</h6>
+                            <div class="language-grid">
+                                <div class="form-check-custom">
+                                    {{ form.italiano }}
+                                    <label class="form-check-label">
+                                        <i class="fas fa-flag text-success me-2"></i>Italiano
+                                    </label>
+                                </div>
+                                <div class="form-check-custom">
+                                    {{ form.inglese }}
+                                    <label class="form-check-label">
+                                        <i class="fas fa-flag text-primary me-2"></i>Inglese
+                                    </label>
+                                </div>
+                                <div class="form-check-custom">
+                                    {{ form.francese }}
+                                    <label class="form-check-label">
+                                        <i class="fas fa-flag text-info me-2"></i>Francese
+                                    </label>
+                                </div>
+                                <div class="form-check-custom">
+                                    {{ form.arabo }}
+                                    <label class="form-check-label">
+                                        <i class="fas fa-flag text-warning me-2"></i>Arabo
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <label class="form-label">Altre Lingue</label>
+                                {{ form.altre_lingue }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check-custom">
+                                    {{ form.ha_partita_iva }}
+                                    <label class="form-check-label">
+                                        <i class="fas fa-file-invoice me-2"></i>Ho Partita IVA
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Partita IVA (se applicabile)</label>
+                                {{ form.partita_iva }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Contatti -->
+                <div class="wizard-step" id="step-3">
+                    <div class="form-wizard">
+                        <h4 class="mb-4">
+                            <i class="fas fa-phone text-primary me-2"></i>
+                            Informazioni di Contatto
+                        </h4>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Telefono *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                    {{ form.telefono }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">WhatsApp</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fab fa-whatsapp text-success"></i></span>
+                                    {{ form.whatsapp }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Email per Lavoro</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                    {{ form.email_lavoro }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Sito Web (opzionale)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                                    {{ form.sito_web }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Indirizzo (opzionale)</label>
+                            {{ form.indirizzo }}
+                            <div class="form-text">L'indirizzo completo non sarà pubblico, solo la zona</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Foto -->
+                <div class="wizard-step" id="step-4">
+                    <div class="form-wizard">
+                        <h4 class="mb-4">
+                            <i class="fas fa-camera text-primary me-2"></i>
+                            Foto del Profilo
+                        </h4>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">Foto Profilo</label>
+                                <div class="upload-zone" onclick="document.getElementById('id_foto_profilo').click()">
+                                    <i class="fas fa-user-circle fa-3x text-muted mb-3"></i>
+                                    <p>Clicca per caricare la tua foto</p>
+                                    <small class="text-muted">Una foto professionale aumenta la fiducia</small>
+                                    {{ form.foto_profilo }}
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">Foto Copertina (opzionale)</label>
+                                <div class="upload-zone" onclick="document.getElementById('id_foto_banner').click()">
+                                    <i class="fas fa-image fa-3x text-muted mb-3"></i>
+                                    <p>Clicca per caricare la copertina</p>
+                                    <small class="text-muted">Mostra il tuo lavoro migliore</small>
+                                    {{ form.foto_banner }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <strong>Suggerimento:</strong> Le foto aumentano del 70% le possibilità di essere contattati!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="wizard-navigation">
+                    <button type="button" class="btn btn-wizard-secondary" id="prevBtn" style="display: none;">
+                        <i class="fas fa-arrow-left me-2"></i>Indietro
+                    </button>
+                    
+                    <div class="ms-auto">
+                        <button type="button" class="btn btn-wizard" id="nextBtn">
+                            Avanti<i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                        <button type="submit" class="btn btn-wizard" id="submitBtn" style="display: none;">
+                            <i class="fas fa-check me-2"></i>Crea Profilo
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let currentStep = 1;
+    const totalSteps = 4;
+
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function showStep(step) {
+        // Hide all steps
+        document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        
+        // Show current step
+        document.getElementById(`step-${step}`).classList.add('active');
+        document.querySelector(`[data-step="${step}"]`).classList.add('active');
+        
+        // Update navigation
+        prevBtn.style.display = step === 1 ? 'none' : 'inline-block';
+        nextBtn.style.display = step === totalSteps ? 'none' : 'inline-block';
+        submitBtn.style.display = step === totalSteps ? 'inline-block' : 'none';
+    }
+
+    function validateStep(step) {
+        const stepElement = document.getElementById(`step-${step}`);
+        const requiredInputs = stepElement.querySelectorAll('input[required], select[required], textarea[required]');
+        
+        for (let input of requiredInputs) {
+            if (!input.value.trim()) {
+                input.focus();
+                input.classList.add('is-invalid');
+                return false;
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        }
+        return true;
+    }
+
+    nextBtn.addEventListener('click', function() {
+        if (validateStep(currentStep)) {
+            currentStep++;
+            showStep(currentStep);
+        }
+    });
+
+    prevBtn.addEventListener('click', function() {
+        currentStep--;
+        showStep(currentStep);
+    });
+
+    // File upload preview
+    function setupFilePreview(inputId, previewContainer) {
+        const input = document.getElementById(inputId);
+        if (input) {
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const uploadZone = input.closest('.upload-zone');
+                        uploadZone.innerHTML = `
+                            <img src="${e.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 10px;">
+                            <p class="mt-2 mb-0">Foto caricata con successo!</p>
+                        `;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    }
+
+    setupFilePreview('id_foto_profilo');
+    setupFilePreview('id_foto_banner');
+
+    // Auto-resize textarea
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    });
+
+    // Initialize
+    showStep(currentStep);
+});
+</script>
+{% endblock %}

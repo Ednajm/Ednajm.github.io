@@ -1,0 +1,796 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Consulenza Video Gratuita - RinnovoCasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .consulenza-container {
+        padding: 2rem 0;
+        min-height: 80vh;
+    }
+
+    .consulenza-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 4rem 0;
+        margin-bottom: 3rem;
+        border-radius: 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .consulenza-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-opacity='0.1'%3E%3Cpath d='M20 20h20v20H20zM60 20h20v20H60zM20 60h20v20H20zM60 60h20v20H60z'/%3E%3C/g%3E%3C/svg%3E") repeat;
+        animation: float 20s ease-in-out infinite;
+    }
+
+    .content-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .content-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+
+    .benefit-card {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .benefit-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .benefit-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        position: relative;
+    }
+
+    .benefit-icon::after {
+        content: '';
+        position: absolute;
+        top: -5px;
+        left: -5px;
+        right: -5px;
+        bottom: -5px;
+        border: 2px solid transparent;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        background-clip: border-box;
+        -webkit-background-clip: border-box;
+        z-index: -1;
+        opacity: 0.3;
+        animation: pulse 2s infinite;
+    }
+
+    .benefit-title {
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .benefit-description {
+        color: #6c757d;
+        line-height: 1.6;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        color: var(--primary-color);
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--primary-color);
+    }
+
+    .time-slots {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+
+    .time-slot {
+        background: rgba(248, 249, 250, 0.8);
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+
+    .time-slot:hover {
+        border-color: var(--primary-color);
+        background: rgba(var(--primary-color-rgb), 0.1);
+        transform: translateY(-2px);
+    }
+
+    .time-slot.selected {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    .time-slot.unavailable {
+        background: #f8f9fa;
+        color: #6c757d;
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
+    .urgency-selector {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+
+    .urgency-option {
+        background: rgba(248, 249, 250, 0.8);
+        border: 2px solid #e9ecef;
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .urgency-option:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+    }
+
+    .urgency-option.selected {
+        border-color: var(--primary-color);
+        background: rgba(var(--primary-color-rgb), 0.1);
+    }
+
+    .urgency-icon {
+        font-size: 2rem;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .urgency-title {
+        font-weight: 700;
+        color: var(--dark-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .urgency-description {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    .expert-info {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 2rem 0;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .expert-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        flex-shrink: 0;
+    }
+
+    .expert-details h4 {
+        color: var(--primary-color);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .expert-credentials {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .expert-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #ffc107;
+    }
+
+    .submit-btn {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border: none;
+        color: white;
+        padding: 1rem 3rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        margin-top: 2rem;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        color: white;
+    }
+
+    .submit-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .process-steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+
+    .step-card {
+        text-align: center;
+        padding: 1.5rem;
+    }
+
+    .step-number {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0 auto 1rem;
+    }
+
+    .step-title {
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .step-description {
+        color: #6c757d;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .guarantee-badge {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 1rem 0;
+    }
+
+    .free-badge {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 0.8; }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+
+    @media (max-width: 768px) {
+        .consulenza-container {
+            padding: 1rem 0;
+        }
+        
+        .content-card {
+            padding: 1.5rem;
+        }
+        
+        .benefits-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .expert-info {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .time-slots {
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container consulenza-container">
+    <!-- Header -->
+    <div class="consulenza-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="free-badge">
+                        <i class="fas fa-gift"></i>
+                        100% Gratuita
+                    </div>
+                    <h1 class="display-4 fw-bold mb-3">Consulenza Video Personalizzata</h1>
+                    <p class="lead mb-3">
+                        Parla direttamente con i nostri esperti architetti e ingegneri. 
+                        Ricevi consigli professionali per il tuo progetto di ristrutturazione.
+                    </p>
+                    <div class="guarantee-badge">
+                        <i class="fas fa-shield-alt"></i>
+                        Soddisfatti o rimborsati
+                    </div>
+                </div>
+                <div class="col-lg-4 text-center">
+                    <div class="benefit-icon" style="width: 120px; height: 120px; font-size: 3rem; margin: 0 auto;">
+                        <i class="fas fa-video"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vantaggi -->
+    <div class="benefits-grid">
+        <div class="benefit-card">
+            <div class="benefit-icon">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <h4 class="benefit-title">Esperti Qualificati</h4>
+            <p class="benefit-description">
+                Architetti e ingegneri con oltre 10 anni di esperienza nel settore delle ristrutturazioni
+            </p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <h4 class="benefit-title">30 Minuti Dedicati</h4>
+            <p class="benefit-description">
+                Tempo sufficiente per analizzare il tuo progetto e fornirti consigli dettagliati
+            </p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-icon">
+                <i class="fas fa-lightbulb"></i>
+            </div>
+            <h4 class="benefit-title">Soluzioni Su Misura</h4>
+            <p class="benefit-description">
+                Consigli personalizzati basati sulle tue esigenze specifiche e il tuo budget
+            </p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <h4 class="benefit-title">Report Dettagliato</h4>
+            <p class="benefit-description">
+                Ricevi un riassunto scritto della consulenza con i punti chiave discussi
+            </p>
+        </div>
+    </div>
+
+    <!-- Expert Info -->
+    <div class="content-card">
+        <h2 class="section-title">
+            <i class="fas fa-star"></i>
+            Il Tuo Consulente
+        </h2>
+        
+        <div class="expert-info">
+            <div class="expert-avatar">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="expert-details">
+                <h4>Arch. Marco Rinaldi</h4>
+                <div class="expert-credentials">
+                    Lead Architect • 15+ anni di esperienza • 500+ progetti completati
+                </div>
+                <div class="expert-rating">
+                    <span>4.9</span>
+                    <div>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <span>(147 recensioni)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form di Prenotazione -->
+    <div class="content-card">
+        <h2 class="section-title">
+            <i class="fas fa-calendar-plus"></i>
+            Prenota la Tua Consulenza
+        </h2>
+        
+        <form method="post" id="consulenzaForm">
+            {% csrf_token %}
+            
+            <!-- Data e Ora -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-calendar"></i>
+                    Data e Ora Preferita
+                </h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.data_preferita }}
+                    </div>
+                </div>
+                <small class="text-muted">
+                    <i class="fas fa-info-circle"></i>
+                    Disponibilità: Lunedì-Venerdì 9:00-18:00, Sabato 9:00-13:00
+                </small>
+            </div>
+
+            <!-- Tipo Intervento -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-tools"></i>
+                    Tipo di Intervento
+                </h3>
+                {{ form.tipo_intervento }}
+            </div>
+
+            <!-- Urgenza -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Urgenza del Progetto
+                </h3>
+                <div class="urgency-selector">
+                    <div class="urgency-option" data-value="nessuna">
+                        <div class="urgency-icon">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div class="urgency-title">Nessuna Fretta</div>
+                        <div class="urgency-description">Posso aspettare qualche mese</div>
+                    </div>
+                    <div class="urgency-option" data-value="entro_mese">
+                        <div class="urgency-icon">
+                            <i class="fas fa-calendar-week"></i>
+                        </div>
+                        <div class="urgency-title">Entro un Mese</div>
+                        <div class="urgency-description">Vorrei iniziare entro 30 giorni</div>
+                    </div>
+                    <div class="urgency-option" data-value="entro_settimana">
+                        <div class="urgency-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="urgency-title">Entro una Settimana</div>
+                        <div class="urgency-description">È piuttosto urgente</div>
+                    </div>
+                    <div class="urgency-option" data-value="urgente">
+                        <div class="urgency-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="urgency-title">Urgente</div>
+                        <div class="urgency-description">Devo iniziare subito</div>
+                    </div>
+                </div>
+                {{ form.urgenza }}
+            </div>
+
+            <!-- Budget -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-euro-sign"></i>
+                    Budget Orientativo
+                </h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.budget_orientativo }}
+                        <small class="text-muted">Inserisci il tuo budget approssimativo (facoltativo)</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Descrizione Progetto -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-edit"></i>
+                    Descrizione del Progetto
+                </h3>
+                {{ form.descrizione_progetto }}
+                <small class="text-muted">
+                    Descrivi il progetto che hai in mente, i tuoi obiettivi e le tue aspettative. 
+                    Più dettagli fornisci, più specifica sarà la consulenza.
+                </small>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <i class="fas fa-video"></i>
+                Prenota Consulenza Gratuita
+            </button>
+        </form>
+    </div>
+
+    <!-- Come Funziona -->
+    <div class="content-card">
+        <h2 class="section-title">
+            <i class="fas fa-question-circle"></i>
+            Come Funziona
+        </h2>
+        
+        <div class="process-steps">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <h4 class="step-title">Prenota</h4>
+                <p class="step-description">
+                    Compila il form con i dettagli del tuo progetto e scegli data e ora preferite
+                </p>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <h4 class="step-title">Conferma</h4>
+                <p class="step-description">
+                    Ti contatteremo entro 24 ore per confermare l'appuntamento e inviarti il link
+                </p>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <h4 class="step-title">Consulenza</h4>
+                <p class="step-description">
+                    30 minuti di consulenza personalizzata con un nostro esperto architetto
+                </p>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">4</div>
+                <h4 class="step-title">Follow-up</h4>
+                <p class="step-description">
+                    Ricevi un riassunto scritto e, se interessato, un preventivo dettagliato
+                </p>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <div class="guarantee-badge">
+                <i class="fas fa-heart"></i>
+                Nessun impegno • Consulenza 100% gratuita • Massima professionalità
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const urgencyOptions = document.querySelectorAll('.urgency-option');
+    const urgencyInput = document.getElementById('id_urgenza');
+    const form = document.getElementById('consulenzaForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Gestione selezione urgenza
+    urgencyOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Rimuovi selezione precedente
+            urgencyOptions.forEach(opt => opt.classList.remove('selected'));
+            
+            // Seleziona questo elemento
+            this.classList.add('selected');
+            
+            // Aggiorna il campo nascosto
+            const value = this.getAttribute('data-value');
+            urgencyInput.value = value;
+        });
+    });
+
+    // Imposta valore iniziale se presente
+    if (urgencyInput.value) {
+        const selectedOption = document.querySelector(`[data-value="${urgencyInput.value}"]`);
+        if (selectedOption) {
+            selectedOption.classList.add('selected');
+        }
+    }
+
+    // Validazione form
+    form.addEventListener('submit', function(e) {
+        const dataPreferita = document.getElementById('id_data_preferita').value;
+        const descrizione = document.getElementById('id_descrizione_progetto').value;
+        
+        if (!dataPreferita) {
+            e.preventDefault();
+            showAlert('Seleziona una data e ora preferita', 'error');
+            return;
+        }
+        
+        if (!descrizione.trim()) {
+            e.preventDefault();
+            showAlert('Inserisci una descrizione del progetto', 'error');
+            return;
+        }
+        
+        // Verifica che la data sia nel futuro
+        const selectedDate = new Date(dataPreferita);
+        const now = new Date();
+        
+        if (selectedDate <= now) {
+            e.preventDefault();
+            showAlert('Seleziona una data e ora futura', 'error');
+            return;
+        }
+        
+        // Verifica orari di lavoro (9-18 lun-ven, 9-13 sab)
+        const dayOfWeek = selectedDate.getDay();
+        const hour = selectedDate.getHours();
+        
+        if (dayOfWeek === 0) { // Domenica
+            e.preventDefault();
+            showAlert('Non lavoriamo la domenica. Scegli un altro giorno.', 'error');
+            return;
+        }
+        
+        if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Lun-Ven
+            if (hour < 9 || hour >= 18) {
+                e.preventDefault();
+                showAlert('Negli giorni feriali siamo disponibili dalle 9:00 alle 18:00', 'error');
+                return;
+            }
+        } else if (dayOfWeek === 6) { // Sabato
+            if (hour < 9 || hour >= 13) {
+                e.preventDefault();
+                showAlert('Il sabato siamo disponibili dalle 9:00 alle 13:00', 'error');
+                return;
+            }
+        }
+
+        // Mostra loading
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Prenotazione in corso...';
+    });
+
+    // Imposta data minima (domani) nel campo datetime
+    const dateInput = document.getElementById('id_data_preferita');
+    if (dateInput) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(9, 0, 0, 0);
+        
+        const isoString = tomorrow.toISOString().slice(0, 16);
+        dateInput.min = isoString;
+        
+        // Imposta valore predefinito se vuoto
+        if (!dateInput.value) {
+            dateInput.value = isoString;
+        }
+    }
+
+    // Animazioni scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animation = 'slideInUp 0.6s ease forwards';
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+
+    document.querySelectorAll('.content-card, .benefit-card, .step-card').forEach(el => {
+        observer.observe(el);
+    });
+});
+
+// Funzione per alert personalizzati
+function showAlert(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type === 'error' ? 'danger' : 'success'} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    // Rimuovi automaticamente dopo 5 secondi
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+
+// CSS per animazioni
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

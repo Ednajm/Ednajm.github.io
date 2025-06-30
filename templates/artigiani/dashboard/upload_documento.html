@@ -1,0 +1,265 @@
+{% extends 'artigiani/dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Carica Documento{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .upload-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f8f9fa;
+    }
+    
+    .file-drop-zone {
+        border: 2px dashed #007bff;
+        border-radius: 15px;
+        padding: 3rem 2rem;
+        text-align: center;
+        background: #f8f9fa;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .file-drop-zone:hover {
+        background: #e9ecef;
+        border-color: #0056b3;
+    }
+    
+    .file-drop-zone.dragover {
+        background: #e3f2fd;
+        border-color: #1976d2;
+        transform: scale(1.02);
+    }
+    
+    .file-preview {
+        display: none;
+        background: #e8f5e8;
+        border: 1px solid #28a745;
+        border-radius: 10px;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+    
+    .document-info {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .submit-btn {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="upload-container">
+        <div class="upload-header">
+            <h3><i class="fas fa-upload me-3"></i>Carica Documento</h3>
+            <p class="text-muted mb-0">Aggiungi un documento per la certificazione del tuo profilo</p>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data" id="upload-form">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <h6><i class="fas fa-exclamation-triangle me-2"></i>Errori nel modulo:</h6>
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <!-- Tipo Documento -->
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="fas fa-tag me-2"></i>Tipo di Documento
+                </label>
+                {{ form.tipo_documento }}
+            </div>
+            
+            <!-- File Upload -->
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="fas fa-file me-2"></i>File Documento
+                </label>
+                
+                <div class="file-drop-zone" id="file-drop-zone">
+                    <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                    <h5>Trascina il file qui o clicca per selezionare</h5>
+                    <p class="text-muted mb-2">
+                        Formati supportati: PDF, JPG, PNG, DOC, DOCX
+                    </p>
+                    <p class="text-muted small mb-0">
+                        Dimensione massima: 10MB
+                    </p>
+                </div>
+                
+                {{ form.file_documento }}
+                
+                <div class="file-preview" id="file-preview">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-file fa-2x text-success me-3"></i>
+                        <div>
+                            <strong id="file-name"></strong><br>
+                            <small class="text-muted" id="file-size"></small>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger ms-auto" id="remove-file">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Descrizione -->
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="fas fa-comment me-2"></i>Descrizione (opzionale)
+                </label>
+                {{ form.descrizione }}
+            </div>
+            
+            <!-- Data Scadenza -->
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="fas fa-calendar me-2"></i>Data di Scadenza (opzionale)
+                </label>
+                {{ form.data_scadenza }}
+                <small class="form-text text-muted">
+                    Inserisci solo se il documento ha una data di scadenza
+                </small>
+            </div>
+            
+            <!-- Info documento -->
+            <div class="document-info">
+                <h6><i class="fas fa-info-circle me-2"></i>Informazioni sui Documenti</h6>
+                <ul class="mb-0 small">
+                    <li>I documenti vengono verificati entro 24-48 ore</li>
+                    <li>Assicurati che il documento sia leggibile e in alta qualità</li>
+                    <li>I documenti scaduti non saranno accettati</li>
+                    <li>Tutti i dati personali sono protetti secondo il GDPR</li>
+                </ul>
+            </div>
+            
+            <!-- Submit Buttons -->
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{% url 'artigiani:documenti' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Torna Indietro
+                </a>
+                
+                <button type="submit" class="btn btn-success submit-btn" id="submit-btn" disabled>
+                    <i class="fas fa-upload me-2"></i>Carica Documento
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('{{ form.file_documento.id_for_label }}');
+    const fileDropZone = document.getElementById('file-drop-zone');
+    const filePreview = document.getElementById('file-preview');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    const removeFile = document.getElementById('remove-file');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    // Hide the default file input
+    fileInput.style.display = 'none';
+    
+    // Click to select file
+    fileDropZone.addEventListener('click', function() {
+        fileInput.click();
+    });
+    
+    // Drag and drop
+    fileDropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        fileDropZone.classList.add('dragover');
+    });
+    
+    fileDropZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        fileDropZone.classList.remove('dragover');
+    });
+    
+    fileDropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        fileDropZone.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            handleFileSelect(files[0]);
+        }
+    });
+    
+    // File input change
+    fileInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            handleFileSelect(this.files[0]);
+        }
+    });
+    
+    // Handle file selection
+    function handleFileSelect(file) {
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        
+        fileDropZone.style.display = 'none';
+        filePreview.style.display = 'block';
+        submitBtn.disabled = false;
+    }
+    
+    // Remove file
+    removeFile.addEventListener('click', function() {
+        fileInput.value = '';
+        fileDropZone.style.display = 'block';
+        filePreview.style.display = 'none';
+        submitBtn.disabled = true;
+    });
+    
+    // Format file size
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+});
+</script>
+{% endblock %}

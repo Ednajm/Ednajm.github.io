@@ -1,0 +1,924 @@
+{% extends 'base.html' %}
+
+{% block title %}Trova Artigiani e Professionisti - RinnovoCasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-search {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 4rem 0;
+        margin-bottom: 3rem;
+    }
+
+    .search-form-modern {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .form-control-modern {
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid transparent;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control-modern:focus {
+        background: white;
+        border-color: #667eea;
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        outline: none;
+    }
+
+    .btn-search-modern {
+        background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-search-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4);
+        color: white;
+    }
+
+    .filter-sidebar {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+        position: sticky;
+        top: 100px;
+    }
+
+    .artigiano-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+        border: 2px solid transparent;
+    }
+
+    .artigiano-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        border-color: #667eea;
+    }
+
+    .card-header-modern {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 1.5rem;
+        border-bottom: 1px solid #dee2e6;
+        position: relative;
+    }
+
+    .verified-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .premium-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+        color: #333;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .artigiano-photo {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .rating-stars {
+        color: #ffc107;
+        margin-right: 0.5rem;
+    }
+
+    .price-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        display: inline-block;
+        margin-top: 0.5rem;
+    }
+
+    .contact-buttons {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .btn-contact {
+        flex: 1;
+        padding: 0.75rem;
+        border-radius: 10px;
+        border: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-contact-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-contact-secondary {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-contact:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .skills-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .skill-tag {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .stats-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #667eea;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+    }
+
+    .floating-ai-button {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        border: none;
+    }
+
+    .floating-ai-button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 15px 40px rgba(255, 107, 107, 0.6);
+    }
+
+    .filter-title {
+        color: #333;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #667eea;
+    }
+
+    .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+
+    @media (max-width: 768px) {
+        .filter-sidebar {
+            position: static;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-search {
+            padding: 2rem 0;
+        }
+        
+        .search-form-modern {
+            padding: 1rem;
+        }
+        
+        .artigiano-photo {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .contact-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section con Ricerca -->
+<section class="hero-search">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="text-center mb-4">
+                    <h1 class="display-4 fw-bold mb-3">
+                        <i class="fas fa-search me-3"></i>
+                        Trova l'Artigiano Perfetto
+                    </h1>
+                    <p class="lead">
+                        Oltre {{ page_obj.paginator.count }} professionisti verificati nella tua zona
+                    </p>
+                </div>
+                
+                <form class="search-form-modern" method="GET">
+                    <div class="row g-3">
+                        <div class="col-lg-3">
+                            <select name="categoria" class="form-control-modern">
+                                <option value="">Tutte le categorie</option>
+                                {% for cat in categorie %}
+                                    <option value="{{ cat.id }}" {% if filtri.categoria_id == cat.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ cat.nome }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-lg-3">
+                            <input type="text" 
+                                   name="citta" 
+                                   class="form-control-modern" 
+                                   placeholder="Città" 
+                                   value="{{ filtri.citta }}"
+                                   id="citta-input">
+                        </div>
+                        <div class="col-lg-2">
+                            <input type="text" 
+                                   name="cap" 
+                                   class="form-control-modern" 
+                                   placeholder="CAP" 
+                                   value="{{ filtri.cap }}">
+                        </div>
+                        <div class="col-lg-2">
+                            <select name="ordinamento" class="form-control-modern">
+                                {% for value, label in opzioni_ordinamento %}
+                                    <option value="{{ value }}" {% if filtri.ordinamento == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-lg-2">
+                            <button type="submit" class="btn btn-search-modern w-100">
+                                <i class="fas fa-search me-2"></i>
+                                Cerca
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row">
+        <!-- Sidebar Filtri -->
+        <div class="col-lg-3">
+            <div class="filter-sidebar">
+                <h5 class="filter-title">
+                    <i class="fas fa-filter me-2"></i>
+                    Filtri Avanzati
+                </h5>
+                
+                <form method="GET" id="filter-form">
+                    <!-- Mantieni i filtri di ricerca esistenti -->
+                    <input type="hidden" name="categoria" value="{{ filtri.categoria_id }}">
+                    <input type="hidden" name="citta" value="{{ filtri.citta }}">
+                    <input type="hidden" name="cap" value="{{ filtri.cap }}">
+                    <input type="hidden" name="ordinamento" value="{{ filtri.ordinamento }}">
+                    
+                    <!-- Fascia di Prezzo -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-3">Fascia di Prezzo</h6>
+                        {% for value, label in fasce_prezzo %}
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" 
+                                       type="radio" 
+                                       name="fascia_prezzo" 
+                                       value="{{ value }}"
+                                       id="prezzo_{{ value }}"
+                                       {% if filtri.fascia_prezzo == value %}checked{% endif %}>
+                                <label class="form-check-label" for="prezzo_{{ value }}">
+                                    {{ label }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Esperienza -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-3">Esperienza Minima</h6>
+                        <select name="esperienza_min" class="form-control-modern">
+                            <option value="">Qualsiasi</option>
+                            <option value="1" {% if filtri.esperienza_min == "1" %}selected{% endif %}>1+ anni</option>
+                            <option value="5" {% if filtri.esperienza_min == "5" %}selected{% endif %}>5+ anni</option>
+                            <option value="10" {% if filtri.esperienza_min == "10" %}selected{% endif %}>10+ anni</option>
+                            <option value="20" {% if filtri.esperienza_min == "20" %}selected{% endif %}>20+ anni</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Lingue -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-3">Lingue Parlate</h6>
+                        {% for value, label in lingue_disponibili %}
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       name="lingue" 
+                                       value="{{ value }}"
+                                       id="lingua_{{ value }}"
+                                       {% if value in filtri.lingue %}checked{% endif %}>
+                                <label class="form-check-label" for="lingua_{{ value }}">
+                                    {{ label }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-search-modern w-100 mb-3">
+                        <i class="fas fa-filter me-2"></i>
+                        Applica Filtri
+                    </button>
+                    
+                    <a href="{% url 'artigiani:ricerca' %}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-times me-2"></i>
+                        Rimuovi Filtri
+                    </a>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Risultati -->
+        <div class="col-lg-9">
+            <!-- Header Risultati -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0">
+                    <i class="fas fa-users me-2 text-primary"></i>
+                    {{ page_obj.paginator.count }} Artigiani Trovati
+                </h4>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'artigiani:categorie' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-th-large me-2"></i>
+                        Sfoglia per Categoria
+                    </a>
+                    <a href="{% url 'artigiani:richiedi_preventivo' %}" class="btn btn-primary">
+                        <i class="fas fa-calculator me-2"></i>
+                        Richiedi Preventivo
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Cards Artigiani -->
+            {% if page_obj %}
+                {% for artigiano in page_obj %}
+                    <div class="artigiano-card">
+                        <!-- Badge Verifica/Premium -->
+                        {% if artigiano.premium %}
+                            <div class="premium-badge">
+                                <i class="fas fa-crown me-1"></i>
+                                Premium
+                            </div>
+                        {% elif artigiano.verificato %}
+                            <div class="verified-badge">
+                                <i class="fas fa-check-circle me-1"></i>
+                                Verificato
+                            </div>
+                        {% endif %}
+                        
+                        <div class="card-header-modern">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    {% if artigiano.foto_profilo %}
+                                        <img src="{{ artigiano.foto_profilo.url }}" 
+                                             alt="{{ artigiano.nome_attivita }}" 
+                                             class="artigiano-photo">
+                                    {% else %}
+                                        <div class="artigiano-photo d-flex align-items-center justify-content-center bg-primary text-white">
+                                            <i class="fas fa-user fa-2x"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col">
+                                    <h5 class="mb-1 fw-bold">{{ artigiano.nome_attivita }}</h5>
+                                    <p class="mb-1 text-muted">
+                                        <i class="{{ artigiano.categoria_principale.icona }} me-2"></i>
+                                        {{ artigiano.categoria_principale.nome }}
+                                    </p>
+                                    <p class="mb-0 text-muted">
+                                        <i class="fas fa-map-marker-alt me-2"></i>
+                                        {{ artigiano.citta }} ({{ artigiano.cap }})
+                                    </p>
+                                </div>
+                                <div class="col-auto text-end">
+                                    {% if artigiano.voto_medio > 0 %}
+                                        <div class="rating-stars">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= artigiano.voto_medio %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <span class="ms-1">({{ artigiano.numero_recensioni }})</span>
+                                        </div>
+                                    {% endif %}
+                                    <div class="price-badge">
+                                        {{ artigiano.get_fascia_prezzo_display }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-body p-3">
+                            <!-- Descrizione -->
+                            <p class="text-muted mb-3">
+                                {% if artigiano.usa_descrizione_ai and artigiano.descrizione_ai_generata %}
+                                    {{ artigiano.descrizione_ai_generata|truncatewords:20 }}
+                                    <span class="badge bg-info text-dark">
+                                        <i class="fas fa-robot me-1"></i>AI
+                                    </span>
+                                {% else %}
+                                    {{ artigiano.descrizione|truncatewords:20 }}
+                                {% endif %}
+                            </p>
+                            
+                            <!-- Competenze secondarie -->
+                            {% if artigiano.categorie_secondarie.all %}
+                                <div class="skills-tags">
+                                    {% for skill in artigiano.categorie_secondarie.all|slice:":3" %}
+                                        <span class="skill-tag">{{ skill.nome }}</span>
+                                    {% endfor %}
+                                    {% if artigiano.categorie_secondarie.count > 3 %}
+                                        <span class="skill-tag">+{{ artigiano.categorie_secondarie.count|add:"-3" }} altre</span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Statistiche -->
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <div class="stat-number">{{ artigiano.anni_esperienza }}</div>
+                                    <div class="stat-label">Anni esperienza</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">{{ artigiano.numero_lavori_completati }}</div>
+                                    <div class="stat-label">Lavori completati</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">{{ artigiano.raggio_azione_km }}km</div>
+                                    <div class="stat-label">Raggio azione</div>
+                                </div>
+                                {% if artigiano.lingue_parlate_lista|length > 1 %}
+                                    <div class="stat-item">
+                                        <div class="stat-number">{{ artigiano.lingue_parlate_lista|length }}</div>
+                                        <div class="stat-label">Lingue</div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Pulsanti Contatto -->
+                            <div class="contact-buttons">
+                                <a href="{% url 'artigiani:dettaglio' artigiano.id %}" 
+                                   class="btn-contact btn-contact-secondary">
+                                    <i class="fas fa-eye"></i>
+                                    Vedi Profilo
+                                </a>
+                                <button onclick="contattaArtigiano({{ artigiano.id }})" 
+                                        class="btn-contact btn-contact-primary">
+                                    <i class="fas fa-phone"></i>
+                                    Contatta Ora
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                
+                <!-- Paginazione -->
+                {% if page_obj.has_other_pages %}
+                    <nav aria-label="Paginazione artigiani">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+                
+            {% else %}
+                <div class="no-results">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h4>Nessun artigiano trovato</h4>
+                    <p class="text-muted mb-4">
+                        Prova a modificare i filtri di ricerca o espandere la zona geografica.
+                    </p>
+                    <a href="{% url 'artigiani:ricerca' %}" class="btn btn-primary">
+                        <i class="fas fa-refresh me-2"></i>
+                        Nuova Ricerca
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Pulsante AI Floating -->
+<button class="floating-ai-button" onclick="showAiHelp()" title="Assistente AI">
+    <i class="fas fa-robot"></i>
+</button>
+
+<!-- Modal Contatto Rapido -->
+<div class="modal fade" id="contattoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-phone me-2"></i>
+                    Contatta Artigiano
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="contatto-form">
+                    <div class="mb-3">
+                        <label class="form-label">Il tuo nome *</label>
+                        <input type="text" class="form-control" name="nome" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email *</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Telefono</label>
+                        <input type="tel" class="form-control" name="telefono">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Messaggio *</label>
+                        <textarea class="form-control" name="messaggio" rows="4" required 
+                                  placeholder="Descrivi brevemente il lavoro che ti serve..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary" onclick="inviaContatto()">
+                    <i class="fas fa-paper-plane me-2"></i>
+                    Invia Messaggio
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal AI Helper -->
+<div class="modal fade" id="aiHelperModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-robot me-2"></i>
+                    Assistente AI - Ti aiuto a trovare l'artigiano giusto
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-camera me-2"></i>Carica una foto</h6>
+                        <p class="text-muted small">L'AI analizzerà la foto e suggerirà il tipo di lavoro</p>
+                        <input type="file" class="form-control mb-3" id="foto-ai" accept="image/*">
+                        <button class="btn btn-outline-primary w-100 mb-4" onclick="analizzaFoto()">
+                            <i class="fas fa-search me-2"></i>
+                            Analizza Foto
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-calculator me-2"></i>Preventivo automatico</h6>
+                        <p class="text-muted small">Ricevi una stima istantanea del costo</p>
+                        <select class="form-control mb-2" id="categoria-ai">
+                            <option value="">Seleziona categoria...</option>
+                            {% for cat in categorie %}
+                                <option value="{{ cat.nome|lower }}">{{ cat.nome }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="number" class="form-control mb-2" id="superficie-ai" placeholder="Superficie (mq)">
+                        <input type="text" class="form-control mb-3" id="zona-ai" placeholder="Città">
+                        <button class="btn btn-outline-success w-100" onclick="calcolaPreventivo()">
+                            <i class="fas fa-calculator me-2"></i>
+                            Calcola Subito
+                        </button>
+                    </div>
+                </div>
+                <div id="ai-results" class="mt-4" style="display: none;">
+                    <!-- I risultati AI verranno inseriti qui -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let artigianoSelezionato = null;
+
+// Autocomplete città
+document.getElementById('citta-input').addEventListener('input', function() {
+    const term = this.value;
+    if (term.length >= 2) {
+        fetch(`/artigiani/cerca-citta/?term=${encodeURIComponent(term)}`)
+            .then(response => response.json())
+            .then(data => {
+                // Implementa autocomplete se necessario
+                console.log('Città trovate:', data.citta);
+            });
+    }
+});
+
+// Contatto artigiano
+function contattaArtigiano(artigianoId) {
+    artigianoSelezionato = artigianoId;
+    const modal = new bootstrap.Modal(document.getElementById('contattoModal'));
+    modal.show();
+}
+
+async function inviaContatto() {
+    const form = document.getElementById('contatto-form');
+    const formData = new FormData(form);
+    
+    try {
+        const response = await fetch(`/artigiani/contatta/${artigianoSelezionato}/`, {
+            method: 'POST',
+            body: JSON.stringify({
+                nome: formData.get('nome'),
+                email: formData.get('email'),
+                telefono: formData.get('telefono'),
+                messaggio: formData.get('messaggio')
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('Messaggio inviato con successo!\n\n' + result.message);
+            bootstrap.Modal.getInstance(document.getElementById('contattoModal')).hide();
+            form.reset();
+        } else {
+            alert('Errore: ' + result.error);
+        }
+    } catch (error) {
+        alert('Errore di connessione: ' + error.message);
+    }
+}
+
+// AI Helper
+function showAiHelp() {
+    const modal = new bootstrap.Modal(document.getElementById('aiHelperModal'));
+    modal.show();
+}
+
+async function analizzaFoto() {
+    const fileInput = document.getElementById('foto-ai');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        alert('Seleziona una foto da analizzare');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('foto', file);
+    
+    try {
+        document.getElementById('ai-results').innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Analisi in corso...</div>';
+        document.getElementById('ai-results').style.display = 'block';
+        
+        const response = await fetch('/artigiani/analizza-foto/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            const analisi = result.analisi;
+            document.getElementById('ai-results').innerHTML = `
+                <div class="alert alert-success">
+                    <h6><i class="fas fa-check-circle me-2"></i>Analisi completata!</h6>
+                    <p><strong>Categoria suggerita:</strong> ${analisi.categoria_suggerita}</p>
+                    <p><strong>Descrizione:</strong> ${analisi.descrizione}</p>
+                    <p><strong>Confidenza:</strong> ${analisi.confidenza}%</p>
+                    <div class="mt-3">
+                        <strong>Lavori suggeriti:</strong>
+                        <ul class="mt-2">
+                            ${analisi.lavori_suggeriti.map(lavoro => `<li>${lavoro}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <a href="/artigiani/?categoria=${analisi.categoria_suggerita}" class="btn btn-primary mt-3">
+                        <i class="fas fa-search me-2"></i>
+                        Trova Artigiani per questo Lavoro
+                    </a>
+                </div>
+            `;
+        } else {
+            document.getElementById('ai-results').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    ${result.error}
+                </div>
+            `;
+        }
+    } catch (error) {
+        document.getElementById('ai-results').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                Errore di connessione: ${error.message}
+            </div>
+        `;
+    }
+}
+
+async function calcolaPreventivo() {
+    const categoria = document.getElementById('categoria-ai').value;
+    const superficie = document.getElementById('superficie-ai').value;
+    const zona = document.getElementById('zona-ai').value;
+    
+    if (!categoria || !superficie || !zona) {
+        alert('Compila tutti i campi per il calcolo');
+        return;
+    }
+    
+    try {
+        document.getElementById('ai-results').innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Calcolo in corso...</div>';
+        document.getElementById('ai-results').style.display = 'block';
+        
+        const response = await fetch('/artigiani/preventivo-ai/', {
+            method: 'POST',
+            body: JSON.stringify({ categoria, superficie, zona }),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            const preventivo = result.preventivo;
+            document.getElementById('ai-results').innerHTML = `
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-calculator me-2"></i>Preventivo Automatico</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Costo stimato:</strong><br>
+                            <span class="text-success fs-5">€${preventivo.prezzo_min} - €${preventivo.prezzo_max}</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Durata stimata:</strong><br>
+                            <span class="text-primary">${preventivo.giorni_stimati} giorni</span></p>
+                        </div>
+                    </div>
+                    <small class="text-muted">${preventivo.dettagli}</small>
+                    <div class="mt-3">
+                        <a href="/artigiani/preventivo/" class="btn btn-success me-2">
+                            <i class="fas fa-file-invoice me-2"></i>
+                            Richiedi Preventivo Dettagliato
+                        </a>
+                        <a href="/artigiani/?categoria=${categoria}&citta=${zona}" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>
+                            Trova Artigiani
+                        </a>
+                    </div>
+                </div>
+            `;
+        } else {
+            document.getElementById('ai-results').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    ${result.error}
+                </div>
+            `;
+        }
+    } catch (error) {
+        document.getElementById('ai-results').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                Errore di connessione: ${error.message}
+            </div>
+        `;
+    }
+}
+
+// Auto-submit filtri quando cambiano
+document.getElementById('filter-form').addEventListener('change', function() {
+    // Debounce per evitare troppe richieste
+    clearTimeout(this.submitTimeout);
+    this.submitTimeout = setTimeout(() => {
+        this.submit();
+    }, 500);
+});
+</script>
+{% endblock %}

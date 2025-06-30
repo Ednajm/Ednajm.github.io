@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - RinnovoCasa{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Benvenuto, {{ user.nome_completo }}!</h1>
+                    <p class="text-muted mb-0">Ecco cosa sta succedendo con i tuoi progetti</p>
+                </div>
+                <div>
+                    <a href="{% url 'core:diagnosi' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Nuova Diagnosi
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card dashboard-stat text-center p-4">
+                <div class="card-body">
+                    <i class="fas fa-search fs-1 mb-3"></i>
+                    <h3 class="fw-bold">{{ diagnosi_count }}</h3>
+                    <p class="mb-0">Diagnosi</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card dashboard-stat text-center p-4">
+                <div class="card-body">
+                    <i class="fas fa-video fs-1 mb-3"></i>
+                    <h3 class="fw-bold">{{ consulenze_count }}</h3>
+                    <p class="mb-0">Consulenze</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card dashboard-stat text-center p-4">
+                <div class="card-body">
+                    <i class="fas fa-tools fs-1 mb-3"></i>
+                    <h3 class="fw-bold">0</h3>
+                    <p class="mb-0">Progetti Attivi</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card dashboard-stat text-center p-4">
+                <div class="card-body">
+                    <i class="fas fa-euro-sign fs-1 mb-3"></i>
+                    <h3 class="fw-bold">€0</h3>
+                    <p class="mb-0">Risparmi</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <!-- Ultime Diagnosi -->
+        <div class="col-lg-6">
+            <div class="card dashboard-card">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">
+                        <i class="fas fa-search me-2"></i>Ultime Diagnosi
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if ultime_diagnosi %}
+                        {% for diagnosi in ultime_diagnosi %}
+                        <div class="d-flex justify-content-between align-items-center py-2">
+                            <div>
+                                <div class="fw-bold">Diagnosi #{{ diagnosi.id }}</div>
+                                <small class="text-muted">{{ diagnosi.data_creazione|date:"d/m/Y H:i" }}</small>
+                            </div>
+                            <span class="badge bg-{{ diagnosi.stato|yesno:'success,warning,danger' }}">
+                                {{ diagnosi.get_stato_display }}
+                            </span>
+                        </div>
+                        {% if not forloop.last %}<hr>{% endif %}
+                        {% endfor %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'core:lista_diagnosi' %}" class="btn btn-outline-primary btn-sm">
+                                Vedi Tutte
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-search text-muted fs-1 mb-3"></i>
+                            <p class="text-muted">Nessuna diagnosi ancora</p>
+                            <a href="{% url 'core:diagnosi' %}" class="btn btn-primary">
+                                Inizia la tua prima diagnosi
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pacchetti Consigliati -->
+        <div class="col-lg-6">
+            <div class="card dashboard-card">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Consigliati per Te
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if pacchetti_consigliati %}
+                        {% for pacchetto in pacchetti_consigliati %}
+                        <div class="d-flex justify-content-between align-items-center py-2">
+                            <div>
+                                <div class="fw-bold">{{ pacchetto.nome }}</div>
+                                <small class="text-muted">€{{ pacchetto.prezzo_min }} - €{{ pacchetto.prezzo_max }}</small>
+                            </div>
+                            <a href="{% url 'core:dettaglio_pacchetto' pacchetto.id %}" class="btn btn-outline-primary btn-sm">
+                                Dettagli
+                            </a>
+                        </div>
+                        {% if not forloop.last %}<hr>{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-lightbulb text-muted fs-1 mb-3"></i>
+                            <p class="text-muted">Completa una diagnosi per ricevere consigli personalizzati</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

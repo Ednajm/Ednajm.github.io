@@ -1,0 +1,348 @@
+{% extends 'artigiani/dashboard.html' %}
+{% load static %}
+
+{% block title %}Appuntamenti - Dashboard Artigiano{% endblock %}
+
+{% block dashboard_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-calendar-check me-2"></i>I Tuoi Appuntamenti</h2>
+            <div>
+                <a href="{% url 'artigiani:calendario' %}" class="btn btn-outline-info me-2">
+                    <i class="fas fa-calendar-alt me-1"></i>Vista Calendario
+                </a>
+                <a href="{% url 'artigiani:appuntamento_nuovo' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Nuovo Appuntamento
+                </a>
+            </div>
+        </div>
+
+        <!-- Statistiche Rapide -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="mb-0">{{ stats.totali }}</h4>
+                                <small>Totali</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-calendar-check fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="mb-0">{{ stats.confermati }}</h4>
+                                <small>Confermati</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="mb-0">{{ stats.oggi }}</h4>
+                                <small>Oggi</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-calendar-day fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="mb-0">{{ stats.settimana }}</h4>
+                                <small>Questa Settimana</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-calendar-week fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtri -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Stato</label>
+                        <select name="stato" class="form-select">
+                            <option value="">Tutti gli stati</option>
+                            {% for value, label in stati_choices %}
+                            <option value="{{ value }}" {% if stato_filter == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Periodo</label>
+                        <select name="data" class="form-select">
+                            <option value="">Tutti i periodi</option>
+                            <option value="oggi" {% if data_filter == 'oggi' %}selected{% endif %}>Oggi</option>
+                            <option value="settimana" {% if data_filter == 'settimana' %}selected{% endif %}>Questa settimana</option>
+                            <option value="futuro" {% if data_filter == 'futuro' %}selected{% endif %}>Futuri</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">&nbsp;</label>
+                        <div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-1"></i>Filtra
+                            </button>
+                            <a href="{% url 'artigiani:appuntamenti' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>Reset
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Lista Appuntamenti -->
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i>Lista Appuntamenti
+                    {% if page_obj.paginator.count %}
+                        <span class="badge bg-primary ms-2">{{ page_obj.paginator.count }}</span>
+                    {% endif %}
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                {% if page_obj.object_list %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Data & Ora</th>
+                                <th>Cliente</th>
+                                <th>Tipo</th>
+                                <th>Titolo</th>
+                                <th>Stato</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appuntamento in page_obj.object_list %}
+                            <tr id="appuntamento-{{ appuntamento.id }}" 
+                                class="{% if appuntamento.is_today %}table-warning{% endif %}">
+                                <td>
+                                    <div class="fw-bold">{{ appuntamento.data_appuntamento|date:"d/m/Y" }}</div>
+                                    <small class="text-muted">
+                                        {{ appuntamento.ora_inizio|time:"H:i" }} - {{ appuntamento.ora_fine|time:"H:i" }}
+                                        <span class="badge bg-light text-dark ms-1">{{ appuntamento.get_durata_ore }}</span>
+                                    </small>
+                                </td>
+                                <td>
+                                    <div class="fw-bold">{{ appuntamento.cliente_nome }}</div>
+                                    <small class="text-muted">
+                                        <i class="fas fa-envelope me-1"></i>{{ appuntamento.cliente_email }}<br>
+                                        <i class="fas fa-phone me-1"></i>{{ appuntamento.cliente_telefono }}
+                                    </small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ appuntamento.get_tipo_appuntamento_display }}</span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold">{{ appuntamento.titolo }}</div>
+                                    {% if appuntamento.descrizione %}
+                                    <small class="text-muted">{{ appuntamento.descrizione|truncatechars:50 }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <select class="form-select form-select-sm stato-select" 
+                                            data-appuntamento-id="{{ appuntamento.id }}"
+                                            data-current-stato="{{ appuntamento.stato }}">
+                                        {% for value, label in stati_choices %}
+                                        <option value="{{ value }}" 
+                                                {% if appuntamento.stato == value %}selected{% endif %}
+                                                class="text-{{ appuntamento.get_stato_display_class }}">
+                                            {{ label }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'artigiani:appuntamento_edit' appuntamento.id %}" 
+                                           class="btn btn-outline-primary" title="Modifica">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% if appuntamento.can_be_cancelled %}
+                                        <button class="btn btn-outline-danger" 
+                                                onclick="cancellaAppuntamento({{ appuntamento.id }})" 
+                                                title="Annulla">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Nessun appuntamento trovato</h5>
+                    <p class="text-muted">
+                        {% if stato_filter or data_filter %}
+                            Prova a modificare i filtri di ricerca.
+                        {% else %}
+                            Inizia creando il tuo primo appuntamento.
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'artigiani:appuntamento_nuovo' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Crea Appuntamento
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Paginazione -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Paginazione appuntamenti" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if stato_filter %}&stato={{ stato_filter }}{% endif %}{% if data_filter %}&data={{ data_filter }}{% endif %}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for page_num in page_obj.paginator.page_range %}
+                    {% if page_num == page_obj.number %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ page_num }}</span>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_num }}{% if stato_filter %}&stato={{ stato_filter }}{% endif %}{% if data_filter %}&data={{ data_filter }}{% endif %}">
+                            {{ page_num }}
+                        </a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if stato_filter %}&stato={{ stato_filter }}{% endif %}{% if data_filter %}&data={{ data_filter }}{% endif %}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Gestione cambio stato appuntamento
+document.addEventListener('DOMContentLoaded', function() {
+    const statoSelects = document.querySelectorAll('.stato-select');
+    
+    statoSelects.forEach(function(select) {
+        select.addEventListener('change', function() {
+            const appuntamentoId = this.dataset.appuntamentoId;
+            const nuovoStato = this.value;
+            const statoAttuale = this.dataset.currentStato;
+            
+            if (nuovoStato !== statoAttuale) {
+                cambiaStatoAppuntamento(appuntamentoId, nuovoStato, this);
+            }
+        });
+    });
+});
+
+function cambiaStatoAppuntamento(appuntamentoId, nuovoStato, selectElement) {
+    const statoAttuale = selectElement.dataset.currentStato;
+    
+    fetch(`{% url 'artigiani:appuntamento_stato' 0 %}`.replace('0', appuntamentoId), {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            stato: nuovoStato
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Aggiorna il dataset per il nuovo stato
+            selectElement.dataset.currentStato = nuovoStato;
+            
+            // Mostra messaggio di successo
+            showToast('success', data.message);
+        } else {
+            // Ripristina lo stato precedente in caso di errore
+            selectElement.value = statoAttuale;
+            showToast('error', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        selectElement.value = statoAttuale;
+        showToast('error', 'Errore di connessione');
+    });
+}
+
+function cancellaAppuntamento(appuntamentoId) {
+    if (confirm('Sei sicuro di voler annullare questo appuntamento?')) {
+        cambiaStatoAppuntamento(appuntamentoId, 'annullato', 
+            document.querySelector(`[data-appuntamento-id="${appuntamentoId}"]`));
+    }
+}
+
+function showToast(type, message) {
+    // Semplice notifica toast
+    const toastClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const toast = document.createElement('div');
+    toast.className = `alert ${toastClass} alert-dismissible fade show position-fixed`;
+    toast.style.top = '20px';
+    toast.style.right = '20px';
+    toast.style.zIndex = '9999';
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Rimuovi automaticamente dopo 3 secondi
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 3000);
+}
+</script>
+{% endblock %}

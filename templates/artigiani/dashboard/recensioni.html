@@ -1,0 +1,633 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Recensioni - Dashboard Artigiano{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding-top: 2rem;
+    }
+    
+    .dashboard-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .reviews-header {
+        background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+        color: white;
+        border-radius: 20px 20px 0 0;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .sidebar-nav {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .nav-link {
+        color: #6c757d;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-link:hover, .nav-link.active {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        transform: translateX(5px);
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+        color: white;
+    }
+    
+    .stat-icon.rating {
+        background: linear-gradient(135deg, #ffd32a 0%, #ff9a00 100%);
+    }
+    
+    .stat-icon.verified {
+        background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+    }
+    
+    .stat-icon.quality {
+        background: linear-gradient(135deg, #6c5ce7 0%, #5f3dc4 100%);
+    }
+    
+    .stat-icon.punctuality {
+        background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+    }
+    
+    .stat-icon.courtesy {
+        background: linear-gradient(135deg, #00cec9 0%, #00b894 100%);
+    }
+    
+    .stat-icon.value {
+        background: linear-gradient(135deg, #0984e3 0%, #74b9ff 100%);
+    }
+    
+    .reviews-container {
+        max-height: 600px;
+        overflow-y: auto;
+    }
+    
+    .review-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+    }
+    
+    .review-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    
+    .review-card.verified {
+        border-left-color: #00b894;
+    }
+    
+    .review-card.unverified {
+        border-left-color: #fdcb6e;
+    }
+    
+    .review-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .reviewer-info {
+        flex-grow: 1;
+    }
+    
+    .reviewer-name {
+        font-weight: 600;
+        color: #2d3436;
+        margin-bottom: 0.25rem;
+    }
+    
+    .review-date {
+        color: #636e72;
+        font-size: 0.875rem;
+    }
+    
+    .review-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .stars {
+        color: #ffd32a;
+        margin-right: 0.5rem;
+    }
+    
+    .verification-badge {
+        background: #00b894;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .verification-badge.pending {
+        background: #fdcb6e;
+        color: #2d3436;
+    }
+    
+    .review-content {
+        margin: 1rem 0;
+        line-height: 1.6;
+        color: #2d3436;
+    }
+    
+    .review-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #ddd;
+    }
+    
+    .detail-item {
+        text-align: center;
+    }
+    
+    .detail-label {
+        font-size: 0.75rem;
+        color: #636e72;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    
+    .detail-rating {
+        font-weight: 600;
+        color: #2d3436;
+    }
+    
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    
+    .page-link {
+        border-radius: 10px;
+        margin: 0 0.25rem;
+        border: 1px solid #dee2e6;
+        color: #007bff;
+    }
+    
+    .page-link:hover {
+        background: #007bff;
+        border-color: #007bff;
+        color: white;
+    }
+    
+    .page-item.active .page-link {
+        background: #007bff;
+        border-color: #007bff;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #636e72;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .filters-bar {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 20px;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .filter-btn:hover, .filter-btn.active {
+        background: #007bff;
+        border-color: #007bff;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <div class="col-lg-3">
+                <div class="sidebar-nav">
+                    <h6 class="text-muted mb-3">DASHBOARD</h6>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="{% url 'artigiani:dashboard_home' %}">
+                            <i class="fas fa-home me-2"></i> Home
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:profilo_edit' %}">
+                            <i class="fas fa-user-edit me-2"></i> Modifica Profilo
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:foto_lavori' %}">
+                            <i class="fas fa-images me-2"></i> Foto Lavori
+                        </a>
+                        <a class="nav-link active" href="{% url 'artigiani:recensioni' %}">
+                            <i class="fas fa-star me-2"></i> Recensioni
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:richieste' %}">
+                            <i class="fas fa-clipboard-list me-2"></i> Richieste
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:statistiche' %}">
+                            <i class="fas fa-chart-bar me-2"></i> Statistiche
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:impostazioni' %}">
+                            <i class="fas fa-cog me-2"></i> Impostazioni
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <div class="dashboard-card">
+                    <div class="reviews-header">
+                        <i class="fas fa-star fa-3x mb-3"></i>
+                        <h2>Le tue Recensioni</h2>
+                        <p class="mb-0">Monitora la soddisfazione dei tuoi clienti</p>
+                    </div>
+
+                    <div class="p-4">
+                        <!-- Statistics -->
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon rating">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <h4>{{ stats_recensioni.media_voto|floatformat:1 }}</h4>
+                                <p class="text-muted mb-0">Voto Medio</p>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon verified">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <h4>{{ stats_recensioni.verificate }}</h4>
+                                <p class="text-muted mb-0">Verificate</p>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon quality">
+                                    <i class="fas fa-tools"></i>
+                                </div>
+                                <h4>{{ stats_recensioni.media_qualita|floatformat:1 }}</h4>
+                                <p class="text-muted mb-0">Qualità Lavoro</p>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon punctuality">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <h4>{{ stats_recensioni.media_puntualita|floatformat:1 }}</h4>
+                                <p class="text-muted mb-0">Puntualità</p>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon courtesy">
+                                    <i class="fas fa-handshake"></i>
+                                </div>
+                                <h4>{{ stats_recensioni.media_cortesia|floatformat:1 }}</h4>
+                                <p class="text-muted mb-0">Cortesia</p>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon value">
+                                    <i class="fas fa-euro-sign"></i>
+                                </div>
+                                <h4>{{ stats_recensioni.media_rapporto_qp|floatformat:1 }}</h4>
+                                <p class="text-muted mb-0">Rapporto Q/P</p>
+                            </div>
+                        </div>
+
+                        <!-- Filters -->
+                        <div class="filters-bar">
+                            <span class="text-muted me-2">Filtra per:</span>
+                            <button class="filter-btn active" onclick="filterReviews('all')">
+                                Tutte ({{ stats_recensioni.totali }})
+                            </button>
+                            <button class="filter-btn" onclick="filterReviews('verified')">
+                                Verificate ({{ stats_recensioni.verificate }})
+                            </button>
+                            <button class="filter-btn" onclick="filterReviews('5-stars')">
+                                5 Stelle
+                            </button>
+                            <button class="filter-btn" onclick="filterReviews('4-stars')">
+                                4 Stelle
+                            </button>
+                            <button class="filter-btn" onclick="filterReviews('recent')">
+                                Recenti
+                            </button>
+                        </div>
+
+                        <!-- Reviews List -->
+                        {% if page_obj %}
+                            <div class="reviews-container">
+                                {% for recensione in page_obj %}
+                                    <div class="review-card {% if recensione.verificata %}verified{% else %}unverified{% endif %}" 
+                                         data-verified="{{ recensione.verificata|yesno:'true,false' }}"
+                                         data-rating="{{ recensione.voto_complessivo }}"
+                                         data-date="{{ recensione.data_recensione|date:'Y-m-d' }}">
+                                        
+                                        <div class="review-header">
+                                            <div class="reviewer-info">
+                                                <div class="reviewer-name">
+                                                    <i class="fas fa-user-circle me-2"></i>
+                                                    {{ recensione.nome_cliente }}
+                                                    {% if recensione.verificata %}
+                                                        <span class="verification-badge">
+                                                            <i class="fas fa-check me-1"></i>Verificata
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="verification-badge pending">
+                                                            <i class="fas fa-clock me-1"></i>In Verifica
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="review-date">
+                                                    <i class="fas fa-calendar me-1"></i>
+                                                    {{ recensione.data_recensione|date:"d F Y" }}
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="review-rating">
+                                                <div class="stars">
+                                                    {% for i in "12345" %}
+                                                        {% if forloop.counter <= recensione.voto_complessivo %}
+                                                            <i class="fas fa-star"></i>
+                                                        {% else %}
+                                                            <i class="far fa-star"></i>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <span class="fw-bold">{{ recensione.voto_complessivo }}/5</span>
+                                            </div>
+                                        </div>
+
+                                        {% if recensione.commento %}
+                                            <div class="review-content">
+                                                <i class="fas fa-quote-left text-muted me-2"></i>
+                                                {{ recensione.commento }}
+                                                <i class="fas fa-quote-right text-muted ms-2"></i>
+                                            </div>
+                                        {% endif %}
+
+                                        <div class="review-details">
+                                            <div class="detail-item">
+                                                <div class="detail-label">Qualità</div>
+                                                <div class="detail-rating">{{ recensione.qualita_lavoro }}/5</div>
+                                            </div>
+                                            <div class="detail-item">
+                                                <div class="detail-label">Puntualità</div>
+                                                <div class="detail-rating">{{ recensione.puntualita }}/5</div>
+                                            </div>
+                                            <div class="detail-item">
+                                                <div class="detail-label">Cortesia</div>
+                                                <div class="detail-rating">{{ recensione.cortesia }}/5</div>
+                                            </div>
+                                            <div class="detail-item">
+                                                <div class="detail-label">Rapporto Q/P</div>
+                                                <div class="detail-rating">{{ recensione.rapporto_qualita_prezzo }}/5</div>
+                                            </div>
+                                        </div>
+
+                                        {% if recensione.lavoro_tipo %}
+                                            <div class="mt-2">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-tools me-1"></i>
+                                                    Lavoro: {{ recensione.lavoro_tipo }}
+                                                </small>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Pagination -->
+                            {% if page_obj.has_other_pages %}
+                                <div class="pagination-container">
+                                    <nav aria-label="Paginazione recensioni">
+                                        <ul class="pagination">
+                                            {% if page_obj.has_previous %}
+                                                <li class="page-item">
+                                                    <a class="page-link" href="?page=1">
+                                                        <i class="fas fa-angle-double-left"></i>
+                                                    </a>
+                                                </li>
+                                                <li class="page-item">
+                                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                                                        <i class="fas fa-angle-left"></i>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+
+                                            {% for num in page_obj.paginator.page_range %}
+                                                {% if page_obj.number == num %}
+                                                    <li class="page-item active">
+                                                        <span class="page-link">{{ num }}</span>
+                                                    </li>
+                                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                                    <li class="page-item">
+                                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+
+                                            {% if page_obj.has_next %}
+                                                <li class="page-item">
+                                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                                                        <i class="fas fa-angle-right"></i>
+                                                    </a>
+                                                </li>
+                                                <li class="page-item">
+                                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">
+                                                        <i class="fas fa-angle-double-right"></i>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                        </ul>
+                                    </nav>
+                                </div>
+                            {% endif %}
+
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fas fa-star"></i>
+                                <h4>Nessuna recensione ancora</h4>
+                                <p class="text-muted">
+                                    Le recensioni dei tuoi clienti appariranno qui.<br>
+                                    Fornisci un servizio eccellente per ottenere le prime recensioni!
+                                </p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-refresh every 5 minutes to check for new reviews
+    setInterval(function() {
+        // Only refresh if there are no modals open
+        if (!document.querySelector('.modal.show')) {
+            location.reload();
+        }
+    }, 300000); // 5 minutes
+});
+
+function filterReviews(filterType) {
+    // Update filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+
+    // Get all review cards
+    const reviewCards = document.querySelectorAll('.review-card');
+    
+    reviewCards.forEach(card => {
+        let show = true;
+        
+        switch(filterType) {
+            case 'all':
+                show = true;
+                break;
+            case 'verified':
+                show = card.dataset.verified === 'true';
+                break;
+            case '5-stars':
+                show = card.dataset.rating === '5';
+                break;
+            case '4-stars':
+                show = card.dataset.rating === '4';
+                break;
+            case 'recent':
+                const reviewDate = new Date(card.dataset.date);
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                show = reviewDate >= thirtyDaysAgo;
+                break;
+        }
+        
+        if (show) {
+            card.style.display = 'block';
+            // Add fade-in animation
+            card.style.opacity = '0';
+            setTimeout(() => {
+                card.style.opacity = '1';
+            }, 100);
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Check if any reviews are visible
+    const visibleReviews = Array.from(reviewCards).filter(card => 
+        card.style.display !== 'none'
+    );
+    
+    // Show/hide empty state
+    const reviewsContainer = document.querySelector('.reviews-container');
+    const emptyState = document.querySelector('.empty-state');
+    
+    if (visibleReviews.length === 0 && reviewCards.length > 0) {
+        if (reviewsContainer) reviewsContainer.style.display = 'none';
+        if (!emptyState) {
+            // Create temporary empty state
+            const tempEmpty = document.createElement('div');
+            tempEmpty.className = 'empty-state';
+            tempEmpty.innerHTML = `
+                <i class="fas fa-filter"></i>
+                <h4>Nessuna recensione trovata</h4>
+                <p class="text-muted">Prova a cambiare i filtri per vedere più recensioni.</p>
+            `;
+            tempEmpty.id = 'temp-empty-state';
+            document.querySelector('.dashboard-card .p-4').appendChild(tempEmpty);
+        }
+    } else {
+        if (reviewsContainer) reviewsContainer.style.display = 'block';
+        const tempEmpty = document.getElementById('temp-empty-state');
+        if (tempEmpty) tempEmpty.remove();
+    }
+}
+
+// Smooth scroll to top when changing pages
+if (window.location.search.includes('page=')) {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+</script>
+{% endblock %}

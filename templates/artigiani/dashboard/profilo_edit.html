@@ -1,0 +1,429 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Modifica Profilo - Dashboard Artigiano{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding-top: 2rem;
+    }
+    
+    .dashboard-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .profile-header {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        border-radius: 20px 20px 0 0;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .form-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        border: 1px solid #e9ecef;
+        border-radius: 15px;
+        background: #f8f9fa;
+    }
+    
+    .form-section h5 {
+        color: #495057;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 1px solid #ced4da;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: transform 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+    }
+    
+    .btn-secondary {
+        border-radius: 25px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+    }
+    
+    .photo-upload-area {
+        border: 2px dashed #007bff;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        background: #f8f9ff;
+        transition: all 0.3s ease;
+    }
+    
+    .photo-upload-area:hover {
+        background: #e6f3ff;
+        border-color: #0056b3;
+    }
+    
+    .current-photo {
+        max-width: 150px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .language-checks {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .form-check {
+        background: white;
+        padding: 1rem;
+        border-radius: 10px;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .form-check:hover {
+        border-color: #007bff;
+        background: #f8f9ff;
+    }
+    
+    .sidebar-nav {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .nav-link {
+        color: #6c757d;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-link:hover, .nav-link.active {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        transform: translateX(5px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <div class="col-lg-3">
+                <div class="sidebar-nav">
+                    <h6 class="text-muted mb-3">DASHBOARD</h6>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="{% url 'artigiani:dashboard_home' %}">
+                            <i class="fas fa-home me-2"></i> Home
+                        </a>
+                        <a class="nav-link active" href="{% url 'artigiani:profilo_edit' %}">
+                            <i class="fas fa-user-edit me-2"></i> Modifica Profilo
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:foto_lavori' %}">
+                            <i class="fas fa-images me-2"></i> Foto Lavori
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:recensioni' %}">
+                            <i class="fas fa-star me-2"></i> Recensioni
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:richieste' %}">
+                            <i class="fas fa-clipboard-list me-2"></i> Richieste
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:statistiche' %}">
+                            <i class="fas fa-chart-bar me-2"></i> Statistiche
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:impostazioni' %}">
+                            <i class="fas fa-cog me-2"></i> Impostazioni
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <div class="dashboard-card">
+                    <div class="profile-header">
+                        <i class="fas fa-user-edit fa-3x mb-3"></i>
+                        <h2>Modifica il tuo Profilo</h2>
+                        <p class="mb-0">Mantieni aggiornate le tue informazioni per ricevere più contatti</p>
+                    </div>
+
+                    <div class="p-4">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            <!-- Informazioni Generali -->
+                            <div class="form-section">
+                                <h5><i class="fas fa-info-circle me-2"></i>Informazioni Generali</h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Categoria Principale *</label>
+                                        {{ form.categoria_principale }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Nome Attività *</label>
+                                        {{ form.nome_attivita }}
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Categorie Secondarie</label>
+                                    <div class="language-checks">
+                                        {{ form.categorie_secondarie }}
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Descrizione dei Servizi</label>
+                                    {{ form.descrizione }}
+                                </div>
+                            </div>
+
+                            <!-- Dati Fiscali -->
+                            <div class="form-section">
+                                <h5><i class="fas fa-file-invoice me-2"></i>Dati Fiscali</h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-check">
+                                            {{ form.ha_partita_iva }}
+                                            <label class="form-check-label">
+                                                Ho Partita IVA
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Partita IVA</label>
+                                        {{ form.partita_iva }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Localizzazione -->
+                            <div class="form-section">
+                                <h5><i class="fas fa-map-marker-alt me-2"></i>Localizzazione</h5>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Città *</label>
+                                        {{ form.citta }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">CAP *</label>
+                                        {{ form.cap }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Raggio Azione (km)</label>
+                                        {{ form.raggio_azione_km }}
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Indirizzo (opzionale)</label>
+                                    {{ form.indirizzo }}
+                                </div>
+                            </div>
+
+                            <!-- Prezzi e Disponibilità -->
+                            <div class="form-section">
+                                <h5><i class="fas fa-euro-sign me-2"></i>Prezzi e Disponibilità</h5>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Fascia Prezzo</label>
+                                        {{ form.fascia_prezzo }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Prezzo Orario Min (€)</label>
+                                        {{ form.prezzo_orario_min }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Prezzo Orario Max (€)</label>
+                                        {{ form.prezzo_orario_max }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Disponibilità</label>
+                                        {{ form.disponibilita }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Anni di Esperienza</label>
+                                        {{ form.anni_esperienza }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Lingue -->
+                            <div class="form-section">
+                                <h5><i class="fas fa-language me-2"></i>Lingue Parlate</h5>
+                                <div class="language-checks">
+                                    <div class="form-check">
+                                        {{ form.italiano }}
+                                        <label class="form-check-label">Italiano</label>
+                                    </div>
+                                    <div class="form-check">
+                                        {{ form.inglese }}
+                                        <label class="form-check-label">Inglese</label>
+                                    </div>
+                                    <div class="form-check">
+                                        {{ form.francese }}
+                                        <label class="form-check-label">Francese</label>
+                                    </div>
+                                    <div class="form-check">
+                                        {{ form.arabo }}
+                                        <label class="form-check-label">Arabo</label>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <label class="form-label">Altre Lingue</label>
+                                    {{ form.altre_lingue }}
+                                </div>
+                            </div>
+
+                            <!-- Foto -->
+                            <div class="form-section">
+                                <h5><i class="fas fa-camera me-2"></i>Foto Profilo</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Foto Profilo</label>
+                                        {% if profilo.foto_profilo %}
+                                            <div class="mb-2">
+                                                <img src="{{ profilo.foto_profilo.url }}" class="current-photo" alt="Foto attuale">
+                                            </div>
+                                        {% endif %}
+                                        <div class="photo-upload-area">
+                                            {{ form.foto_profilo }}
+                                            <p class="text-muted mt-2 mb-0">Carica una foto professionale</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Foto Banner</label>
+                                        {% if profilo.foto_banner %}
+                                            <div class="mb-2">
+                                                <img src="{{ profilo.foto_banner.url }}" class="current-photo" alt="Banner attuale">
+                                            </div>
+                                        {% endif %}
+                                        <div class="photo-upload-area">
+                                            {{ form.foto_banner }}
+                                            <p class="text-muted mt-2 mb-0">Carica un'immagine di copertina</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Contatti -->
+                            <div class="form-section">
+                                <h5><i class="fas fa-phone me-2"></i>Informazioni di Contatto</h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Telefono *</label>
+                                        {{ form.telefono }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">WhatsApp</label>
+                                        {{ form.whatsapp }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Email Lavoro</label>
+                                        {{ form.email_lavoro }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Sito Web</label>
+                                        {{ form.sito_web }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pulsanti -->
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg me-3">
+                                    <i class="fas fa-save me-2"></i>Salva Modifiche
+                                </button>
+                                <a href="{% url 'artigiani:dashboard_home' %}" class="btn btn-secondary btn-lg">
+                                    <i class="fas fa-arrow-left me-2"></i>Torna alla Dashboard
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-resize textarea
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    });
+
+    // Preview uploaded images
+    const fileInputs = document.querySelectorAll('input[type="file"]');
+    fileInputs.forEach(input => {
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Find the closest upload area and add preview
+                    const uploadArea = input.closest('.photo-upload-area');
+                    let preview = uploadArea.querySelector('.preview-image');
+                    if (!preview) {
+                        preview = document.createElement('img');
+                        preview.className = 'preview-image current-photo mt-2';
+                        uploadArea.appendChild(preview);
+                    }
+                    preview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

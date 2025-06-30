@@ -1,0 +1,844 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Impostazioni - Dashboard Artigiano{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding-top: 2rem;
+    }
+    
+    .dashboard-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .settings-header {
+        background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+        color: white;
+        border-radius: 20px 20px 0 0;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .sidebar-nav {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .nav-link {
+        color: #6c757d;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-link:hover, .nav-link.active {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        transform: translateX(5px);
+    }
+    
+    .settings-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border-left: 4px solid #007bff;
+    }
+    
+    .section-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .section-icon {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 1.25rem;
+    }
+    
+    .section-title {
+        flex-grow: 1;
+    }
+    
+    .section-title h5 {
+        margin: 0;
+        color: #2d3436;
+        font-weight: 600;
+    }
+    
+    .section-title p {
+        margin: 0;
+        color: #636e72;
+        font-size: 0.875rem;
+    }
+    
+    .setting-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+    
+    .setting-item:hover {
+        background: #e9ecef;
+        transform: translateX(5px);
+    }
+    
+    .setting-info {
+        flex-grow: 1;
+    }
+    
+    .setting-title {
+        font-weight: 600;
+        color: #2d3436;
+        margin-bottom: 0.25rem;
+    }
+    
+    .setting-description {
+        color: #636e72;
+        font-size: 0.875rem;
+        margin: 0;
+    }
+    
+    .setting-control {
+        margin-left: 1rem;
+    }
+    
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+    
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+    
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    
+    input:checked + .toggle-slider {
+        background-color: #007bff;
+    }
+    
+    input:checked + .toggle-slider:before {
+        transform: translateX(26px);
+    }
+    
+    .btn-settings {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        color: white;
+        transition: transform 0.3s ease;
+    }
+    
+    .btn-settings:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+        color: white;
+    }
+    
+    .btn-danger-settings {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        color: white;
+        transition: transform 0.3s ease;
+    }
+    
+    .btn-danger-settings:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        color: white;
+    }
+    
+    .status-card {
+        background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .status-card.inactive {
+        background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+    }
+    
+    .status-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    
+    .form-control {
+        border-radius: 10px;
+        border: 1px solid #ced4da;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    .danger-zone {
+        background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+        border: 1px solid #e53e3e;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .danger-zone h6 {
+        color: #e53e3e;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .modal-content {
+        border-radius: 20px;
+    }
+    
+    .modal-header {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        border-radius: 20px 20px 0 0;
+    }
+    
+    .modal-header.danger {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    }
+    
+    .notification-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
+        background: #f8f9fa;
+    }
+    
+    .notification-icon {
+        margin-right: 1rem;
+        color: #007bff;
+    }
+    
+    .privacy-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .privacy-item:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <div class="col-lg-3">
+                <div class="sidebar-nav">
+                    <h6 class="text-muted mb-3">DASHBOARD</h6>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="{% url 'artigiani:dashboard_home' %}">
+                            <i class="fas fa-home me-2"></i> Home
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:profilo_edit' %}">
+                            <i class="fas fa-user-edit me-2"></i> Modifica Profilo
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:foto_lavori' %}">
+                            <i class="fas fa-images me-2"></i> Foto Lavori
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:recensioni' %}">
+                            <i class="fas fa-star me-2"></i> Recensioni
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:richieste' %}">
+                            <i class="fas fa-clipboard-list me-2"></i> Richieste
+                        </a>
+                        <a class="nav-link" href="{% url 'artigiani:statistiche' %}">
+                            <i class="fas fa-chart-bar me-2"></i> Statistiche
+                        </a>
+                        <a class="nav-link active" href="{% url 'artigiani:impostazioni' %}">
+                            <i class="fas fa-cog me-2"></i> Impostazioni
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <div class="dashboard-card">
+                    <div class="settings-header">
+                        <i class="fas fa-cog fa-3x mb-3"></i>
+                        <h2>Impostazioni Account</h2>
+                        <p class="mb-0">Gestisci le tue preferenze e impostazioni di sicurezza</p>
+                    </div>
+
+                    <div class="p-4">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <!-- Account Status -->
+                        <div class="status-card {% if not profilo.attivo %}inactive{% endif %}">
+                            <div class="status-icon">
+                                {% if profilo.attivo %}
+                                    <i class="fas fa-check-circle"></i>
+                                {% else %}
+                                    <i class="fas fa-pause-circle"></i>
+                                {% endif %}
+                            </div>
+                            <h4>
+                                {% if profilo.attivo %}
+                                    Profilo Attivo
+                                {% else %}
+                                    Profilo Disattivato
+                                {% endif %}
+                            </h4>
+                            <p class="mb-0">
+                                {% if profilo.attivo %}
+                                    Il tuo profilo è visibile ai clienti e ricevi richieste di preventivo
+                                {% else %}
+                                    Il tuo profilo è nascosto e non ricevi nuove richieste
+                                {% endif %}
+                            </p>
+                        </div>
+
+                        <!-- Visibility Settings -->
+                        <div class="settings-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-eye"></i>
+                                </div>
+                                <div class="section-title">
+                                    <h5>Visibilità Profilo</h5>
+                                    <p>Controlla chi può vedere il tuo profilo e come</p>
+                                </div>
+                            </div>
+
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <div class="setting-title">Profilo Attivo</div>
+                                        <div class="setting-description">
+                                            Attiva o disattiva la visibilità del tuo profilo ai clienti
+                                        </div>
+                                    </div>
+                                    <div class="setting-control">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" {% if profilo.attivo %}checked{% endif %} 
+                                                   onchange="this.form.submit()" name="toggle_attivo">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <div class="setting-title">Modalità Premium</div>
+                                    <div class="setting-description">
+                                        {% if profilo.premium %}
+                                            Hai accesso alle funzionalità premium
+                                        {% else %}
+                                            Passa a Premium per più visibilità
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="setting-control">
+                                    {% if profilo.premium %}
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-crown me-1"></i>Premium
+                                        </span>
+                                    {% else %}
+                                        <button class="btn btn-warning btn-sm">
+                                            <i class="fas fa-crown me-1"></i>Upgrade
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <div class="setting-title">Stato Verifica</div>
+                                    <div class="setting-description">
+                                        {% if profilo.verificato %}
+                                            Il tuo profilo è stato verificato dal nostro team
+                                        {% else %}
+                                            Completa la verifica per aumentare la fiducia
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="setting-control">
+                                    {% if profilo.verificato %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check me-1"></i>Verificato
+                                        </span>
+                                    {% else %}
+                                        <button class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-shield-alt me-1"></i>Richiedi Verifica
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notification Settings -->
+                        <div class="settings-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-bell"></i>
+                                </div>
+                                <div class="section-title">
+                                    <h5>Notifiche</h5>
+                                    <p>Scegli come e quando ricevere le notifiche</p>
+                                </div>
+                            </div>
+
+                            <div class="notification-item">
+                                <div class="notification-icon">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div class="setting-info">
+                                    <div class="setting-title">Email per Nuove Richieste</div>
+                                    <div class="setting-description">Ricevi email quando arrivano nuove richieste di preventivo</div>
+                                </div>
+                                <div class="setting-control">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="notification-item">
+                                <div class="notification-icon">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <div class="setting-info">
+                                    <div class="setting-title">SMS Urgenti</div>
+                                    <div class="setting-description">Ricevi SMS per richieste urgenti e importanti</div>
+                                </div>
+                                <div class="setting-control">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="notification-item">
+                                <div class="notification-icon">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="setting-info">
+                                    <div class="setting-title">Notifiche Recensioni</div>
+                                    <div class="setting-description">Avvisami quando ricevo nuove recensioni</div>
+                                </div>
+                                <div class="setting-control">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="notification-item">
+                                <div class="notification-icon">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                                <div class="setting-info">
+                                    <div class="setting-title">Report Settimanale</div>
+                                    <div class="setting-description">Ricevi un riassunto settimanale delle tue statistiche</div>
+                                </div>
+                                <div class="setting-control">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security Settings -->
+                        <div class="settings-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="section-title">
+                                    <h5>Sicurezza Account</h5>
+                                    <p>Proteggi il tuo account con impostazioni di sicurezza avanzate</p>
+                                </div>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <div class="setting-title">Cambia Password</div>
+                                    <div class="setting-description">Aggiorna la password del tuo account</div>
+                                </div>
+                                <div class="setting-control">
+                                    <button class="btn btn-settings" data-bs-toggle="modal" data-bs-target="#passwordModal">
+                                        <i class="fas fa-key me-1"></i>Cambia Password
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <div class="setting-title">Autenticazione a Due Fattori</div>
+                                    <div class="setting-description">Aggiungi un livello extra di sicurezza al tuo account</div>
+                                </div>
+                                <div class="setting-control">
+                                    <button class="btn btn-outline-primary">
+                                        <i class="fas fa-mobile-alt me-1"></i>Configura 2FA
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <div class="setting-title">Sessioni Attive</div>
+                                    <div class="setting-description">Vedi dove hai effettuato l'accesso</div>
+                                </div>
+                                <div class="setting-control">
+                                    <button class="btn btn-outline-secondary">
+                                        <i class="fas fa-list me-1"></i>Gestisci Sessioni
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Privacy Settings -->
+                        <div class="settings-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-user-shield"></i>
+                                </div>
+                                <div class="section-title">
+                                    <h5>Privacy e Dati</h5>
+                                    <p>Controlla come vengono utilizzati i tuoi dati</p>
+                                </div>
+                            </div>
+
+                            <div class="privacy-item">
+                                <div class="setting-info">
+                                    <div class="setting-title">Mostra Numero di Telefono</div>
+                                    <div class="setting-description">Permetti ai clienti di vedere il tuo numero</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="privacy-item">
+                                <div class="setting-info">
+                                    <div class="setting-title">Condividi Statistiche</div>
+                                    <div class="setting-description">Permetti di mostrare le tue statistiche nel profilo</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="privacy-item">
+                                <div class="setting-info">
+                                    <div class="setting-title">Marketing</div>
+                                    <div class="setting-description">Ricevi email promozionali e suggerimenti</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Account Management -->
+                        <div class="settings-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-user-cog"></i>
+                                </div>
+                                <div class="section-title">
+                                    <h5>Gestione Account</h5>
+                                    <p>Opzioni avanzate per il tuo account</p>
+                                </div>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <div class="setting-title">Esporta Dati</div>
+                                    <div class="setting-description">Scarica una copia di tutti i tuoi dati</div>
+                                </div>
+                                <div class="setting-control">
+                                    <button class="btn btn-outline-info">
+                                        <i class="fas fa-download me-1"></i>Esporta
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <div class="setting-title">Supporto</div>
+                                    <div class="setting-description">Contatta il nostro team per assistenza</div>
+                                </div>
+                                <div class="setting-control">
+                                    <button class="btn btn-outline-success">
+                                        <i class="fas fa-life-ring me-1"></i>Contatta Supporto
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Danger Zone -->
+                        <div class="danger-zone">
+                            <h6>
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Zona Pericolosa
+                            </h6>
+                            <p class="text-muted mb-3">
+                                Queste azioni sono irreversibili. Procedi con cautela.
+                            </p>
+                            
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button class="btn btn-outline-warning">
+                                    <i class="fas fa-pause me-1"></i>Sospendi Account
+                                </button>
+                                <button class="btn btn-danger-settings" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                    <i class="fas fa-trash me-1"></i>Elimina Account
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Password Change Modal -->
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="passwordModalLabel">
+                    <i class="fas fa-key me-2"></i>Cambia Password
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="passwordForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="aggiorna_password" value="1">
+                    
+                    <div class="mb-3">
+                        <label for="oldPassword" class="form-label">Password Attuale</label>
+                        <input type="password" class="form-control" id="oldPassword" name="old_password" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">Nuova Password</label>
+                        <input type="password" class="form-control" id="newPassword" name="new_password" required>
+                        <div class="form-text">La password deve essere di almeno 8 caratteri</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Conferma Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="submit" form="passwordForm" class="btn btn-settings">
+                    <i class="fas fa-save me-1"></i>Salva Password
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header danger">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Elimina Account
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="fas fa-warning me-2"></i>
+                    <strong>Attenzione!</strong> Questa azione è irreversibile.
+                </div>
+                
+                <p>Eliminando il tuo account:</p>
+                <ul>
+                    <li>Perderai accesso permanente alla piattaforma</li>
+                    <li>Tutte le tue foto e recensioni verranno eliminate</li>
+                    <li>I clienti non potranno più trovarti o contattarti</li>
+                    <li>Le statistiche e i dati verranno cancellati</li>
+                </ul>
+                
+                <div class="mt-3">
+                    <label for="deleteConfirm" class="form-label">
+                        Scrivi "ELIMINA" per confermare:
+                    </label>
+                    <input type="text" class="form-control" id="deleteConfirm" placeholder="ELIMINA">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-danger-settings" id="confirmDelete" disabled>
+                    <i class="fas fa-trash me-1"></i>Elimina Definitivamente
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password confirmation validation
+    const newPassword = document.getElementById('newPassword');
+    const confirmPassword = document.getElementById('confirmPassword');
+    
+    function validatePassword() {
+        if (newPassword.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity('Le password non coincidono');
+        } else {
+            confirmPassword.setCustomValidity('');
+        }
+    }
+    
+    if (newPassword && confirmPassword) {
+        newPassword.addEventListener('input', validatePassword);
+        confirmPassword.addEventListener('input', validatePassword);
+    }
+    
+    // Delete confirmation
+    const deleteConfirm = document.getElementById('deleteConfirm');
+    const confirmDelete = document.getElementById('confirmDelete');
+    
+    if (deleteConfirm && confirmDelete) {
+        deleteConfirm.addEventListener('input', function() {
+            if (this.value === 'ELIMINA') {
+                confirmDelete.disabled = false;
+            } else {
+                confirmDelete.disabled = true;
+            }
+        });
+        
+        confirmDelete.addEventListener('click', function() {
+            // In a real implementation, this would actually delete the account
+            alert('Funzionalità di eliminazione account non implementata in questa demo');
+        });
+    }
+    
+    // Auto-save toggle settings
+    const toggles = document.querySelectorAll('input[type="checkbox"]:not([name="toggle_attivo"])');
+    toggles.forEach(toggle => {
+        toggle.addEventListener('change', function() {
+            // Simulate saving setting
+            const settingName = this.closest('.setting-item, .notification-item, .privacy-item')
+                                   .querySelector('.setting-title').textContent;
+            
+            showAlert('success', `Impostazione "${settingName}" aggiornata!`);
+        });
+    });
+});
+
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Insert at top of content
+    const content = document.querySelector('.dashboard-card .p-4');
+    content.insertBefore(alertDiv, content.firstChild);
+    
+    // Auto-dismiss after 3 seconds
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 3000);
+}
+</script>
+{% endblock %}

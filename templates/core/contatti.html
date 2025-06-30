@@ -1,0 +1,682 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contatti - RinnovoCasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .contact-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .contact-card {
+        background: white;
+        border-radius: 25px;
+        padding: 3rem;
+        box-shadow: 0 25px 70px rgba(0,0,0,0.15);
+        position: relative;
+        z-index: 2;
+        transition: all 0.4s ease;
+    }
+    
+    .contact-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 35px 90px rgba(0,0,0,0.2);
+    }
+    
+    .contact-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        margin: 0 auto 1.5rem;
+        position: relative;
+    }
+    
+    .contact-icon::after {
+        content: '';
+        position: absolute;
+        top: -5px;
+        left: -5px;
+        right: -5px;
+        bottom: -5px;
+        background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+        border-radius: 50%;
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        animation: spin 3s linear infinite;
+    }
+    
+    .contact-card:hover .contact-icon::after {
+        opacity: 1;
+    }
+    
+    .form-floating label {
+        font-weight: 500;
+        color: #6c757d;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 15px;
+        border: 2px solid #e9ecef;
+        padding: 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .contact-method {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .contact-method:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+    
+    .floating-shapes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        pointer-events: none;
+    }
+    
+    .floating-shape {
+        position: absolute;
+        opacity: 0.1;
+        animation: float 8s ease-in-out infinite;
+    }
+    
+    .floating-shape:nth-child(1) {
+        top: 10%;
+        left: 10%;
+        width: 60px;
+        height: 60px;
+        background: white;
+        border-radius: 50%;
+        animation-delay: 0s;
+    }
+    
+    .floating-shape:nth-child(2) {
+        top: 20%;
+        right: 15%;
+        width: 40px;
+        height: 40px;
+        background: white;
+        transform: rotate(45deg);
+        animation-delay: 2s;
+    }
+    
+    .floating-shape:nth-child(3) {
+        bottom: 20%;
+        left: 20%;
+        width: 80px;
+        height: 80px;
+        background: white;
+        border-radius: 20px;
+        animation-delay: 4s;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-30px) rotate(10deg); }
+    }
+    
+    .chat-bubble {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 25px 25px 25px 5px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+        position: relative;
+        animation: slideInLeft 0.5s ease;
+    }
+    
+    .chat-bubble.user {
+        background: #f8f9fa;
+        color: #333;
+        border-radius: 25px 25px 5px 25px;
+        margin-left: auto;
+        animation: slideInRight 0.5s ease;
+    }
+    
+    @keyframes slideInLeft {
+        from { transform: translateX(-20px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideInRight {
+        from { transform: translateX(20px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .faq-item {
+        background: white;
+        border-radius: 15px;
+        margin-bottom: 1rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .faq-item:hover {
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .faq-question {
+        padding: 1.5rem;
+        cursor: pointer;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: none;
+        width: 100%;
+        text-align: left;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .faq-question:hover {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .faq-answer {
+        padding: 0 1.5rem;
+        max-height: 0;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .faq-answer.active {
+        padding: 1.5rem;
+        max-height: 200px;
+    }
+    
+    .submit-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 1rem 2rem;
+        color: white;
+        font-weight: bold;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .submit-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .submit-btn:hover::before {
+        left: 100%;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="contact-section text-white py-5">
+    <div class="floating-shapes">
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+    </div>
+    
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-3 fw-bold mb-4">
+                    Contattaci
+                </h1>
+                <p class="lead mb-4">
+                    Siamo qui per aiutarti a realizzare la casa dei tuoi sogni. 
+                    Il nostro team di esperti è sempre a tua disposizione.
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="#form-contatto" class="btn btn-light btn-lg">
+                        <i class="fas fa-envelope me-2"></i>Scrivi Subito
+                    </a>
+                    <a href="tel:+390123456789" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-phone me-2"></i>Chiama Ora
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="text-center">
+                    <i class="fas fa-comments" style="font-size: 8rem; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Methods -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="contact-method">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Telefono</h5>
+                    <p class="text-muted mb-3">Lun-Ven 9:00-18:00<br>Sab 9:00-13:00</p>
+                    <a href="tel:+390123456789" class="btn btn-primary">
+                        +39 012 345 6789
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="contact-method">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Email</h5>
+                    <p class="text-muted mb-3">Risposta entro 2 ore<br>lavorative</p>
+                    <a href="mailto:info@rinnovocasa.it" class="btn btn-primary">
+                        info@rinnovocasa.it
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="contact-method">
+                    <div class="contact-icon">
+                        <i class="fab fa-whatsapp"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">WhatsApp</h5>
+                    <p class="text-muted mb-3">Assistenza immediata<br>24/7</p>
+                    <a href="https://wa.me/390123456789" class="btn btn-primary">
+                        Chatta Ora
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="contact-method">
+                    <div class="contact-icon">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Appuntamento</h5>
+                    <p class="text-muted mb-3">Consulenza gratuita<br>online o a domicilio</p>
+                    <a href="#" class="btn btn-primary" onclick="bookMeeting()">
+                        Prenota Ora
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Form -->
+<section id="form-contatto" class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="contact-card">
+                    <div class="text-center mb-5">
+                        <h2 class="display-5 fw-bold mb-3">Richiedi Informazioni</h2>
+                        <p class="lead text-muted">Compila il form e riceverai una risposta personalizzata entro 2 ore</p>
+                    </div>
+                    
+                    <form id="contactForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="nome" placeholder="Nome" required>
+                                    <label for="nome">Nome *</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="cognome" placeholder="Cognome" required>
+                                    <label for="cognome">Cognome *</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="email" class="form-control" id="email" placeholder="Email" required>
+                                    <label for="email">Email *</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="tel" class="form-control" id="telefono" placeholder="Telefono" required>
+                                    <label for="telefono">Telefono *</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="citta" placeholder="Città">
+                                    <label for="citta">Città</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select class="form-select" id="tipoProgetto" required>
+                                        <option value="">Seleziona progetto</option>
+                                        <option value="ristrutturazione-completa">Ristrutturazione completa</option>
+                                        <option value="bagno">Rifacimento bagno</option>
+                                        <option value="cucina">Rifacimento cucina</option>
+                                        <option value="efficienza-energetica">Efficienza energetica</option>
+                                        <option value="tetto">Rifacimento tetto</option>
+                                        <option value="impianti">Impianti</option>
+                                        <option value="altro">Altro</option>
+                                    </select>
+                                    <label for="tipoProgetto">Tipo di progetto *</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select class="form-select" id="budget" required>
+                                        <option value="">Seleziona budget</option>
+                                        <option value="5000">Fino a €5.000</option>
+                                        <option value="15000">€5.000 - €15.000</option>
+                                        <option value="30000">€15.000 - €30.000</option>
+                                        <option value="50000">€30.000 - €50.000</option>
+                                        <option value="100000">€50.000 - €100.000</option>
+                                        <option value="100000+">Oltre €100.000</option>
+                                    </select>
+                                    <label for="budget">Budget disponibile *</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select class="form-select" id="tempistiche" required>
+                                        <option value="">Quando iniziare?</option>
+                                        <option value="subito">Il prima possibile</option>
+                                        <option value="1-mese">Entro 1 mese</option>
+                                        <option value="3-mesi">Entro 3 mesi</option>
+                                        <option value="6-mesi">Entro 6 mesi</option>
+                                        <option value="da-valutare">Da valutare</option>
+                                    </select>
+                                    <label for="tempistiche">Tempistiche *</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <textarea class="form-control" id="messaggio" placeholder="Messaggio" style="height: 120px" required></textarea>
+                                    <label for="messaggio">Descrivi il tuo progetto *</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="privacy" required>
+                                    <label class="form-check-label" for="privacy">
+                                        Accetto la <a href="#" class="text-primary">Privacy Policy</a> *
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="marketing">
+                                    <label class="form-check-label" for="marketing">
+                                        Accetto di ricevere comunicazioni commerciali via email
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12 text-center">
+                                <button type="submit" class="submit-btn">
+                                    <i class="fas fa-paper-plane me-2"></i>Invia Richiesta
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="text-center mb-5">
+                    <h2 class="display-4 fw-bold mb-3">Domande Frequenti</h2>
+                    <p class="lead text-muted">Le risposte alle domande più comuni sui nostri servizi</p>
+                </div>
+                
+                <div class="faq-list">
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFaq(this)">
+                            <i class="fas fa-plus me-2"></i>
+                            Quanto costa una ristrutturazione completa?
+                        </button>
+                        <div class="faq-answer">
+                            <p>Il costo di una ristrutturazione completa varia in base a diversi fattori come dimensioni dell'immobile, materiali scelti e interventi necessari. I nostri pacchetti partono da €350/mq per ristrutturazioni base fino a €800/mq per soluzioni premium. Offriamo sempre un preventivo gratuito e dettagliato.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFaq(this)">
+                            <i class="fas fa-plus me-2"></i>
+                            Quanto tempo serve per completare i lavori?
+                        </button>
+                        <div class="faq-answer">
+                            <p>I tempi dipendono dal tipo di intervento: un bagno può essere completato in 7-14 giorni, una cucina in 10-20 giorni, mentre una ristrutturazione completa richiede 30-90 giorni. Tutti i nostri pacchetti includono tempi garantiti con penali in caso di ritardi non giustificati.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFaq(this)">
+                            <i class="fas fa-plus me-2"></i>
+                            Posso usufruire dei bonus fiscali?
+                        </button>
+                        <div class="faq-answer">
+                            <p>Sì, ti aiutiamo a ottenere tutti i bonus fiscali disponibili come Superbonus 110%, Bonus Casa 50%, Ecobonus 65% e altri. Il nostro team si occupa di tutta la documentazione necessaria e delle pratiche burocratiche, offrendo anche sconto in fattura e cessione del credito.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFaq(this)">
+                            <i class="fas fa-plus me-2"></i>
+                            Come scegliete le imprese?
+                        </button>
+                        <div class="faq-answer">
+                            <p>Selezioniamo solo imprese certificate con verifiche documentali, ispezioni sui cantieri, controllo delle referenze e monitoraggio continuo della qualità. Tutte le nostre imprese hanno assicurazioni professionali e offrono garanzie estese sui lavori.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFaq(this)">
+                            <i class="fas fa-plus me-2"></i>
+                            Cosa include il prezzo del pacchetto?
+                        </button>
+                        <div class="faq-answer">
+                            <p>I nostri pacchetti sono tutto incluso: progettazione, materiali, manodopera, smaltimento detriti, pulizie finali e garanzie. Non ci sono costi nascosti e il prezzo finale è quello concordato inizialmente, salvo varianti richieste dal cliente.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Live Chat Preview -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 mx-auto">
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold mb-3">Chat con i Nostri Esperti</h3>
+                    <p class="text-muted">Esempio di conversazione con il nostro team</p>
+                </div>
+                
+                <div class="chat-preview" style="max-width: 400px; margin: 0 auto;">
+                    <div class="chat-bubble">
+                        Ciao! Come posso aiutarti con la tua ristrutturazione? 👋
+                    </div>
+                    <div class="chat-bubble user">
+                        Vorrei rifare il bagno, quanto costa?
+                    </div>
+                    <div class="chat-bubble">
+                        Perfetto! I nostri pacchetti bagno partono da €8.000 tutto incluso. Posso inviarti alcuni esempi?
+                    </div>
+                    <div class="chat-bubble user">
+                        Sì, grazie!
+                    </div>
+                    <div class="chat-bubble">
+                        Ti ho inviato una selezione via email. Vuoi prenotare un sopralluogo gratuito? 📧
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button class="btn btn-primary btn-lg" onclick="openChat()">
+                        <i class="fab fa-whatsapp me-2"></i>Inizia Chat
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Form submission
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const submitBtn = document.querySelector('.submit-btn');
+    const originalText = submitBtn.innerHTML;
+    
+    // Loading state
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Invio in corso...';
+    submitBtn.disabled = true;
+    
+    // Simulate form submission
+    setTimeout(() => {
+        submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Messaggio Inviato!';
+        submitBtn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+        
+        // Show success message
+        const successMessage = document.createElement('div');
+        successMessage.className = 'alert alert-success mt-3';
+        successMessage.innerHTML = `
+            <strong>Grazie!</strong> La tua richiesta è stata inviata con successo. 
+            Ti ricontatteremo entro 2 ore lavorative.
+        `;
+        
+        this.parentNode.insertBefore(successMessage, this.nextSibling);
+        
+        // Reset form after delay
+        setTimeout(() => {
+            this.reset();
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            submitBtn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            successMessage.remove();
+        }, 3000);
+        
+    }, 2000);
+});
+
+// FAQ toggle
+function toggleFaq(button) {
+    const answer = button.nextElementSibling;
+    const icon = button.querySelector('i');
+    
+    // Close all other FAQs
+    document.querySelectorAll('.faq-answer').forEach(faq => {
+        if (faq !== answer) {
+            faq.classList.remove('active');
+            faq.previousElementSibling.querySelector('i').className = 'fas fa-plus me-2';
+        }
+    });
+    
+    // Toggle current FAQ
+    answer.classList.toggle('active');
+    icon.className = answer.classList.contains('active') ? 'fas fa-minus me-2' : 'fas fa-plus me-2';
+}
+
+// Book meeting
+function bookMeeting() {
+    alert('Funzionalità di prenotazione in arrivo! Per ora puoi chiamarci al +39 012 345 6789');
+}
+
+// Open chat
+function openChat() {
+    window.open('https://wa.me/390123456789?text=Ciao, vorrei informazioni sui vostri servizi di ristrutturazione', '_blank');
+}
+
+// Form validation
+document.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
+    field.addEventListener('blur', function() {
+        if (!this.value) {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+        }
+    });
+    
+    field.addEventListener('input', function() {
+        if (this.value) {
+            this.classList.remove('is-invalid');
+        }
+    });
+});
+
+// Intersection Observer per animazioni
+document.addEventListener('DOMContentLoaded', function() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animation = 'fadeInUp 0.8s ease forwards';
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.contact-method, .contact-card, .faq-item').forEach(element => {
+        observer.observe(element);
+    });
+});
+</script>
+{% endblock %}

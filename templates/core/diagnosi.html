@@ -1,0 +1,695 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Diagnosi AI Immobile - RinnovoCasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .diagnosi-container {
+        padding: 2rem 0;
+        min-height: 80vh;
+    }
+
+    .diagnosi-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 4rem 0;
+        margin-bottom: 3rem;
+        border-radius: 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .diagnosi-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-opacity='0.1'%3E%3Cpath d='M20 20h20v20H20zM60 20h20v20H60zM20 60h20v20H20zM60 60h20v20H60z'/%3E%3C/g%3E%3C/svg%3E") repeat;
+        animation: float 20s ease-in-out infinite;
+    }
+
+    .diagnosi-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .diagnosi-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    .upload-area {
+        border: 3px dashed #e9ecef;
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        background: rgba(248, 249, 250, 0.5);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .upload-area.dragover {
+        border-color: var(--primary-color);
+        background: rgba(var(--primary-color-rgb), 0.1);
+        transform: scale(1.02);
+    }
+
+    .upload-area.has-file {
+        border-color: var(--success-color);
+        background: rgba(40, 167, 69, 0.1);
+    }
+
+    .upload-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        margin: 0 auto 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .upload-area:hover .upload-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    .upload-text {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .upload-subtext {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .preview-area {
+        margin-top: 1rem;
+        text-align: center;
+    }
+
+    .preview-image {
+        max-width: 300px;
+        max-height: 200px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .preview-image:hover {
+        transform: scale(1.05);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    .remove-preview {
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 0.5rem 1rem;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .remove-preview:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+    }
+
+    .process-steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+
+    .step-card {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .step-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .step-number {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0 auto 1rem;
+    }
+
+    .step-title {
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    .step-description {
+        color: #6c757d;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+
+    .benefit-item {
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .benefit-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .benefit-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin: 0 auto 1rem;
+        font-size: 1.2rem;
+    }
+
+    .submit-btn {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border: none;
+        color: white;
+        padding: 1rem 3rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        color: white;
+    }
+
+    .submit-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section h3 {
+        color: var(--primary-color);
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .required-indicator {
+        color: #dc3545;
+        font-weight: bold;
+    }
+
+    .ai-badge {
+        background: linear-gradient(135deg, #ff6b6b, #feca57);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .loading-spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #ffffff3d;
+        border-top: 2px solid #ffffff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-left: 0.5rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+
+    @media (max-width: 768px) {
+        .diagnosi-container {
+            padding: 1rem 0;
+        }
+        
+        .diagnosi-card {
+            padding: 1.5rem;
+        }
+        
+        .upload-area {
+            padding: 2rem 1rem;
+        }
+        
+        .process-steps {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container diagnosi-container">
+    <!-- Header -->
+    <div class="diagnosi-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="ai-badge">
+                        <i class="fas fa-robot"></i>
+                        Powered by AI
+                    </div>
+                    <h1 class="display-4 fw-bold mb-3">Diagnosi Intelligente del Tuo Immobile</h1>
+                    <p class="lead mb-0">
+                        Carica le foto del tuo immobile e ricevi in 24 ore una diagnosi dettagliata 
+                        delle condizioni strutturali, con stime di costi e priorità di intervento.
+                    </p>
+                </div>
+                <div class="col-lg-4 text-center">
+                    <div class="upload-icon" style="width: 120px; height: 120px; font-size: 3rem;">
+                        <i class="fas fa-home"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vantaggi -->
+    <div class="benefits-grid">
+        <div class="benefit-item">
+            <div class="benefit-icon">
+                <i class="fas fa-eye"></i>
+            </div>
+            <h5>Analisi AI Avanzata</h5>
+            <p class="mb-0">Tecnologia di computer vision per identificare problemi strutturali</p>
+        </div>
+        <div class="benefit-item">
+            <div class="benefit-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <h5>Risultati in 24h</h5>
+            <p class="mb-0">Rapporto completo consegnato entro 24 ore lavorative</p>
+        </div>
+        <div class="benefit-item">
+            <div class="benefit-icon">
+                <i class="fas fa-euro-sign"></i>
+            </div>
+            <h5>Stime Accurate</h5>
+            <p class="mb-0">Preventivi di costo basati su database di migliaia di progetti</p>
+        </div>
+        <div class="benefit-item">
+            <div class="benefit-icon">
+                <i class="fas fa-list-alt"></i>
+            </div>
+            <h5>Piano Prioritario</h5>
+            <p class="mb-0">Ordine di interventi per ottimizzare tempi e budget</p>
+        </div>
+    </div>
+
+    <!-- Form di Upload -->
+    <div class="diagnosi-card">
+        <form method="post" enctype="multipart/form-data" id="diagnosiForm">
+            {% csrf_token %}
+            
+            <!-- Sezione Foto Principale -->
+            <div class="form-section">
+                <h3><i class="fas fa-camera"></i> Foto Immobile <span class="required-indicator">*</span></h3>
+                <p class="text-muted mb-3">
+                    Carica una foto rappresentativa del tuo immobile. Preferibilmente una vista d'insieme 
+                    che mostri la facciata o gli interni principali.
+                </p>
+                
+                <div class="upload-area" id="uploadArea1">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="upload-text">Trascina qui la foto o clicca per selezionare</div>
+                    <div class="upload-subtext">
+                        Formati supportati: JPG, PNG, WEBP (max 10MB)
+                    </div>
+                    <input type="file" id="id_foto_immobile" name="foto_immobile" class="file-input" accept="image/*" required>
+                </div>
+                
+                <div class="preview-area" id="preview1" style="display: none;">
+                    <img class="preview-image" id="previewImg1" src="" alt="Anteprima">
+                    <br>
+                    <button type="button" class="remove-preview" onclick="removePreview(1)">
+                        <i class="fas fa-trash"></i> Rimuovi
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sezione Planimetria -->
+            <div class="form-section">
+                <h3><i class="fas fa-map"></i> Planimetria <small class="text-muted">(Opzionale)</small></h3>
+                <p class="text-muted mb-3">
+                    Se disponibile, carica la planimetria per un'analisi più accurata degli spazi 
+                    e delle possibili migliorie distributive.
+                </p>
+                
+                <div class="upload-area" id="uploadArea2">
+                    <div class="upload-icon">
+                        <i class="fas fa-file-image"></i>
+                    </div>
+                    <div class="upload-text">Trascina qui la planimetria o clicca per selezionare</div>
+                    <div class="upload-subtext">
+                        Formati supportati: JPG, PNG, PDF (max 10MB)
+                    </div>
+                    <input type="file" id="id_planimetria" name="planimetria" class="file-input" accept="image/*,.pdf">
+                </div>
+                
+                <div class="preview-area" id="preview2" style="display: none;">
+                    <img class="preview-image" id="previewImg2" src="" alt="Anteprima planimetria">
+                    <br>
+                    <button type="button" class="remove-preview" onclick="removePreview(2)">
+                        <i class="fas fa-trash"></i> Rimuovi
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sezione Note -->
+            <div class="form-section">
+                <h3><i class="fas fa-edit"></i> Note e Richieste Specifiche</h3>
+                <p class="text-muted mb-3">
+                    Descrivi eventuali problemi già noti, esigenze particolari o aree di interesse specifico 
+                    per personalizzare l'analisi.
+                </p>
+                
+                {{ form.note_utente }}
+            </div>
+
+            <!-- Pulsante Submit -->
+            <div class="text-center mt-4">
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="fas fa-brain"></i>
+                    Avvia Diagnosi AI
+                    <div class="loading-spinner" id="loadingSpinner"></div>
+                </button>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-shield-alt"></i>
+                        Le tue foto sono protette e verranno utilizzate solo per la diagnosi
+                    </small>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Come Funziona -->
+    <div class="diagnosi-card">
+        <h2 class="text-center mb-4">
+            <i class="fas fa-cogs"></i>
+            Come Funziona la Diagnosi AI
+        </h2>
+        
+        <div class="process-steps">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <h4 class="step-title">Upload Foto</h4>
+                <p class="step-description">
+                    Carica le foto del tuo immobile attraverso il nostro sistema sicuro. 
+                    Più dettagli fornisci, più accurata sarà l'analisi.
+                </p>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <h4 class="step-title">Analisi AI</h4>
+                <p class="step-description">
+                    I nostri algoritmi di computer vision analizzano ogni dettaglio: 
+                    strutture, impianti, usura, umidità e molto altro.
+                </p>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <h4 class="step-title">Rapporto Dettagliato</h4>
+                <p class="step-description">
+                    Ricevi un report completo con problemi identificati, priorità di intervento 
+                    e stime di costo per ogni tipo di lavoro.
+                </p>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">4</div>
+                <h4 class="step-title">Piano d'Azione</h4>
+                <p class="step-description">
+                    Ottieni un piano personalizzato con tempistiche ottimali e 
+                    collegamenti diretti alle imprese qualificate.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Setup per entrambe le aree di upload
+    setupUploadArea(1, 'id_foto_immobile');
+    setupUploadArea(2, 'id_planimetria');
+    
+    function setupUploadArea(areaNumber, inputId) {
+        const uploadArea = document.getElementById(`uploadArea${areaNumber}`);
+        const fileInput = document.getElementById(inputId);
+        const preview = document.getElementById(`preview${areaNumber}`);
+        const previewImg = document.getElementById(`previewImg${areaNumber}`);
+        
+        // Click per aprire file selector
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // Drag & Drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect(files[0], areaNumber);
+            }
+        });
+        
+        // Change event per input file
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0], areaNumber);
+            }
+        });
+    }
+    
+    function handleFileSelect(file, areaNumber) {
+        const uploadArea = document.getElementById(`uploadArea${areaNumber}`);
+        const preview = document.getElementById(`preview${areaNumber}`);
+        const previewImg = document.getElementById(`previewImg${areaNumber}`);
+        
+        // Validazione file
+        if (!validateFile(file)) {
+            return;
+        }
+        
+        // Mostra anteprima
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            uploadArea.style.display = 'none';
+            preview.style.display = 'block';
+            uploadArea.classList.add('has-file');
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    function validateFile(file) {
+        // Controlla dimensione (max 10MB)
+        const maxSize = 10 * 1024 * 1024;
+        if (file.size > maxSize) {
+            showAlert('Il file è troppo grande. Dimensione massima: 10MB', 'error');
+            return false;
+        }
+        
+        // Controlla tipo file
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf'];
+        if (!allowedTypes.includes(file.type)) {
+            showAlert('Formato file non supportato. Usa JPG, PNG, WEBP o PDF', 'error');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // Gestione submit form
+    const form = document.getElementById('diagnosiForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    
+    form.addEventListener('submit', function(e) {
+        // Verifica che sia stata caricata almeno la foto principale
+        const fotoInput = document.getElementById('id_foto_immobile');
+        if (!fotoInput.files.length) {
+            e.preventDefault();
+            showAlert('Devi caricare almeno una foto dell\'immobile', 'error');
+            return;
+        }
+        
+        // Mostra loading
+        submitBtn.disabled = true;
+        loadingSpinner.style.display = 'inline-block';
+        submitBtn.innerHTML = '<i class="fas fa-brain"></i> Caricamento in corso... <div class="loading-spinner"></div>';
+    });
+    
+    // Animazioni scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animation = 'slideInUp 0.6s ease forwards';
+            }
+        });
+    }, observerOptions);
+
+    // Osserva elementi da animare
+    document.querySelectorAll('.diagnosi-card, .step-card, .benefit-item').forEach(el => {
+        observer.observe(el);
+    });
+});
+
+// Funzione globale per rimuovere preview
+function removePreview(areaNumber) {
+    const uploadArea = document.getElementById(`uploadArea${areaNumber}`);
+    const preview = document.getElementById(`preview${areaNumber}`);
+    const fileInput = areaNumber === 1 ? 
+        document.getElementById('id_foto_immobile') : 
+        document.getElementById('id_planimetria');
+    
+    // Reset input
+    fileInput.value = '';
+    
+    // Nascondi preview e mostra upload area
+    preview.style.display = 'none';
+    uploadArea.style.display = 'block';
+    uploadArea.classList.remove('has-file');
+}
+
+// Funzione per alert personalizzati
+function showAlert(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type === 'error' ? 'danger' : 'success'} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    // Rimuovi automaticamente dopo 5 secondi
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+
+// CSS per le animazioni
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

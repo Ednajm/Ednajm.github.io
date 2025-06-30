@@ -1,0 +1,329 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pacchetti Ristrutturazione - RinnovoCasa{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<section class="bg-light py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-3">Pacchetti Ristrutturazione</h1>
+                <p class="lead text-muted">Soluzioni complete per ogni esigenza, con prezzi fissi e tempi certi</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filters Section -->
+<section class="py-4 border-bottom">
+    <div class="container">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Categoria</label>
+                <select name="categoria" class="form-select">
+                    <option value="">Tutte le categorie</option>
+                    {% for categoria in categorie %}
+                        <option value="{{ categoria.id }}" {% if filtro_categoria == categoria.id|stringformat:"s" %}selected{% endif %}>
+                            {{ categoria.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label">Budget Massimo</label>
+                <select name="prezzo_max" class="form-select">
+                    <option value="">Qualsiasi budget</option>
+                    <option value="5000" {% if filtro_prezzo == "5000" %}selected{% endif %}>Fino a €5.000</option>
+                    <option value="10000" {% if filtro_prezzo == "10000" %}selected{% endif %}>Fino a €10.000</option>
+                    <option value="20000" {% if filtro_prezzo == "20000" %}selected{% endif %}>Fino a €20.000</option>
+                    <option value="50000" {% if filtro_prezzo == "50000" %}selected{% endif %}>Fino a €50.000</option>
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label">Difficoltà</label>
+                <select name="difficolta" class="form-select">
+                    <option value="">Tutte le difficoltà</option>
+                    <option value="facile" {% if filtro_difficolta == "facile" %}selected{% endif %}>Facile</option>
+                    <option value="media" {% if filtro_difficolta == "media" %}selected{% endif %}>Media</option>
+                    <option value="difficile" {% if filtro_difficolta == "difficile" %}selected{% endif %}>Difficile</option>
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="fas fa-filter me-2"></i>Filtra
+                    </button>
+                    <a href="{% url 'core:pacchetti' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Search Bar -->
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <form method="get" class="d-flex">
+                    <input type="search" name="search" class="form-control" placeholder="Cerca pacchetti..." value="{{ filtro_search }}">
+                    <button type="submit" class="btn btn-outline-primary ms-2">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <form method="get" class="d-inline-block">
+                    <!-- Mantieni i filtri esistenti -->
+                    {% if filtro_categoria %}<input type="hidden" name="categoria" value="{{ filtro_categoria }}">{% endif %}
+                    {% if filtro_prezzo %}<input type="hidden" name="prezzo_max" value="{{ filtro_prezzo }}">{% endif %}
+                    {% if filtro_difficolta %}<input type="hidden" name="difficolta" value="{{ filtro_difficolta }}">{% endif %}
+                    {% if filtro_search %}<input type="hidden" name="search" value="{{ filtro_search }}">{% endif %}
+                    
+                    <select name="ordine" onchange="this.form.submit()" class="form-select d-inline-block w-auto">
+                        <option value="ordinamento" {% if ordinamento_selezionato == "ordinamento" %}selected{% endif %}>Predefinito</option>
+                        <option value="prezzo_asc" {% if ordinamento_selezionato == "prezzo_asc" %}selected{% endif %}>Prezzo: dal più basso</option>
+                        <option value="prezzo_desc" {% if ordinamento_selezionato == "prezzo_desc" %}selected{% endif %}>Prezzo: dal più alto</option>
+                        <option value="nome" {% if ordinamento_selezionato == "nome" %}selected{% endif %}>Nome A-Z</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pacchetti Grid -->
+<section class="py-5">
+    <div class="container">
+        {% if page_obj %}
+            <div class="row g-4">
+                {% for pacchetto in page_obj %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm hover-lift">
+                        {% if pacchetto.immagine_principale %}
+                            <img src="{{ pacchetto.immagine_principale.url }}" class="card-img-top" alt="{{ pacchetto.nome }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="fas fa-home text-muted fs-1"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge bg-primary-soft text-primary">{{ pacchetto.categoria.nome }}</span>
+                                <div class="d-flex gap-1">
+                                    {% if pacchetto.include_bonus %}
+                                        <span class="badge bg-success" title="Gestione Bonus Fiscali">
+                                            <i class="fas fa-percentage"></i>
+                                        </span>
+                                    {% endif %}
+                                    {% if pacchetto.include_pratiche %}
+                                        <span class="badge bg-info" title="Gestione Pratiche">
+                                            <i class="fas fa-file-alt"></i>
+                                        </span>
+                                    {% endif %}
+                                    {% if pacchetto.include_progetto %}
+                                        <span class="badge bg-warning" title="Progetto Incluso">
+                                            <i class="fas fa-drafting-compass"></i>
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <h5 class="fw-bold mb-2">{{ pacchetto.nome }}</h5>
+                            <p class="text-muted flex-grow-1">{{ pacchetto.descrizione_breve }}</p>
+                            
+                            <!-- Elementi Inclusi -->
+                            {% if pacchetto.elementi.all %}
+                                <div class="mb-3">
+                                    <small class="text-muted fw-bold">Incluso:</small>
+                                    <ul class="list-unstyled small mt-1">
+                                        {% for elemento in pacchetto.elementi.all|slice:":3" %}
+                                            {% if elemento.incluso %}
+                                                <li class="text-success">
+                                                    <i class="fas fa-check me-1"></i>{{ elemento.nome }}
+                                                </li>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if pacchetto.elementi.all|length > 3 %}
+                                            <li class="text-muted">
+                                                <i class="fas fa-plus me-1"></i>Altri {{ pacchetto.elementi.all|length|add:"-3" }} elementi
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="border-top pt-3 mt-auto">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <div class="fw-bold text-primary fs-5">
+                                            €{{ pacchetto.prezzo_min|floatformat:0 }} - €{{ pacchetto.prezzo_max|floatformat:0 }}
+                                        </div>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>
+                                            {{ pacchetto.durata_giorni_min }}-{{ pacchetto.durata_giorni_max }} giorni
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-{% if pacchetto.difficolta == 'facile' %}success{% elif pacchetto.difficolta == 'media' %}warning{% else %}danger{% endif %}">
+                                            {{ pacchetto.get_difficolta_display }}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid gap-2">
+                                    <a href="{% url 'core:dettaglio_pacchetto' pacchetto.id %}" class="btn btn-primary">
+                                        <i class="fas fa-eye me-2"></i>Scopri di più
+                                    </a>
+                                    {% if user.is_authenticated %}
+                                        <button class="btn btn-outline-primary btn-sm" onclick="richiedInfo({{ pacchetto.id }})">
+                                            <i class="fas fa-envelope me-2"></i>Richiedi Info
+                                        </button>
+                                    {% else %}
+                                        <a href="{% url 'utenti:register' %}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-user-plus me-2"></i>Registrati per Info
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+                <nav aria-label="Navigazione pacchetti" class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if request.GET.categoria %}&categoria={{ request.GET.categoria }}{% endif %}{% if request.GET.prezzo_max %}&prezzo_max={{ request.GET.prezzo_max }}{% endif %}{% if request.GET.difficolta %}&difficolta={{ request.GET.difficolta }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.ordine %}&ordine={{ request.GET.ordine }}{% endif %}">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.categoria %}&categoria={{ request.GET.categoria }}{% endif %}{% if request.GET.prezzo_max %}&prezzo_max={{ request.GET.prezzo_max }}{% endif %}{% if request.GET.difficolta %}&difficolta={{ request.GET.difficolta }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.ordine %}&ordine={{ request.GET.ordine }}{% endif %}">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if request.GET.categoria %}&categoria={{ request.GET.categoria }}{% endif %}{% if request.GET.prezzo_max %}&prezzo_max={{ request.GET.prezzo_max }}{% endif %}{% if request.GET.difficolta %}&difficolta={{ request.GET.difficolta }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.ordine %}&ordine={{ request.GET.ordine }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.categoria %}&categoria={{ request.GET.categoria }}{% endif %}{% if request.GET.prezzo_max %}&prezzo_max={{ request.GET.prezzo_max }}{% endif %}{% if request.GET.difficolta %}&difficolta={{ request.GET.difficolta }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.ordine %}&ordine={{ request.GET.ordine }}{% endif %}">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.categoria %}&categoria={{ request.GET.categoria }}{% endif %}{% if request.GET.prezzo_max %}&prezzo_max={{ request.GET.prezzo_max }}{% endif %}{% if request.GET.difficolta %}&difficolta={{ request.GET.difficolta }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.ordine %}&ordine={{ request.GET.ordine }}{% endif %}">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+            
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-5">
+                <i class="fas fa-search text-muted" style="font-size: 4rem;"></i>
+                <h3 class="mt-3 text-muted">Nessun pacchetto trovato</h3>
+                <p class="text-muted">Prova a modificare i filtri di ricerca o 
+                    <a href="{% url 'core:pacchetti' %}" class="text-decoration-none">rimuovi tutti i filtri</a>
+                </p>
+                
+                {% if user.is_authenticated %}
+                    <div class="mt-4">
+                        <a href="{% url 'core:consulenza_video' %}" class="btn btn-primary me-2">
+                            <i class="fas fa-video me-2"></i>Richiedi Consulenza Personalizzata
+                        </a>
+                        <a href="{% url 'core:diagnosi' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-search me-2"></i>Inizia con una Diagnosi
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="mt-4">
+                        <a href="{% url 'utenti:register' %}" class="btn btn-primary">
+                            <i class="fas fa-user-plus me-2"></i>Registrati per Consulenza Personalizzata
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-6 fw-bold mb-3">Non trovi quello che cerchi?</h2>
+                <p class="lead mb-4">Ogni casa è unica. Richiedi una consulenza gratuita per un pacchetto personalizzato.</p>
+                
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'core:consulenza_video' %}" class="btn btn-light btn-lg">
+                            <i class="fas fa-video me-2"></i>Consulenza Video Gratuita
+                        </a>
+                        <a href="{% url 'core:diagnosi' %}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-search me-2"></i>Diagnosi AI Gratuita
+                        </a>
+                    {% else %}
+                        <a href="{% url 'utenti:register' %}" class="btn btn-light btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>Registrati Gratis
+                        </a>
+                        <a href="{% url 'utenti:login' %}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>Accedi
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        transition: transform 0.3s ease;
+    }
+    
+    .bg-primary-soft {
+        background-color: rgba(13, 110, 253, 0.1) !important;
+    }
+    
+    .card .badge {
+        font-size: 0.7rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function richiedInfo(pacchettoId) {
+    // Placeholder per richiesta informazioni
+    alert('Funzionalità in sviluppo: richiesta informazioni per pacchetto ' + pacchettoId);
+}
+</script>
+{% endblock %}

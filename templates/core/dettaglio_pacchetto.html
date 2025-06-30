@@ -1,0 +1,335 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ pacchetto.nome }} - RinnovoCasa{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'core:pacchetti' %}">Pacchetti</a></li>
+                        <li class="breadcrumb-item active">{{ pacchetto.nome }}</li>
+                    </ol>
+                </nav>
+                
+                <div class="d-flex align-items-center mb-3">
+                    <span class="badge bg-primary-soft text-primary me-2">{{ pacchetto.categoria.nome }}</span>
+                    <span class="badge bg-{% if pacchetto.difficolta == 'facile' %}success{% elif pacchetto.difficolta == 'media' %}warning{% else %}danger{% endif %}">
+                        {{ pacchetto.get_difficolta_display }}
+                    </span>
+                </div>
+                
+                <h1 class="display-5 fw-bold mb-3">{{ pacchetto.nome }}</h1>
+                <p class="lead text-muted mb-4">{{ pacchetto.descrizione_breve }}</p>
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-euro-sign text-primary me-2"></i>
+                            <div>
+                                <div class="fw-bold">€{{ pacchetto.prezzo_min|floatformat:0 }} - €{{ pacchetto.prezzo_max|floatformat:0 }}</div>
+                                <small class="text-muted">Prezzo tutto incluso</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-clock text-primary me-2"></i>
+                            <div>
+                                <div class="fw-bold">{{ pacchetto.durata_giorni_min }}-{{ pacchetto.durata_giorni_max }} giorni</div>
+                                <small class="text-muted">Tempi di realizzazione</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex flex-column flex-sm-row gap-3">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'core:checkout' pacchetto.id %}" class="btn btn-success btn-lg">
+                            <i class="fas fa-shopping-cart me-2"></i>Acquista Ora - €{{ pacchetto.prezzo_max|floatformat:0 }}
+                        </a>
+                        <a href="{% url 'core:consulenza_video' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-video me-2"></i>Richiedi Consulenza
+                        </a>
+                        <button class="btn btn-outline-primary btn-lg" onclick="richiedPreventivo()">
+                            <i class="fas fa-calculator me-2"></i>Preventivo Gratuito
+                        </button>
+                    {% else %}
+                        <a href="{% url 'utenti:register' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>Registrati per Acquistare
+                        </a>
+                        <a href="{% url 'utenti:login' %}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>Accedi
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                {% if pacchetto.immagine_principale %}
+                    <img src="{{ pacchetto.immagine_principale.url }}" class="img-fluid rounded shadow" alt="{{ pacchetto.nome }}">
+                {% else %}
+                    <div class="bg-white rounded shadow p-5 text-center">
+                        <i class="fas fa-home text-primary" style="font-size: 6rem;"></i>
+                        <p class="text-muted mt-3">Immagine del pacchetto</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Package Features -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Descrizione -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title">
+                            <i class="fas fa-info-circle text-primary me-2"></i>
+                            Descrizione Completa
+                        </h3>
+                        <p class="card-text">{{ pacchetto.descrizione_completa }}</p>
+                    </div>
+                </div>
+                
+                <!-- Elementi Inclusi -->
+                {% if pacchetto.elementi.all %}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Cosa Include
+                        </h3>
+                        
+                        <div class="row g-3">
+                            {% for elemento in pacchetto.elementi.all %}
+                                {% if elemento.incluso %}
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-start">
+                                        <i class="fas fa-check text-success me-2 mt-1"></i>
+                                        <div>
+                                            <div class="fw-bold">{{ elemento.nome }}</div>
+                                            {% if elemento.descrizione %}
+                                                <small class="text-muted">{{ elemento.descrizione }}</small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Elementi Opzionali -->
+                        {% if pacchetto.elementi.all|length > 0 %}
+                            {% for elemento in pacchetto.elementi.all %}
+                                {% if elemento.opzionale %}
+                                    {% if forloop.first %}
+                                        <hr class="my-4">
+                                        <h5 class="text-muted mb-3">
+                                            <i class="fas fa-plus-circle me-2"></i>
+                                            Opzioni Aggiuntive
+                                        </h5>
+                                    {% endif %}
+                                    <div class="d-flex justify-content-between align-items-center border rounded p-3 mb-2">
+                                        <div>
+                                            <div class="fw-bold">{{ elemento.nome }}</div>
+                                            {% if elemento.descrizione %}
+                                                <small class="text-muted">{{ elemento.descrizione }}</small>
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fw-bold text-primary">+€{{ elemento.costo_aggiuntivo|floatformat:0 }}</div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Prima e Dopo -->
+                {% if pacchetto.immagine_prima or pacchetto.immagine_dopo %}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title">
+                            <i class="fas fa-before-after text-warning me-2"></i>
+                            Prima e Dopo
+                        </h3>
+                        
+                        <div class="row g-3">
+                            {% if pacchetto.immagine_prima %}
+                            <div class="col-md-6">
+                                <div class="text-center">
+                                    <img src="{{ pacchetto.immagine_prima.url }}" class="img-fluid rounded" alt="Prima">
+                                    <p class="mt-2 text-muted fw-bold">Prima</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if pacchetto.immagine_dopo %}
+                            <div class="col-md-6">
+                                <div class="text-center">
+                                    <img src="{{ pacchetto.immagine_dopo.url }}" class="img-fluid rounded" alt="Dopo">
+                                    <p class="mt-2 text-success fw-bold">Dopo</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Riepilogo Pacchetto -->
+                <div class="card border-0 shadow-lg position-sticky" style="top: 100px;">
+                    <div class="card-body">
+                        <h4 class="card-title">Riepilogo Pacchetto</h4>
+                        
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <span>Prezzo</span>
+                            <span class="fw-bold text-primary">€{{ pacchetto.prezzo_min|floatformat:0 }} - €{{ pacchetto.prezzo_max|floatformat:0 }}</span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <span>Tempi</span>
+                            <span class="fw-bold">{{ pacchetto.durata_giorni_min }}-{{ pacchetto.durata_giorni_max }} giorni</span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <span>Difficoltà</span>
+                            <span class="badge bg-{% if pacchetto.difficolta == 'facile' %}success{% elif pacchetto.difficolta == 'media' %}warning{% else %}danger{% endif %}">
+                                {{ pacchetto.get_difficolta_display }}
+                            </span>
+                        </div>
+                        
+                        <!-- Servizi Inclusi -->
+                        <div class="mt-3">
+                            <h6 class="fw-bold">Servizi Inclusi</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% if pacchetto.include_progetto %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-drafting-compass me-1"></i>Progetto
+                                    </span>
+                                {% endif %}
+                                {% if pacchetto.include_pratiche %}
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-file-alt me-1"></i>Pratiche
+                                    </span>
+                                {% endif %}
+                                {% if pacchetto.include_bonus %}
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-percentage me-1"></i>Bonus Fiscali
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'core:consulenza_video' %}" class="btn btn-primary">
+                                    <i class="fas fa-video me-2"></i>Richiedi Consulenza
+                                </a>
+                                <button class="btn btn-outline-primary" onclick="richiedPreventivo()">
+                                    <i class="fas fa-calculator me-2"></i>Preventivo Gratuito
+                                </button>
+                            {% else %}
+                                <a href="{% url 'utenti:register' %}" class="btn btn-primary">
+                                    <i class="fas fa-user-plus me-2"></i>Registrati
+                                </a>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-shield-alt me-1"></i>
+                                Garanzia soddisfatti o rimborsati
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pacchetti Correlati -->
+{% if pacchetti_correlati %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="text-center mb-5">
+                    <i class="fas fa-lightbulb text-primary me-2"></i>
+                    Altri Pacchetti {{ pacchetto.categoria.nome }}
+                </h2>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for correlato in pacchetti_correlati %}
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm hover-lift">
+                    {% if correlato.immagine_principale %}
+                        <img src="{{ correlato.immagine_principale.url }}" class="card-img-top" alt="{{ correlato.nome }}" style="height: 150px; object-fit: cover;">
+                    {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                            <i class="fas fa-home text-muted fs-3"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="fw-bold mb-2">{{ correlato.nome }}</h6>
+                        <p class="text-muted small flex-grow-1">{{ correlato.descrizione_breve|truncatewords:15 }}</p>
+                        
+                        <div class="border-top pt-2 mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="fw-bold text-primary">€{{ correlato.prezzo_min|floatformat:0 }} - €{{ correlato.prezzo_max|floatformat:0 }}</small>
+                                <small class="text-muted">{{ correlato.durata_giorni_min }}-{{ correlato.durata_giorni_max }}gg</small>
+                            </div>
+                            <a href="{% url 'core:dettaglio_pacchetto' correlato.id %}" class="btn btn-outline-primary btn-sm w-100">
+                                Scopri di più
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hover-lift:hover {
+        transform: translateY(-3px);
+        transition: transform 0.3s ease;
+    }
+    
+    .bg-primary-soft {
+        background-color: rgba(13, 110, 253, 0.1) !important;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function richiedPreventivo() {
+    alert('Funzionalità in sviluppo: richiesta preventivo per {{ pacchetto.nome }}');
+    // TODO: Implementare modale per richiesta preventivo
+}
+</script>
+{% endblock %}

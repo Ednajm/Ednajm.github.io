@@ -1,0 +1,10 @@
+<!-- Placeholder SVG for hero house -->
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#f8f9fa"/>
+  <path d="M50 200 L200 100 L350 200 L350 250 L50 250 Z" fill="#007bff" opacity="0.8"/>
+  <rect x="100" y="180" width="60" height="70" fill="#ffffff"/>
+  <rect x="240" y="180" width="60" height="70" fill="#ffffff"/>
+  <rect x="170" y="200" width="40" height="50" fill="#6c757d"/>
+  <circle cx="350" cy="80" r="30" fill="#ffc107"/>
+  <text x="200" y="280" text-anchor="middle" fill="#6c757d" font-family="Arial" font-size="14">Casa da Rinnovare</text>
+</svg>

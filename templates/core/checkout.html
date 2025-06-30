@@ -1,0 +1,455 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout - {{ pacchetto.nome }} - RinnovoCasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkout-container {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .checkout-card {
+        background: white;
+        border-radius: 25px;
+        box-shadow: 0 25px 70px rgba(0,0,0,0.1);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .package-summary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+    }
+    
+    .package-image {
+        width: 100px;
+        height: 100px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .price-display {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .price-note {
+        opacity: 0.9;
+        font-size: 0.9rem;
+    }
+    
+    .form-section {
+        padding: 2rem;
+    }
+    
+    .section-title {
+        color: #333;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .section-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-right: 1rem;
+    }
+    
+    .form-floating label {
+        font-weight: 500;
+        color: #6c757d;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 15px;
+        border: 2px solid #e9ecef;
+        padding: 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .payment-summary {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .payment-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .payment-row:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    .submit-btn {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 1rem 2rem;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+        width: 100%;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .submit-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .submit-btn:hover::before {
+        left: 100%;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 40px rgba(40, 167, 69, 0.3);
+    }
+    
+    .feature-list {
+        margin-top: 1.5rem;
+    }
+    
+    .feature-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        color: rgba(255,255,255,0.9);
+    }
+    
+    .feature-item i {
+        color: #28a745;
+        margin-right: 0.75rem;
+        font-size: 1.1rem;
+    }
+    
+    .security-badges {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .security-badge {
+        display: flex;
+        align-items: center;
+        background: #f8f9fa;
+        border-radius: 25px;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .security-badge i {
+        color: #28a745;
+        margin-right: 0.5rem;
+    }
+    
+    .step-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+    
+    .step {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin: 0 1rem;
+        position: relative;
+    }
+    
+    .step.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .step.completed {
+        background: #28a745;
+        color: white;
+    }
+    
+    .step::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 100%;
+        width: 60px;
+        height: 2px;
+        background: #e9ecef;
+        transform: translateY(-50%);
+    }
+    
+    .step:last-child::after {
+        display: none;
+    }
+    
+    .step.completed::after {
+        background: #28a745;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="checkout-container">
+    <div class="container">
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+            <div class="step active">1</div>
+            <div class="step">2</div>
+            <div class="step">3</div>
+        </div>
+        
+        <div class="row">
+            <!-- Package Summary -->
+            <div class="col-lg-4">
+                <div class="checkout-card">
+                    <div class="package-summary">
+                        <div class="package-image">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <h3 class="fw-bold mb-2">{{ pacchetto.nome }}</h3>
+                        <p class="mb-3">{{ pacchetto.descrizione|truncatewords:20 }}</p>
+                        
+                        <div class="price-display">€{{ pacchetto.prezzo_max|floatformat:0 }}</div>
+                        <div class="price-note">Prezzo fisso tutto incluso</div>
+                        
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                Progettazione inclusa
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                Materiali di qualità
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                Installazione professionale
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                Garanzia 10 anni
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                Supporto post-vendita
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Checkout Form -->
+            <div class="col-lg-8">
+                <div class="checkout-card">
+                    <div class="form-section">
+                        <div class="section-title">
+                            <div class="section-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            Dettagli del Progetto
+                        </div>
+                        
+                        <form method="post" id="checkoutForm">
+                            {% csrf_token %}
+                            
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        {{ form.indirizzo_immobile }}
+                                        <label for="{{ form.indirizzo_immobile.id_for_label }}">{{ form.indirizzo_immobile.label }}</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-8">
+                                    <div class="form-floating">
+                                        {{ form.citta }}
+                                        <label for="{{ form.citta.id_for_label }}">{{ form.citta.label }}</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="form-floating">
+                                        {{ form.cap }}
+                                        <label for="{{ form.cap.id_for_label }}">{{ form.cap.label }}</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        {{ form.superficie_mq }}
+                                        <label for="{{ form.superficie_mq.id_for_label }}">{{ form.superficie_mq.label }}</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        {{ form.note_aggiuntive }}
+                                        <label for="{{ form.note_aggiuntive.id_for_label }}">{{ form.note_aggiuntive.label }}</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Payment Summary -->
+                            <div class="payment-summary">
+                                <h5 class="fw-bold mb-3">Riepilogo Pagamento</h5>
+                                
+                                <div class="payment-row">
+                                    <span>Pacchetto Base</span>
+                                    <span>€{{ prezzo_totale|floatformat:0 }}</span>
+                                </div>
+                                
+                                <div class="payment-row">
+                                    <span>Acconto (30%)</span>
+                                    <span class="text-success">€{{ acconto_30|floatformat:0 }}</span>
+                                </div>
+                                
+                                <div class="payment-row">
+                                    <span>Saldo rimanente</span>
+                                    <span>€{{ saldo_rimanente|floatformat:0 }}</span>
+                                </div>
+                                
+                                <div class="payment-row">
+                                    <span><strong>Totale Progetto</strong></span>
+                                    <span><strong>€{{ prezzo_totale|floatformat:0 }}</strong></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Terms -->
+                            <div class="mt-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="terms" required>
+                                    <label class="form-check-label" for="terms">
+                                        Accetto i <a href="#" class="text-primary">Termini e Condizioni</a> 
+                                        e la <a href="#" class="text-primary">Privacy Policy</a>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center mt-4">
+                                <button type="submit" class="submit-btn">
+                                    <i class="fas fa-credit-card me-2"></i>
+                                    Procedi al Pagamento
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Security Badges -->
+                        <div class="security-badges">
+                            <div class="security-badge">
+                                <i class="fas fa-shield-alt"></i>
+                                Pagamenti Sicuri
+                            </div>
+                            <div class="security-badge">
+                                <i class="fas fa-lock"></i>
+                                SSL Protetto
+                            </div>
+                            <div class="security-badge">
+                                <i class="fab fa-cc-stripe"></i>
+                                Powered by Stripe
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Form validation
+document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+    const submitBtn = document.querySelector('.submit-btn');
+    const originalText = submitBtn.innerHTML;
+    
+    // Loading state
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Elaborazione...';
+    submitBtn.disabled = true;
+    
+    // Reset if there are validation errors
+    setTimeout(() => {
+        if (!this.checkValidity()) {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    }, 100);
+});
+
+// Real-time form validation
+document.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
+    field.addEventListener('blur', function() {
+        if (!this.value) {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+        }
+    });
+    
+    field.addEventListener('input', function() {
+        if (this.value) {
+            this.classList.remove('is-invalid');
+        }
+    });
+});
+
+// Auto-calculate price based on surface
+document.getElementById('{{ form.superficie_mq.id_for_label }}').addEventListener('input', function() {
+    const superficie = parseInt(this.value);
+    if (superficie && superficie > 0) {
+        // Qui potresti aggiornare il prezzo dinamicamente se necessario
+        console.log('Superficie inserita:', superficie, 'mq');
+    }
+});
+</script>
+{% endblock %}

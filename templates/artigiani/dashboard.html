@@ -1,0 +1,455 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard Artigiani - Statistiche{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: none;
+        transition: transform 0.3s ease;
+        height: 100%;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-icon {
+        font-size: 3rem;
+        opacity: 0.8;
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 300px;
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .top-artisans {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .artisan-rank {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+    
+    .artisan-rank:hover {
+        background: #e9ecef;
+        transform: translateX(5px);
+    }
+    
+    .rank-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 1rem;
+    }
+    
+    .rank-1 { background: #ffd700; color: #333; }
+    .rank-2 { background: #c0c0c0; color: #333; }
+    .rank-3 { background: #cd7f32; color: white; }
+    .rank-other { background: #667eea; color: white; }
+    
+    .recent-activity {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .activity-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-icon {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .activity-new { background: #d4edda; color: #155724; }
+    .activity-contact { background: #cce5ff; color: #004085; }
+    .activity-review { background: #fff3cd; color: #856404; }
+    
+    @media (max-width: 768px) {
+        .stat-number {
+            font-size: 2rem;
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+        }
+        
+        .chart-container {
+            height: 250px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header Dashboard -->
+<div class="dashboard-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-chart-line me-3"></i>Dashboard Artigiani</h1>
+                <p class="lead mb-0">Panoramica statistiche e attività della piattaforma</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="h4 mb-0">{{ data_aggiornamento|date:"d/m/Y H:i" }}</div>
+                <small>Ultimo aggiornamento</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Statistiche Principali -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card text-center">
+                <div class="text-primary stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-number text-primary">{{ stats.totale_artigiani }}</div>
+                <h6 class="text-muted">Artigiani Attivi</h6>
+                <small class="text-success">
+                    <i class="fas fa-arrow-up me-1"></i>
+                    +{{ stats.nuovi_artigiani_mese }} questo mese
+                </small>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card text-center">
+                <div class="text-success stat-icon">
+                    <i class="fas fa-file-invoice"></i>
+                </div>
+                <div class="stat-number text-success">{{ stats.richieste_preventivo }}</div>
+                <h6 class="text-muted">Richieste Preventivo</h6>
+                <small class="text-info">
+                    <i class="fas fa-clock me-1"></i>
+                    {{ stats.richieste_oggi }} oggi
+                </small>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card text-center">
+                <div class="text-warning stat-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-number text-warning">{{ stats.totale_recensioni }}</div>
+                <h6 class="text-muted">Recensioni Totali</h6>
+                <small class="text-warning">
+                    <i class="fas fa-star me-1"></i>
+                    Media: {{ stats.voto_medio|floatformat:1 }}/5
+                </small>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card text-center">
+                <div class="text-info stat-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="stat-number text-info">{{ stats.visualizzazioni_totali }}</div>
+                <h6 class="text-muted">Visualizzazioni</h6>
+                <small class="text-info">
+                    <i class="fas fa-trending-up me-1"></i>
+                    {{ stats.visualizzazioni_settimana }} questa settimana
+                </small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Grafici e Analisi -->
+    <div class="row mb-4">
+        <div class="col-lg-8 mb-3">
+            <div class="chart-container">
+                <h5 class="mb-3"><i class="fas fa-chart-area me-2"></i>Trend Richieste Preventivo</h5>
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-3">
+            <div class="chart-container">
+                <h5 class="mb-3"><i class="fas fa-chart-pie me-2"></i>Categorie Più Richieste</h5>
+                <canvas id="categorieChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top Artigiani e Attività -->
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="top-artisans">
+                <h5 class="mb-3">
+                    <i class="fas fa-trophy me-2 text-warning"></i>
+                    Top Artigiani del Mese
+                </h5>
+                
+                {% for artigiano in top_artigiani %}
+                <div class="artisan-rank">
+                    <div class="rank-number rank-{{ forloop.counter }}">
+                        {{ forloop.counter }}
+                    </div>
+                    <div class="flex-grow-1">
+                        <a href="{% url 'artigiani:dettaglio' artigiano.id %}" class="text-decoration-none">
+                            <strong>{{ artigiano.nome_attivita }}</strong>
+                        </a>
+                        <div class="small text-muted">
+                            {{ artigiano.categoria_principale.nome }} • {{ artigiano.citta }}
+                        </div>
+                        <div class="small">
+                            <span class="badge bg-primary">{{ artigiano.numero_recensioni }} recensioni</span>
+                            <span class="badge bg-success">{{ artigiano.voto_medio|floatformat:1 }}/5</span>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <div class="h6 mb-0">{{ artigiano.contatti_ricevuti }}</div>
+                        <small class="text-muted">contatti</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4">
+            <div class="recent-activity">
+                <h5 class="mb-3">
+                    <i class="fas fa-clock me-2 text-info"></i>
+                    Attività Recenti
+                </h5>
+                
+                {% for attivita in attivita_recenti %}
+                <div class="activity-item">
+                    <div class="activity-icon activity-{{ attivita.tipo }}">
+                        <i class="{{ attivita.icona }}"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">{{ attivita.titolo }}</div>
+                        <div class="small text-muted">{{ attivita.descrizione }}</div>
+                    </div>
+                    <div class="small text-muted">
+                        {{ attivita.data|timesince }} fa
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistiche per Categoria -->
+    <div class="row">
+        <div class="col-12">
+            <div class="stat-card">
+                <h5 class="mb-3">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    Statistiche per Categoria
+                </h5>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Categoria</th>
+                                <th>Artigiani</th>
+                                <th>Richieste</th>
+                                <th>Voto Medio</th>
+                                <th>Prezzo Medio</th>
+                                <th>Trend</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cat in stats_categorie %}
+                            <tr>
+                                <td>
+                                    <i class="{{ cat.icona }} me-2 text-primary"></i>
+                                    {{ cat.nome }}
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">{{ cat.num_artigiani }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">{{ cat.num_richieste }}</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="me-2">{{ cat.voto_medio|floatformat:1 }}/5</span>
+                                        <div class="text-warning">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= cat.voto_medio %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>€{{ cat.prezzo_medio|floatformat:0 }}/ora</td>
+                                <td>
+                                    {% if cat.trend > 0 %}
+                                        <span class="text-success">
+                                            <i class="fas fa-arrow-up"></i> +{{ cat.trend }}%
+                                        </span>
+                                    {% elif cat.trend < 0 %}
+                                        <span class="text-danger">
+                                            <i class="fas fa-arrow-down"></i> {{ cat.trend }}%
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">
+                                            <i class="fas fa-minus"></i> 0%
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Configurazione Chart.js
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.color = '#6c757d';
+
+// Grafico Trend Richieste
+const trendCtx = document.getElementById('trendChart').getContext('2d');
+const trendChart = new Chart(trendCtx, {
+    type: 'line',
+    data: {
+        labels: {{ trend_labels|safe }},
+        datasets: [{
+            label: 'Richieste Preventivo',
+            data: {{ trend_data|safe }},
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(0,0,0,0.05)'
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                }
+            }
+        }
+    }
+});
+
+// Grafico Categorie
+const categorieCtx = document.getElementById('categorieChart').getContext('2d');
+const categorieChart = new Chart(categorieCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ categorie_labels|safe }},
+        datasets: [{
+            data: {{ categorie_data|safe }},
+            backgroundColor: [
+                '#667eea',
+                '#764ba2',
+                '#f093fb',
+                '#f5576c',
+                '#4facfe',
+                '#00f2fe',
+                '#43e97b',
+                '#38f9d7'
+            ],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 15,
+                    usePointStyle: true
+                }
+            }
+        }
+    }
+});
+
+// Auto-refresh ogni 5 minuti
+setInterval(() => {
+    location.reload();
+}, 300000);
+</script>
+{% endblock %}

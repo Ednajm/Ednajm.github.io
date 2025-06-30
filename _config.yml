@@ -1,0 +1,28 @@
+# GitHub Pages Configuration
+title: "RinnovoCasa - Italian Artisan Platform"
+description: "Professional platform connecting Italian homeowners with certified artisans"
+url: "https://ednajm.github.io"
+baseurl: ""
+
+# Enable GitHub Pages
+theme: null
+plugins: []
+
+# Include files
+include:
+  - _redirects
+  
+# Exclude files from processing
+exclude:
+  - README.md
+  - requirements.txt
+  - manage.py
+  - db.sqlite3
+  - Procfile
+  - .env.example
+  - rinnovo_casa_project/
+  - artigiani/
+  - core/
+  - utenti/
+  - templates/
+  - media/
